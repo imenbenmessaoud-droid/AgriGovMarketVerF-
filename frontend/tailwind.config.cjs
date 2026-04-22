@@ -13,7 +13,7 @@ module.exports = {
         'solum-black': '#111111',
       },
       fontFamily: {
-        sans: ['"Inter"', '"Helvetica Neue"', 'sans-serif'],
+        sans: ['"Outfit"', 'sans-serif'],
       }
     },
   },

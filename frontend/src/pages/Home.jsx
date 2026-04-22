@@ -34,7 +34,7 @@ const Home = () => {
 
                {/* Left Column Content */}
                <div className="max-w-lg mx-auto lg:mx-0">
-                  <h1 className="text-5xl md:text-7xl font-normal text-solum-dark leading-[1.1] tracking-tight mb-8">
+                  <h1 className="text-5xl md:text-7xl font-medium text-solum-dark leading-[1.1] tracking-tight mb-8">
                      Crops are <span className="inline-block relative">
                         <span className="absolute -left-6 top-4 w-3 h-3 bg-solum-dark rounded-full"></span>
                         <span className="absolute -right-8 top-12 w-6 h-6 bg-solum-green rounded-full opacity-80"></span>
@@ -43,15 +43,15 @@ const Home = () => {
                      The Nation
                   </h1>
 
-                  <p className="text-gray-500 text-sm leading-relaxed font-normal mb-10 max-w-sm">
+                  <p className="text-gray-500 text-lg leading-relaxed font-normal mb-10 max-w-sm">
                      The harvest is obscure in the riches of the soil, yet is a part of the trade. Connect directly with farmers through the Ministry's official verified platform.
                   </p>
 
                   <div className="flex flex-col sm:flex-row gap-4 mb-14">
-                     <Link to="/buyer/products" className="bg-solum-green text-white px-8 py-3 rounded-full font-normal text-sm tracking-wide hover:bg-green-700 transition duration-300 shadow-lg text-center">
+                     <Link to="/buyer/products" className="bg-solum-green text-white px-8 py-3 rounded-full font-medium text-sm tracking-wide hover:bg-green-700 transition duration-300 shadow-lg text-center">
                         Shop now
                      </Link>
-                     <Link to="/about" className="bg-white text-solum-dark border border-gray-200 px-8 py-3 rounded-full font-normal text-sm tracking-wide hover:border-solum-dark transition duration-300 text-center">
+                     <Link to="/about" className="bg-white text-solum-dark border border-gray-200 px-8 py-3 rounded-full font-medium text-sm tracking-wide hover:border-solum-dark transition duration-300 text-center">
                         Learn more
                      </Link>
                   </div>
@@ -97,7 +97,7 @@ const Home = () => {
          {/* Categories Section */}
          <section className="py-24 max-w-5xl mx-auto px-6 lg:px-8 bg-white/50">
             <div className="text-center mb-16">
-               <h2 className="text-4xl md:text-5xl font-normal text-[#1f2937] mb-6 tracking-tight drop-shadow-sm">
+               <h2 className="text-4xl md:text-5xl font-medium text-[#1f2937] mb-6 tracking-tight drop-shadow-sm">
                   Our Produce Categories
                </h2>
                <p className="text-sm md:text-base  text-gray-500 font-normal max-w-xl mx-auto leading-relaxed">
@@ -111,7 +111,7 @@ const Home = () => {
                   <img src={vegetablesImg} alt="Vegetables" className="w-full h-full object-cover transition duration-700 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition duration-500 mix-blend-multiply"></div>
                   <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
-                     <h3 className="text-white text-2xl md:text-3xl font-normal uppercase tracking-widest drop-shadow-xl" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)' }}>
+                     <h3 className="text-white text-2xl md:text-3xl font-medium uppercase tracking-widest drop-shadow-xl" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)' }}>
                         Vegetables
                      </h3>
                   </div>
@@ -122,7 +122,7 @@ const Home = () => {
                   <img src={fruitsImg} alt="Fruits" className="w-full h-full object-cover transition duration-700 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition duration-500 mix-blend-multiply"></div>
                   <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
-                     <h3 className="text-white text-2xl md:text-3xl font-normal uppercase tracking-widest drop-shadow-xl" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)' }}>
+                     <h3 className="text-white text-2xl md:text-3xl font-medium uppercase tracking-widest drop-shadow-xl" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)' }}>
                         Fruits
                      </h3>
                   </div>
@@ -133,7 +133,7 @@ const Home = () => {
                   <img src={poultryDairyImg} alt="Poultry and Dairy" className="w-full h-full object-cover transition duration-700 group-hover:scale-105 object-top" />
                   <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition duration-500 mix-blend-multiply"></div>
                   <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
-                     <h3 className="text-white text-2xl md:text-3xl font-normal uppercase tracking-widest drop-shadow-xl" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)' }}>
+                     <h3 className="text-white text-2xl md:text-3xl font-medium uppercase tracking-widest drop-shadow-xl" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)' }}>
                         Poultry and Dairy
                      </h3>
                   </div>
@@ -148,12 +148,12 @@ const Home = () => {
                {/* Top Heading Area */}
                <div className="mb-10">
                   <div className="max-w-2xl">
-                     <h4 className="text-gray-400 text-xs font-normal uppercase tracking-[0.15em] mb-4">
+                     <h4 className="text-gray-400 text-xs font-medium uppercase tracking-[0.15em] mb-4">
                         Our Services
                      </h4>
-                     <h2 className="text-3xl md:text-3xl lg:text-3xl font-normal text-solum-dark leading-[1.1] tracking-tight">
+                     <h2 className="text-3xl md:text-3xl lg:text-3xl font-medium text-solum-dark leading-[1.1] tracking-tight">
                         Explore our wide <br className="hidden md:block" />
-                        range of <span className="text-solum-green font-normal">services</span>
+                        range of <span className="text-solum-green font-medium">services</span>
                      </h2>
                   </div>
                </div>
@@ -164,7 +164,7 @@ const Home = () => {
                   {/* Service 1 */}
                   <div className="border-l-2 border-[#d5eadc] pl-6 lg:pl-8 flex flex-col justify-start">
                      <span className="text-solum-green text-xl font-normal mb-3">01</span>
-                     <h3 className="text-[1.5rem] font-normal text-solum-dark mb-4 leading-[1.2]">
+                     <h3 className="text-[1.5rem] font-medium text-solum-dark mb-4 leading-[1.2]">
                         Smart <br /> Marketplace
                      </h3>
                      <p className="text-gray-500 text-[0.75rem] leading-relaxed font-normal">
@@ -175,7 +175,7 @@ const Home = () => {
                   {/* Service 2 */}
                   <div className="border-l-2 border-[#d5eadc] pl-6 lg:pl-8 flex flex-col justify-start">
                      <span className="text-solum-green text-xl font-normal mb-3">02</span>
-                     <h3 className="text-[1.5rem] font-normal text-solum-dark mb-4 leading-[1.2]">
+                     <h3 className="text-[1.5rem] font-medium text-solum-dark mb-4 leading-[1.2]">
                         Real-Time <br /> Pricing
                      </h3>
                      <p className="text-gray-500 text-[0.75rem] leading-relaxed font-normal">
@@ -186,7 +186,7 @@ const Home = () => {
                   {/* Service 3 */}
                   <div className="border-l-2 border-[#d5eadc] pl-6 lg:pl-8 flex flex-col justify-start">
                      <span className="text-solum-green text-xl font-normal mb-3">03</span>
-                     <h3 className="text-[1.5rem] font-normal text-solum-dark mb-4 leading-[1.2]">
+                     <h3 className="text-[1.5rem] font-medium text-solum-dark mb-4 leading-[1.2]">
                         Verified <br /> Sellers
                      </h3>
                      <p className="text-gray-500 text-[0.75rem] leading-relaxed font-normal">
@@ -197,7 +197,7 @@ const Home = () => {
                   {/* Service 4 */}
                   <div className="border-l-2 border-[#d5eadc] pl-6 lg:pl-8 flex flex-col justify-start">
                      <span className="text-solum-green text-xl font-normal mb-3">04</span>
-                     <h3 className="text-[1.5rem] font-normal text-solum-dark mb-4 leading-[1.2]">
+                     <h3 className="text-[1.5rem] font-medium text-solum-dark mb-4 leading-[1.2]">
                         Fast <br /> Logistics
                      </h3>
                      <p className="text-gray-500 text-[0.75rem] leading-relaxed font-normal">
@@ -208,7 +208,7 @@ const Home = () => {
                   {/* Service 5 */}
                   <div className="border-l-2 border-[#d5eadc] pl-6 lg:pl-8 flex flex-col justify-start">
                      <span className="text-solum-green text-xl font-normal mb-3">05</span>
-                     <h3 className="text-[1.5rem] font-normal text-solum-dark mb-4 leading-[1.2]">
+                     <h3 className="text-[1.5rem] font-medium text-solum-dark mb-4 leading-[1.2]">
                         Secure <br /> Transactions
                      </h3>
                      <p className="text-gray-500 text-[0.75rem] leading-relaxed font-normal">
@@ -219,7 +219,7 @@ const Home = () => {
                   {/* Service 6 */}
                   <div className="border-l-2 border-[#d5eadc] pl-6 lg:pl-8 flex flex-col justify-start">
                      <span className="text-solum-green text-xl font-normal mb-3">06</span>
-                     <h3 className="text-[1.5rem] font-normal text-solum-dark mb-4 leading-[1.2]">
+                     <h3 className="text-[1.5rem] font-medium text-solum-dark mb-4 leading-[1.2]">
                         Nationwide <br /> Access
                      </h3>
                      <p className="text-gray-500 text-[0.75rem] leading-relaxed font-normal">
@@ -236,17 +236,17 @@ const Home = () => {
             <div className="flex flex-col md:flex-row gap-16 items-start">
 
                <div className="md:w-1/3">
-                  <h2 className="text-2xl font-normal text-solum-dark mb-4 leading-snug">
+                  <h2 className="text-2xl font-medium text-solum-dark mb-4 leading-snug">
                      How to Conserve<br />Fresh Harvest This Winter
                   </h2>
-                  <p className="text-xs text-gray-500 leading-relaxed font-normal mb-6">
+                  <p className="text-sm text-gray-500 leading-relaxed font-normal mb-6">
                      The Ministry has released official guidelines regarding proper crop storage. Ensuring minimal loss and maximizing market yield.
                   </p>
                   <a
                      href="https://www.fao.org/3/y4893e/y4893e00.htm"
                      target="_blank"
                      rel="noopener noreferrer"
-                     className="inline-block border border-gray-300 text-xs font-normal uppercase tracking-wider px-6 py-2 rounded hover:bg-solum-dark hover:text-white hover:border-solum-dark transition-all text-center"
+                     className="inline-block border border-gray-300 text-xs font-medium uppercase tracking-wider px-6 py-2 rounded hover:bg-solum-dark hover:text-white hover:border-solum-dark transition-all text-center"
                   >
                      Read Report →
                   </a>
@@ -293,7 +293,7 @@ const Home = () => {
 
                {/* Left side text */}
                <div className="lg:w-1/2">
-                  <h2 className="text-4xl md:text-5xl font-normal text-solum-dark mb-8 leading-snug tracking-tight">
+                  <h2 className="text-4xl md:text-5xl font-medium text-solum-dark mb-8 leading-snug tracking-tight">
                      Real Impact on<br />Agriculture
                   </h2>
                   <p className="text-gray-500 font-normal leading-relaxed text-sm md:text-base max-w-md">
@@ -340,10 +340,10 @@ const Home = () => {
 
          {/* Steps Component */}
          <section className="py-24 text-center max-w-7xl mx-auto px-6 lg:px-8">
-            <h2 className="text-3xl font-normal text-solum-dark mb-4">
-               How It <span className="font-normal text-solum-green">Works</span>
+            <h2 className="text-3xl font-medium text-solum-dark mb-4">
+               How It <span className="font-medium text-solum-green">Works</span>
             </h2>
-            <p className="text-xs text-gray-400 font-normal max-w-lg mx-auto mb-16">
+            <p className="text-sm text-gray-400 font-normal max-w-lg mx-auto mb-16">
                A simple and efficient way to connect farmers and buyers across the country
             </p>
 
@@ -358,7 +358,7 @@ const Home = () => {
                      <div className="w-16 h-16 rounded-full border border-gray-200 flex items-center justify-center text-xl font-normal text-gray-400 mb-6 hover:border-solum-green hover:text-solum-green hover:shadow-md transition-all cursor-default">
                         {step.no}
                      </div>
-                     <h3 className="font-normal text-solum-dark mb-2 text-sm md:text-base uppercase tracking-wider">
+                     <h3 className="font-medium text-solum-dark mb-2 text-sm md:text-base uppercase tracking-wider">
                         {step.title}
                      </h3>
                      <p className="text-sm md:text-base text-gray-500 font-normal leading-[1.6] max-w-[260px] text-center">
@@ -375,7 +375,7 @@ const Home = () => {
 
                {/* Left side text */}
                <div className="lg:w-1/2">
-                  <h2 className="text-4xl lg:text-[2.8rem] font-normal text-solum-dark mb-8 leading-[1.2] tracking-tight max-w-lg">
+                  <h2 className="text-4xl lg:text-[2.8rem] font-medium text-solum-dark mb-8 leading-[1.2] tracking-tight max-w-lg">
                      We’re Always Here to Help You
                   </h2>
                   <p className="text-gray-500 font-normal text-[0.95rem] leading-relaxed max-w-lg mb-10">
@@ -383,10 +383,10 @@ const Home = () => {
                   </p>
 
                   <div className="flex flex-wrap gap-4">
-                     <Link to="/contact" className="bg-solum-dark text-white text-[0.8rem] font-normal px-8 py-4 hover:bg-solum-green transition-colors tracking-widest uppercase rounded text-center inline-block">
+                     <Link to="/contact" className="bg-solum-dark text-white text-[0.8rem] font-medium px-8 py-4 hover:bg-solum-green transition-colors tracking-widest uppercase rounded text-center inline-block">
                         Contact Us
                      </Link>
-                     <Link to="/about" className="bg-transparent text-solum-dark text-[0.8rem] font-normal px-8 py-4 border border-solum-dark hover:bg-gray-50 transition-colors tracking-widest uppercase rounded text-center inline-block">
+                     <Link to="/about" className="bg-transparent text-solum-dark text-[0.8rem] font-medium px-8 py-4 border border-solum-dark hover:bg-gray-50 transition-colors tracking-widest uppercase rounded text-center inline-block">
                         About Us
                      </Link>
                   </div>
