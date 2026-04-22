@@ -27,54 +27,43 @@ const MinistryHero = () => {
           backgroundPosition: 'center 40%',
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-[#112a1a]/95 via-[#112a1a]/85 to-[#112a1a]/40"></div>
+        <div className="absolute inset-0 bg-[#112a1a]/85 backdrop-blur-[1px]"></div>
         {/* Subtle light effect */}
-        <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-solum-mint/5 via-transparent to-transparent"></div>
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/5 via-transparent to-transparent"></div>
       </div>
       
-      <div className="relative z-10 w-full px-8 lg:px-16 py-16">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-16">
-          
-          <div className="max-w-2xl text-center lg:text-left transition-all duration-700 delay-100">
-            <h1 className="text-2xl lg:text-4xl font-normal tracking-tight text-white mb-6 leading-[1.1] animate-slideUp">
-              Agricultural <br />
-              <span className="font-normal text-solum-mint drop-shadow-sm">Oversight & Grow</span>
-            </h1>
-            <p className="text-gray-300 text-lg mb-10 max-w-xl leading-relaxed font-normal animate-fadeIn delay-300">
-              Empowering national food security through high-precision data metrics, market transparency, and sustainable agricultural governance models.
-            </p>
+      <div className="relative z-10 w-full px-8 lg:px-16 py-20 flex flex-col items-center justify-center text-center">
+        <div className="max-w-3xl transition-all duration-700 delay-100 flex flex-col items-center">
+          <h1 className="text-3xl lg:text-5xl font-normal tracking-tight text-white mb-6 leading-tight animate-slideUp">
+            Agricultural <br />
+            <span className="font-normal text-white">Oversight & Grow</span>
+          </h1>
+          <p className="text-gray-300 text-lg mb-12 max-w-2xl leading-relaxed font-normal animate-fadeIn delay-300 mx-auto">
+            Empowering national food security through high-precision data metrics and  market transparency.
+          </p>
 
-            {/* Premium Search Bar */}
-            <form onSubmit={handleSearch} className="relative max-w-lg mx-auto lg:mx-0 group/search animate-fadeIn delay-500">
-               <div className="absolute -inset-1 bg-gradient-to-r from-solum-mint/20 to-transparent blur-2xl opacity-0 group-hover/search:opacity-100 transition-opacity duration-700"></div>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search users, specific prices, or official reports..."
-                className="relative w-full bg-white/10 border border-white/20 backdrop-blur-2xl rounded-[28px] py-6 pl-8 pr-20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-solum-mint/30 transition-all font-normal shadow-2xl"
-              />
-              <button 
-                onClick={handleSearch}
-                disabled={isSearching}
-                className="absolute right-3.5 top-3.5 bottom-3.5 px-7 bg-solum-mint text-[#112a1a] rounded-[22px] hover:bg-white hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center shadow-lg font-normal"
-              >
-                {isSearching ? (
-                   <div className="w-5 h-5 border-2 border-[#112a1a] border-t-transparent rounded-full animate-spin"></div>
-                ) : (
-                   <FaSearch size={20} />
-                )}
-              </button>
-            </form>
-          </div>
-
-          {/* Glassmorphic Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full lg:w-auto">
-           
-
-            
-          </div>
-
+          {/* Premium Search Bar - Centered */}
+          <form onSubmit={handleSearch} className="relative w-full max-w-2xl group/search animate-fadeIn delay-500 mx-auto">
+             <div className="absolute -inset-1 bg-gradient-to-r from-solum-mint/10 to-transparent blur-3xl opacity-0 group-hover/search:opacity-100 transition-opacity duration-700"></div>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search users, specific prices, or official reports..."
+              className="relative w-full bg-white/5 border border-white/10 backdrop-blur-3xl rounded-[28px] py-6 pl-8 pr-24 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-white/20 transition-all font-normal shadow-2xl"
+            />
+            <button 
+              onClick={handleSearch}
+              disabled={isSearching}
+              className="absolute right-3 top-3 bottom-3 px-8 bg-white text-[#112a1a] rounded-[22px] hover:bg-solum-mint hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center shadow-lg font-normal"
+            >
+              {isSearching ? (
+                 <div className="w-5 h-5 border-2 border-[#112a1a] border-t-transparent rounded-full animate-spin"></div>
+              ) : (
+                 <FaSearch size={18} />
+              )}
+            </button>
+          </form>
         </div>
       </div>
       
