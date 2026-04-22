@@ -260,19 +260,19 @@ const BuyerDashboard = () => {
         style={{ backgroundImage: `url('https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1920&auto=format&fit=crop')` }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black/80"></div>
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-8 text-center pt-8">
-          <h1 className="text-3xl md:text-5xl font-normal mb-4 animate-fadeInUp tracking-wide">Shop Fresh Products</h1>
-          <p className="text-lg md:text-xl font-normal text-gray-200 mb-8 animate-fadeInUp">A convenient place where you can find high-quality, fresh items.</p>
-          <div className="max-w-3xl mx-auto">
+        <div className="relative max-w-5xl mx-auto px-6 lg:px-8 text-center pt-8">
+          <h1 className="text-3xl md:text-4xl font-normal mb-4 animate-fadeInUp tracking-wide">Shop Fresh Products</h1>
+          <p className="text-lg md:text-sm font-normal text-gray-200 mb-8 animate-fadeInUp">A convenient place where you can find high-quality, fresh items.</p>
+          <div className="max-w-2xl mx-auto">
             <div className="relative group">
               <input
                 type="text"
                 placeholder="Search for fresh products..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-8 py-4 pr-16 text-gray-800 rounded-full outline-none shadow-2xl focus:ring-4 focus:ring-white/30 transition-all bg-white backdrop-blur-md font-normal placeholder-gray-400"
+                className="w-full px-6 py-4 pr-12 text-gray-800 rounded-full outline-none shadow-2xl focus:ring-4 focus:ring-white/30 transition-all bg-white backdrop-blur-md font-normal placeholder-gray-400"
               />
-              <FaSearch className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 text-xl group-hover:text-green-500 transition-colors" />
+              <FaSearch className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 text-sm group-hover:text-green-500 transition-colors" />
             </div>
           </div>
         </div>

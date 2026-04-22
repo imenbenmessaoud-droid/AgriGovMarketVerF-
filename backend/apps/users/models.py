@@ -132,12 +132,24 @@ def create_user_profile(sender, instance, created, **kwargs):
     if created:
         if instance.user_type == 'admin':
             Administrator.objects.get_or_create(user=instance, defaults={'role': 'Administrator'})
-        elif instance.user_type == 'farmer':
-            Farmer.objects.get_or_create(user=instance)
-        elif instance.user_type == 'buyer':
-            Buyer.objects.get_or_create(user=instance)
-        elif instance.user_type == 'transporter':
-            Transporter.objects.get_or_create(user=instance)
+        else:
+            # Create profiles for other user types
+            if instance.user_type == 'farmer':
+                Farmer.objects.get_or_create(user=instance)
+            elif instance.user_type == 'buyer':
+                Buyer.objects.get_or_create(user=instance)
+            elif instance.user_type == 'transporter':
+                Transporter.objects.get_or_create(user=instance)
+            
+            # Notify admins about the new registration
+            admins = User.objects.filter(user_type='admin')
+            for admin in admins:
+                Notification.objects.create(
+                    user=admin,
+                    title="New User Pending Validation",
+                    message=f"A new {instance.get_user_type_display()} named {instance.name} has registered and is pending validation.",
+                    notification_type='registration'
+                )
 
 
 # ============================================
@@ -518,6 +530,7 @@ class Notification(models.Model):
     NOTIFICATION_TYPES = [
         ('delivery', 'Delivery Request'),
         ('order', 'Order Update'),
+        ('registration', 'User Registration'),
         ('system', 'System Alert'),
     ]
 

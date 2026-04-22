@@ -43,7 +43,7 @@ const TransporterDashboard = () => {
 
       {/* Main Content Area */}
       <main className="flex-1 overflow-y-auto custom-scrollbar bg-[#faf8f0] relative z-0">
-        <div className="max-w-7xl mx-auto px-5 lg:px-6 py-20 min-h-[38vh]">
+        <div className="max-w-5xl mx-auto px-4 lg:px-5 py-16 min-h-[38vh]">
           {activeTab === 'overview' && <Earnings />}
           {activeTab === 'hub' && <DeliveryJobs searchQuery={searchQuery} onNavigate={setActiveTab} />}
           {activeTab === 'fleet' && <VehicleManager onNavigate={setActiveTab} />}

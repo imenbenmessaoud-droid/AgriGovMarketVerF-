@@ -55,6 +55,8 @@ const Header = () => {
       setIsNotificationsOpen(false);
       if (notif.notification_type === 'delivery') {
         navigate('/transporter/hub');
+      } else if (notif.notification_type === 'registration') {
+        navigate('/ministry/users');
       } else if (notif.notification_type === 'system' && isMinistryPath) {
         navigate('/ministry/users');
       }
@@ -190,15 +192,15 @@ const Header = () => {
               />
             </div>
             <div className={`hidden sm:flex flex-col`}>
-              <span className={`text-sm font-normal  leading-tight`}>AgriSouk DZ</span>
+              <span className={`text-sm  font-normal  leading-tight`}>AgriSouk DZ</span>
               {isTransporterPath && (
-                <span className="text-[10px] font-normal tracking-[0.2em] opacity-70 uppercase -mt-0.5">Logistics</span>
+                <span className="text-[9px] font-normal tracking-[0.2em] opacity-70 uppercase -mt-0.5">Logistics</span>
               )}
               {isMinistryPath && (
-                <span className="text-[10px] font-normal tracking-[0.2em] opacity-70 uppercase -mt-0.5 text-blue-300">Ministry Portal</span>
+                <span className="text-[9px] font-normal tracking-[0.2em] opacity-70 uppercase -mt-0.5 text-blue-300">Ministry Portal</span>
               )}
               {isFarmerPath && (
-                <span className={`text-[10px] font-normal tracking-[0.2em] opacity-70 uppercase -mt-0.5 ${scrolled ? 'text-green-700' : 'text-green-300'}`}>Farmer Portal</span>
+                <span className={`text-[9px] font-normal tracking-[0.2em] opacity-70 uppercase -mt-0.5 ${scrolled ? 'text-green-700' : 'text-green-300'}`}>Farmer Portal</span>
               )}
             </div>
 
@@ -277,9 +279,11 @@ const Header = () => {
                           >
                             <div className="flex gap-3">
                               <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${notif.notification_type === 'delivery' ? 'bg-blue-100 text-blue-600' :
+                                notif.notification_type === 'registration' ? 'bg-green-100 text-green-600' :
                                 notif.notification_type === 'status' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'
                                 }`}>
                                 {notif.notification_type === 'delivery' ? <FaBox size={14} /> :
+                                  notif.notification_type === 'registration' ? <FaUserCircle size={14} /> :
                                   notif.notification_type === 'status' ? <FaBox size={14} /> : <FaBell size={14} />}
                               </div>
                               <div className="flex-1">
@@ -326,13 +330,13 @@ const Header = () => {
               <div className="hidden sm:flex items-center space-x-3">
                 <Link
                   to="/login"
-                  className={`px-5 py-2 text-xs font-medium  uppercase tracking-widest hover:bg-white/10 rounded-full transition-all border border-white/30 ${scrolled || (isHome && !scrolled) ? 'text-green-800 border-green-800/30 hover:bg-black/5' : 'text-white border-white/30 hover:bg-white/10'}`}
+                  className={`px-5 py-2 text-xs font-bold  uppercase tracking-widest hover:bg-white/10 rounded-full transition-all border border-white/30 ${scrolled || (isHome && !scrolled) ? 'text-green-800 border-green-800/30 hover:bg-black/5' : 'text-white border-white/30 hover:bg-white/10'}`}
                 >
                   Login
                 </Link>
                 <Link
                   to="/register"
-                  className="px-5 py-2 text-xs font-medium bg-white text-[#224233] uppercase tracking-widest hover:bg-gray-100 rounded-full transition-all shadow-md"
+                  className="px-5 py-2 text-xs font-bold bg-[#224233] text-white uppercase tracking-widest hover:bg-[#1a3328] rounded-full transition-all shadow-md"
                 >
                   Register
                 </Link>

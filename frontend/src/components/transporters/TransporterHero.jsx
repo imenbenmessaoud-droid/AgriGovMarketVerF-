@@ -6,10 +6,10 @@ const TransporterHero = ({ title = 'Logistics Portal', subtitle = 'Fast Agri Log
 
   return (
     <div 
-      className="relative w-full overflow-hidden flex flex-col items-center justify-center text-center text-white"
+      className="relative  w-full overflow-hidden flex flex-col items-center justify-center  text-center text-white"
       style={{ 
-        height: '420px',
-        minHeight: '420px',
+        height: '400px',
+        minHeight: '400px',
         backgroundColor: '#f4f5f0'
       }}
     >
@@ -26,8 +26,8 @@ const TransporterHero = ({ title = 'Logistics Portal', subtitle = 'Fast Agri Log
       </div>
       
       {/* Content Layout */}
-      <div className="relative h-full w-full max-w-7xl mx-auto px-8 flex flex-col items-center justify-center text-center text-white" style={{ zIndex: 2 }}>
-        <h1 className="text-5xl md:text-7xl font-normal mb-4 animate-fadeIn text-white uppercase tracking-tight">
+      <div className="relative h-full w-full max-w-5xl mx-auto px-6 flex flex-col items-center justify-center text-center text-white" style={{ zIndex: 2 }}>
+        <h1 className="text-4xl md:text-5xl font-normal mb-4 animate-fadeIn text-white uppercase ">
           {title}
         </h1>
         <p className="text-xs md:text-sm font-normal text-white/90 max-w-2xl animate-fadeIn uppercase tracking-[0.2em] mb-12" style={{ animationDelay: '0.2s' }}>
@@ -35,18 +35,18 @@ const TransporterHero = ({ title = 'Logistics Portal', subtitle = 'Fast Agri Log
         </p>
 
         {/* Specific Search Bar Style from Reference Image */}
-        <div className="w-full max-w-4xl relative animate-fadeIn group" style={{ animationDelay: '0.4s' }}>
+        <div className="w-full max-w-3xl relative animate-fadeIn group" style={{ animationDelay: '0.4s' }}>
           <div className="relative flex items-center">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
-              placeholder="Search for fresh products..."
-              className="w-full h-16 pl-10 pr-16 bg-white text-gray-800 rounded-full shadow-2xl focus:outline-none focus:ring-4 focus:ring-white/20 border-none transition-all placeholder:text-gray-400 placeholder:italic text-xl font-normal"
+              placeholder="Search for delivery jobs..."
+              className="w-full h-14 pl-8 pr-16 bg-white text-gray-800 rounded-full shadow-2xl focus:outline-none focus:ring-4 focus:ring-white/20 border-none transition-all placeholder:text-gray-400 placeholder:italic text-sm font-normal"
             />
             {/* Search Icon on the Right side as per image */}
             <div className="absolute right-6 flex items-center pointer-events-none">
-              <FaSearch className="text-gray-400 group-focus-within:text-green-600 transition-colors" size={24} />
+              <FaSearch className="text-gray-400 group-focus-within:text-green-600 transition-colors" size={20} />
             </div>
           </div>
         </div>
