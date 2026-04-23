@@ -46,7 +46,7 @@ class Product(models.Model):
     )
     id_category = models.ForeignKey(
         Category, 
-        on_delete=models.SET_NULL, 
+        on_delete=models.CASCADE, 
         null=True, 
         db_column='IdCategory',
         related_name='products',

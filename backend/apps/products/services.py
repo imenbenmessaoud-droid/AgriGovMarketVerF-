@@ -54,6 +54,22 @@ class ProductService:
                     'id_admin': admin
                 }
             )
+
+            # Notify farmers who are actively selling this product
+            from apps.users.models import Notification
+            farmers = Farmer.objects.filter(
+                product_items__id_product=product,
+                product_items__is_available=True
+            ).distinct()
+
+            for farmer in farmers:
+                Notification.objects.create(
+                    user=farmer.user,
+                    title=f"Official Price Update: {product.product_name}",
+                    message=f"The Ministry has updated the official price for {product.product_name}. New range: {min_price} - {max_price} {price_unit}.",
+                    notification_type='system'
+                )
+
             return price_off
         except Product.DoesNotExist:
             raise ValueError("Product not found")

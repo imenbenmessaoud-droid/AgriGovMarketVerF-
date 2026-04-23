@@ -511,8 +511,8 @@ const BuyerDashboard = () => {
       {/* Product Modal */}
       {selectedProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full flex flex-col md:flex-row overflow-hidden max-h-[90vh] animate-scaleUp">
-            <div className="w-full md:w-1/2 bg-gradient-to-br from-gray-50 to-gray-100 p-8 flex items-center justify-center overflow-hidden">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full flex flex-col md:flex-row overflow-hidden max-h-[80vh] animate-scaleUp">
+            <div className="w-full md:w-1/2 bg-gradient-to-br from-gray-50 to-gray-100 p-6 flex items-center justify-center overflow-hidden">
               {selectedProduct.product_image ? (
                 <img 
                   src={selectedProduct.product_image} 
@@ -523,7 +523,7 @@ const BuyerDashboard = () => {
                 <FaLeaf className="text-green-200 text-9xl" />
               )}
             </div>
-            <div className="w-full md:w-1/2 p-8 overflow-y-auto">
+            <div className="w-full md:w-1/2 p-6 overflow-y-auto">
               <button onClick={() => setSelectedProduct(null)} className="float-right w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
                 <FaTimes className="text-gray-500 text-sm" />
               </button>

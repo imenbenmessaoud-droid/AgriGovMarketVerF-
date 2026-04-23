@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   FaPlus, FaEdit, FaTrash, FaLeaf, FaAppleAlt, FaCarrot, 
   FaSeedling, FaSearch, FaTimes, FaBoxes, FaChartLine,
-  FaSave, FaTimesCircle
+  FaSave, FaTimesCircle, FaUser
 } from 'react-icons/fa';
 import api from '../../services/api';
 
@@ -32,6 +32,7 @@ const CategoryManager = () => {
   const [editId, setEditId] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [categoryProducts, setCategoryProducts] = useState([]);
+  const [productSearchQuery, setProductSearchQuery] = useState('');
   
   const [formData, setFormData] = useState({
     name: '',
@@ -116,9 +117,10 @@ const CategoryManager = () => {
 
   const handleCategoryClick = async (category) => {
     try {
-      const res = await api.get(`/products/products/?category=${category.id}`);
+      const res = await api.get(`/products/product-items/?category=${category.id}`);
       setCategoryProducts(res.data);
       setSelectedCategory(category);
+      setProductSearchQuery('');
     } catch (err) {
       console.error("Failed to fetch products", err);
     }
@@ -150,11 +152,16 @@ const CategoryManager = () => {
     cat.code.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const filteredCategoryProducts = categoryProducts.filter(product =>
+    (product.product_name?.toLowerCase() || '').includes(productSearchQuery.toLowerCase()) ||
+    (product.farmer_name?.toLowerCase() || '').includes(productSearchQuery.toLowerCase())
+  );
+
   const totalProducts = categories.reduce((sum, cat) => sum + cat.products, 0);
   const totalCategories = categories.length;
 
   return (
-    <div className="min-h-screen bg-[#f5f3ef] px-4 py-6">
+    <div className="min-h-screen bg-[#faf8f0] px-4 py-6">
       <div className="max-w-7xl mx-auto space-y-6">
         
         {/* Header */}
@@ -309,38 +316,66 @@ const CategoryManager = () => {
         )}
           </>
         ) : (
-          <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-            {categoryProducts.length > 0 ? (
-              <div className="divide-y divide-gray-100">
-                {categoryProducts.map(product => (
-                  <div key={product.id_product} className="p-5 hover:bg-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors">
-                    <div>
-                      <h3 className="text-lg font-normal text-black mb-1">{product.product_name}</h3>
-                      <p className="text-sm text-gray-500">{product.product_description || 'No description available.'}</p>
-                    </div>
-                    <div className="flex flex-col items-start md:items-end gap-2">
-                      <span className="text-xs font-mono text-gray-500 bg-gray-100 px-2 py-1 rounded border border-gray-200">
-                        {product.product_quality} quality
-                      </span>
-                      {product.current_price && (
-                        <div className="text-sm text-gray-700 flex flex-col md:items-end mt-1">
-                          <span className="text-xs text-gray-500">Official Price Range:</span>
-                          <span>{product.current_price.min_price} - {product.current_price.max_price} {product.current_price.price_unit}</span>
+          <div className="space-y-4">
+            {/* Search Bar for Products */}
+            <div className="relative">
+              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={14} />
+              <input
+                type="text"
+                placeholder="Search products by name or farmer..."
+                value={productSearchQuery}
+                onChange={(e) => setProductSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-10 py-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-800 text-sm"
+              />
+              {productSearchQuery && (
+                <button
+                  onClick={() => setProductSearchQuery('')}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <FaTimes size={12} />
+                </button>
+              )}
+            </div>
+
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+              {filteredCategoryProducts.length > 0 ? (
+                <div className="divide-y divide-gray-100">
+                  {filteredCategoryProducts.map(product => (
+                    <div key={product.id} className="p-5 hover:bg-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors">
+                      <div>
+                        <h3 className="text-lg font-normal text-black mb-1">{product.product_name}</h3>
+                        <div className="flex items-center gap-4 mt-1 mb-2">
+                          <span className="text-sm text-gray-600 flex items-center gap-1.5">
+                            <FaUser size={12} className="text-gray-400"/> {product.farmer_name}
+                          </span>
+                          <span className="text-sm text-gray-600 flex items-center gap-1.5">
+                            <FaBoxes size={12} className="text-gray-400"/> {product.quantity} Kg
+                          </span>
                         </div>
-                      )}
+                        <p className="text-sm text-gray-500">{product.product_description || 'No description available.'}</p>
+                      </div>
+                      <div className="flex flex-col items-start md:items-end gap-2">
+                        <span className="text-xs font-mono text-gray-500 bg-gray-100 px-2 py-1 rounded border border-gray-200">
+                          {product.product_quality} quality
+                        </span>
+                        <div className="text-sm text-gray-700 flex flex-col md:items-end mt-1">
+                          <span className="text-xs text-gray-500">Price:</span>
+                          <span className="text-lg font-medium text-green-700">{parseFloat(product.product_price).toLocaleString()} DZD</span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="py-12 text-center">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <FaBoxes className="text-gray-300" size={24} />
+                  ))}
                 </div>
-                <p className="text-gray-600 font-normal mb-1">No products found</p>
-                <p className="text-gray-400 text-sm">There are currently no products in this category.</p>
-              </div>
-            )}
+              ) : (
+                <div className="py-12 text-center">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <FaBoxes className="text-gray-300" size={24} />
+                  </div>
+                  <p className="text-gray-600 font-normal mb-1">No products found</p>
+                  <p className="text-gray-400 text-sm">There are currently no matching products in this category.</p>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
