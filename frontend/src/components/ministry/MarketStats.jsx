@@ -3,6 +3,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
   BarChart, Bar, Legend, PieChart, Pie, Cell
 } from 'recharts';
+import { useNavigate } from 'react-router-dom';
 import { 
   FaTractor, FaMoneyBillWave, FaExchangeAlt, FaBoxOpen, 
   FaDownload, FaCalendarAlt, FaEye, FaArrowRight, FaTimes, FaSpinner
@@ -12,7 +13,8 @@ import api from '../../services/api';
 // Real Data dynamically loaded now
 
 const MarketStats = () => {
-  const [timeRange, setTimeRange] = useState('6months');
+  const navigate = useNavigate();
+  const [timeRange, setTimeRange] = useState('7days');
   const [selectedDetail, setSelectedDetail] = useState(null);
   const [isExporting, setIsExporting] = useState(false);
   const [data, setData] = useState(null);
@@ -41,7 +43,7 @@ const MarketStats = () => {
 
   const recentActivities = orders.slice(0, 5).map(o => ({
       id: o.order_number || Math.random(),
-      action: o.order_status === 'confirmed' ? 'Order Confirmed' : (o.order_status === 'pending' ? 'New Order Placed' : 'Order Updated'),
+      status: o.order_status || 'pending',
       user: o.buyer_name || 'Anonymous Buyer',
       amount: `${parseFloat(o.total_amount || 0).toLocaleString()} DZD`,
       time: new Date(o.order_date).toLocaleDateString()
@@ -58,6 +60,51 @@ const MarketStats = () => {
          else catMap.Other += amt;
       });
   });
+
+  const generateChartData = () => {
+    const chartData = [];
+    let days = 7;
+    let format = 'day';
+
+    if (timeRange === '7days') { days = 7; format = 'day'; }
+    else if (timeRange === '30days') { days = 30; format = 'day'; }
+    else { days = 6; format = 'month'; }
+    
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date();
+      if (format === 'day') {
+        d.setDate(d.getDate() - i);
+        const dateStr = d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+        chartData.push({ date: dateStr, rawDate: d, revenue: 0, volume: 0 });
+      } else {
+        d.setMonth(d.getMonth() - i);
+        const dateStr = d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+        chartData.push({ date: dateStr, rawDate: d, revenue: 0, volume: 0 });
+      }
+    }
+
+    orders.forEach(o => {
+      if (!o.order_date || o.order_status === 'cancelled') return;
+      const oDate = new Date(o.order_date);
+      chartData.forEach(c => {
+        if (format === 'day') {
+          if (oDate.getDate() === c.rawDate.getDate() && oDate.getMonth() === c.rawDate.getMonth() && oDate.getFullYear() === c.rawDate.getFullYear()) {
+            c.volume += 1;
+            c.revenue += parseFloat(o.total_amount || 0);
+          }
+        } else {
+          if (oDate.getMonth() === c.rawDate.getMonth() && oDate.getFullYear() === c.rawDate.getFullYear()) {
+            c.volume += 1;
+            c.revenue += parseFloat(o.total_amount || 0);
+          }
+        }
+      });
+    });
+
+    return chartData;
+  };
+
+  const dynamicChartData = generateChartData();
 
   const categoryDistribution = [
     { name: 'Vegetables', value: catMap.Vegetables || 1, color: '#4b6d3a' },
@@ -82,7 +129,7 @@ const MarketStats = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#f5f3ef] px-4 py-6">
+    <div className="min-h-screen bg-[#faf8f0] px-4 py-6">
       <div className="max-w-7xl mx-auto space-y-6">
         
         {/* Header */}
@@ -102,9 +149,9 @@ const MarketStats = () => {
               value={timeRange}
               onChange={(e) => setTimeRange(e.target.value)}
             >
+              <option value="7days">Last 7 Days</option>
+              <option value="30days">Last 30 Days</option>
               <option value="6months">Last 6 Months</option>
-              <option value="year">Last Year</option>
-              <option value="all">All Time</option>
             </select>
             <button 
               onClick={handleExport}
@@ -142,56 +189,22 @@ const MarketStats = () => {
         </div>
 
         {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6">
           
-          {/* Price Trend Chart */}
-          <div className="bg-white rounded-lg border border-gray-200 p-5">
-            <div className="flex justify-between items-center mb-4">
-              <div>
-                <h3 className="text-base font-normal text-black">Price Trends</h3>
-                <p className="text-xs text-gray-500 mt-0.5">Average market prices (DZD per Kg)</p>
-              </div>
-              <button 
-                onClick={() => setSelectedDetail('Price Trends')}
-                className="text-xs text-green-700 hover:text-green-800 font-normal hover:underline"
-              >
-                View Details →
-              </button>
-            </div>
-            <div className="h-80 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data?.monthly_data || []}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#6b7280' }} />
-                  <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} />
-                  <Tooltip contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '12px' }} />
-                  <Legend />
-                  <Line type="monotone" dataKey="revenue" stroke="#4b6d3a" strokeWidth={2} dot={{ r: 3 }} name="Revenue (DZD)" />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
           {/* Transaction Volume Chart */}
           <div className="bg-white rounded-lg border border-gray-200 p-5">
             <div className="flex justify-between items-center mb-4">
               <div>
-                <h3 className="text-base font-normal text-black">Daily Trade Volume</h3>
-                <p className="text-xs text-gray-500 mt-0.5">Total metric tons verified</p>
+                <h3 className="text-base font-normal text-black">Platform Trade Volume</h3>
+                <p className="text-xs text-gray-500 mt-0.5">Total successful orders</p>
               </div>
-              <button 
-                onClick={() => setSelectedDetail('Volume Analytics')}
-                className="text-xs text-green-700 hover:text-green-800 font-normal hover:underline"
-              >
-                View Details →
-              </button>
             </div>
             <div className="h-80 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data?.monthly_data || []}>
+                <BarChart data={dynamicChartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#6b7280' }} />
-                  <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} />
+                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#6b7280' }} />
+                  <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} allowDecimals={false} />
                   <Tooltip contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '12px' }} />
                   <Bar dataKey="volume" fill="#FFB82E" radius={[4, 4, 0, 0]} name="Orders Count" />
                 </BarChart>
@@ -205,7 +218,18 @@ const MarketStats = () => {
           
           {/* Category Distribution */}
           <div className="bg-white rounded-lg border border-gray-200 p-5">
-            <h3 className="text-base font-normal text-black mb-4">Category Distribution</h3>
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h3 className="text-base font-normal text-black">Category Distribution</h3>
+                <p className="text-xs text-gray-500 mt-0.5">Sales by product category</p>
+              </div>
+              <button 
+                onClick={() => navigate('/ministry/categories')}
+                className="text-xs text-green-700 hover:text-green-800 font-normal hover:underline"
+              >
+                Manage →
+              </button>
+            </div>
             <div className="h-64 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -219,12 +243,14 @@ const MarketStats = () => {
                     dataKey="value"
                     label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                     labelLine={false}
+                    onClick={() => navigate('/ministry/categories')}
+                    className="cursor-pointer"
                   >
                     {categoryDistribution.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
+                      <Cell key={`cell-${index}`} fill={entry.color} className="hover:opacity-80 transition-opacity cursor-pointer" />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '12px' }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -238,15 +264,15 @@ const MarketStats = () => {
             </div>
           </div>
 
-          {/* Recent Activities */}
+          {/* Recent Orders */}
           <div className="lg:col-span-2 bg-white rounded-lg border border-gray-200 p-5">
             <div className="flex justify-between items-center mb-4">
               <div>
-                <h3 className="text-base font-normal text-black">Recent Activities</h3>
-                <p className="text-xs text-gray-500 mt-0.5">Latest platform events</p>
+                <h3 className="text-base font-normal text-black">Recent Orders</h3>
+                <p className="text-xs text-gray-500 mt-0.5">Latest platform orders</p>
               </div>
               <button 
-                onClick={() => setSelectedDetail('All Platform Events')}
+                onClick={() => navigate('/ministry/orders')}
                 className="text-xs text-green-700 hover:text-green-800 font-normal hover:underline"
               >
                 View All →
@@ -261,15 +287,29 @@ const MarketStats = () => {
               ) : (
                 recentActivities.map((activity) => (
                   <div key={activity.id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition border border-gray-100 cursor-pointer">
-                    <div className="w-2 h-2 mt-2 rounded-full bg-green-500"></div>
+                    <div className={`w-2 h-2 mt-2 rounded-full ${
+                      activity.status === 'delivered' ? 'bg-blue-500' : 
+                      activity.status === 'confirmed' ? 'bg-green-500' : 
+                      activity.status === 'cancelled' ? 'bg-red-500' : 'bg-yellow-500'
+                    }`}></div>
                     <div className="flex-1">
                       <div className="flex justify-between items-start mb-1">
-                        <p className="text-sm font-normal text-black">{activity.action}</p>
+                        <p className="text-sm font-normal text-black flex items-center gap-2">
+                          Order #{activity.id.toString().substring(0, 8)}
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                            activity.status === 'delivered' ? 'bg-blue-100 text-blue-700' : 
+                            activity.status === 'confirmed' ? 'bg-green-100 text-green-700' : 
+                            activity.status === 'cancelled' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
+                          }`}>
+                            {activity.status}
+                          </span>
+                        </p>
                         <span className="text-xs text-gray-400">{activity.time}</span>
                       </div>
-                      <p className="text-xs text-gray-500">
-                        {activity.user} {activity.amount ? `- ${activity.amount}` : ''}
-                      </p>
+                      <div className="flex justify-between items-center mt-1">
+                        <p className="text-xs text-gray-500">{activity.user}</p>
+                        <p className="text-sm font-medium text-black">{activity.amount}</p>
+                      </div>
                     </div>
                   </div>
                 ))

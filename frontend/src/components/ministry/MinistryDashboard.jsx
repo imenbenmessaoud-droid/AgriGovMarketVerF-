@@ -7,6 +7,7 @@ import CategoryManager from './CategoryManager';
 import OfficialPriceManager from './OfficialPriceManager';
 import Reports from './Reports';
 import MinistryProfile from './MinistryProfile';
+import AdminOrders from './AdminOrders';
 
 import MinistryHero from './MinistryHero';
 
@@ -30,6 +31,7 @@ const MinistryDashboard = () => {
               <Route path="/prices" element={<OfficialPriceManager />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/profile" element={<MinistryProfile />} />
+              <Route path="/orders" element={<AdminOrders />} />
             </Routes>
           </div>
         </main>
