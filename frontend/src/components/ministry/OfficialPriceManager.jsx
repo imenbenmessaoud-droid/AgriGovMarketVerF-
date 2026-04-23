@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaSave, FaHistory, FaSearch, FaTimes, FaEdit, FaChartLine, FaPlus, FaSpinner } from 'react-icons/fa';
+import { FaSave, FaHistory, FaSearch, FaTimes, FaEdit, FaChartLine, FaPlus, FaSpinner, FaTrash } from 'react-icons/fa';
 import api from '../../services/api';
 
 const OfficialPriceManager = () => {
@@ -77,6 +77,18 @@ const OfficialPriceManager = () => {
     }
   };
 
+  const handleDeleteProduct = async (id) => {
+    if (window.confirm('Are you sure you want to permanently delete this product? All associated prices and inventory will be removed.')) {
+      try {
+        await api.delete(`products/products/${id}/`);
+        fetchData();
+      } catch (err) {
+        console.error('Failed to delete product:', err);
+        alert('Failed to delete product.');
+      }
+    }
+  };
+
   const filteredPrices = products.filter(item => {
     const matchesSearch = item.product_name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = categoryFilter === 'All' || item.category_name === categoryFilter;
@@ -84,7 +96,7 @@ const OfficialPriceManager = () => {
   });
 
   return (
-    <div className="min-h-screen bg-[#f5f3ef] px-4 py-6">
+    <div className="min-h-screen bg-[#faf8f0] px-4 py-6">
       <div className="max-w-7xl mx-auto space-y-6">
         
         {/* Header */}
@@ -251,12 +263,20 @@ const OfficialPriceManager = () => {
                            <button onClick={() => handleSave(item.id_product)} className="px-3 py-2 bg-green-700 text-white text-xs font-normal uppercase rounded hover:bg-green-800 transition">Commit</button>
                         </div>
                       ) : (
-                        <button 
-                          onClick={() => handleEdit(item)} 
-                          className="px-3 py-2 border border-gray-200 text-gray-600 text-xs font-normal uppercase rounded hover:bg-gray-100 hover:text-green-700 hover:border-green-300 transition opacity-0 group-hover:opacity-100"
-                        >
-                          Regulate
-                        </button>
+                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button 
+                            onClick={() => handleDeleteProduct(item.id_product)} 
+                            className="px-3 py-2 border border-red-200 text-red-600 text-xs font-normal uppercase rounded hover:bg-red-50 hover:border-red-300 transition"
+                          >
+                            Delete
+                          </button>
+                          <button 
+                            onClick={() => handleEdit(item)} 
+                            className="px-3 py-2 border border-gray-200 text-gray-600 text-xs font-normal uppercase rounded hover:bg-gray-100 hover:text-green-700 hover:border-green-300 transition"
+                          >
+                            Regulate
+                          </button>
+                        </div>
                       )}
                      </td>
                    </tr>

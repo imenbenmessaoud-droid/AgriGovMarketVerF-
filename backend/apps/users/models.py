@@ -231,8 +231,6 @@ class Administrator(models.Model):
         from apps.products.models import Category
         try:
             category = Category.objects.get(id_category=category_id)
-            if category.products.count() > 0:
-                raise ValidationError("Cannot delete a category that contains products")
             category.delete()
             return True
         except Category.DoesNotExist:

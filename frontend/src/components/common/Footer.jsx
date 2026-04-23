@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaPlay } from 'react-icons/fa';
+import { FaPlay, FaFacebookF, FaInstagram, FaLinkedinIn, FaEnvelope, FaPhoneAlt } from 'react-icons/fa';
 import logoImg from '../../assets/logo_main.png';
 
 const Footer = () => {
@@ -47,57 +47,67 @@ const Footer = () => {
                   {/* Brand */}
                   <div className="md:col-span-1">
                      <Link to="/" className="flex items-center space-x-3 text-white mb-6 group">
-                        <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center overflow-hidden">
-                           <img src={logoImg} alt="AgriSouk" className="w-7 h-7 object-contain" />
+                        <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center overflow-hidden shadow-sm">
+                           <img src={logoImg} alt="AgriGov Market" className="w-7 h-7 object-contain" />
                         </div>
-                        <span className="font-normal text-lg tracking-tight">AgriSouk</span>
+                        <span className="font-normal text-lg tracking-tight">AgriGov Market</span>
                      </Link>
                      <p className="text-xs text-white/50 leading-relaxed font-normal mb-6 pe-4">
-                        Explore New Possibilities to meet and trade directly with local local farmers. Start your official business with our standardized market network.
+                        Modernizing Algeria's agricultural supply chain. Connecting farmers directly with the market through a standardized, secure platform.
                      </p>
-                     <div className="flex space-x-3 text-white/50">
-                        <span className="w-2 h-2 rounded-full bg-solum-green"></span>
-                        <span className="w-2 h-2 rounded-full bg-white/20"></span>
-                        <span className="w-2 h-2 rounded-full bg-white/20"></span>
-                        <span className="w-2 h-2 rounded-full bg-white/20"></span>
+                     <div className="flex space-x-4 text-white/60">
+                        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-solum-green transition-colors"><FaFacebookF size={16} /></a>
+                        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-solum-green transition-colors"><FaInstagram size={16} /></a>
+                        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-solum-green transition-colors"><FaLinkedinIn size={16} /></a>
                      </div>
                   </div>
 
                   {/* Menus */}
                   <div>
-                     <h4 className="font-normal mb-6 text-sm">Pages</h4>
+                     <h4 className="font-normal mb-6 text-sm uppercase tracking-wider text-white/90">Quick Links</h4>
                      <ul className="space-y-4 text-xs font-normal text-white/60">
                         <li><Link to="/" className="hover:text-solum-green transition-colors">Home</Link></li>
-                        <li><Link to="/transporter" className="hover:text-solum-green transition-colors">Services</Link></li>
+                        <li><Link to="/buyer" className="hover:text-solum-green transition-colors">Products</Link></li>
                         <li><Link to="/about" className="hover:text-solum-green transition-colors">About Us</Link></li>
-                        <li><Link to="/ministry/stats" className="hover:text-solum-green transition-colors">Blog</Link></li>
+                        <li><Link to="/contact" className="hover:text-solum-green transition-colors">Contact</Link></li>
                      </ul>
                   </div>
 
                   <div>
-                     <h4 className="font-normal mb-6 text-sm">Resources</h4>
+                     <h4 className="font-normal mb-6 text-sm uppercase tracking-wider text-white/90">Services</h4>
                      <ul className="space-y-4 text-xs font-normal text-white/60">
-                        <li><Link to="/contact" className="hover:text-solum-green transition-colors">Contact Us</Link></li>
-                        <li><Link to="/farmer" className="hover:text-solum-green transition-colors">Member Stories</Link></li>
-                        <li><Link to="/video" className="hover:text-solum-green transition-colors">Video</Link></li>
-                        <li><Link to="/login" className="hover:text-solum-green transition-colors">Free Trial</Link></li>
+                        <li><Link to="/farmer/products" className="hover:text-solum-green transition-colors">Sell Products</Link></li>
+                        <li><Link to="/buyer/products" className="hover:text-solum-green transition-colors">Buy Products</Link></li>
+                        <li><Link to="/transporter" className="hover:text-solum-green transition-colors">Delivery</Link></li>
                      </ul>
                   </div>
 
                   <div>
-                     <h4 className="font-normal mb-6 text-sm">Company</h4>
+                     <h4 className="font-normal mb-6 text-sm uppercase tracking-wider text-white/90">Contact Info</h4>
                      <ul className="space-y-4 text-xs font-normal text-white/60">
-                        <li><Link to="/partners" className="hover:text-solum-green transition-colors">Partnerships</Link></li>
-                        <li><Link to="/terms" className="hover:text-solum-green transition-colors">Terms & Use</Link></li>
-                        <li><Link to="/privacy" className="hover:text-solum-green transition-colors">Privacy Policy</Link></li>
-                        <li><Link to="/sitemap" className="hover:text-solum-green transition-colors">Site Map</Link></li>
+                        <li className="flex items-center gap-3">
+                           <FaEnvelope className="text-solum-green" />
+                           <span>support@agrigov.dz</span>
+                        </li>
+                        <li className="flex items-center gap-3">
+                           <FaPhoneAlt className="text-solum-green" />
+                           <span>+213 (0) 23 45 67 89</span>
+                        </li>
+                        <li className="pt-4 mt-4 border-t border-white/5">
+                           <Link to="/privacy" className="hover:text-solum-green transition-colors block mb-3">Privacy Policy</Link>
+                           <Link to="/terms" className="hover:text-solum-green transition-colors block">Terms of Service</Link>
+                        </li>
                      </ul>
                   </div>
 
                </div>
 
-               <div className="text-center text-[10px] uppercase tracking-widest text-white/40 font-normal">
-                  &copy; 2026 All Rights Reserved. Terms & Use. AgriSouk Dz.
+               <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] uppercase tracking-widest text-white/40 font-normal">
+                  <p>&copy; 2026 AgriGov Market. All Rights Reserved.</p>
+                  <p className="flex gap-4">
+                     <span className="text-white/20">DZ STATE BACKED</span>
+                     <span className="text-white/20">MINISTRY OF AGRICULTURE</span>
+                  </p>
                </div>
             </div>
          </footer>
