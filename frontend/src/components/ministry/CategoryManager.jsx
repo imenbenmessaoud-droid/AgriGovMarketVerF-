@@ -30,6 +30,8 @@ const CategoryManager = () => {
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [categoryProducts, setCategoryProducts] = useState([]);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -45,7 +47,7 @@ const CategoryManager = () => {
         id: cat.id_category,
         name: cat.category_name,
         code: `CTG-${cat.category_name.substring(0, 3).toUpperCase()}`,
-        products: 0,
+        products: cat.products_count || 0,
         icon: 'FaLeaf',
         color: 'green'
       }));
@@ -112,6 +114,16 @@ const CategoryManager = () => {
     }
   };
 
+  const handleCategoryClick = async (category) => {
+    try {
+      const res = await api.get(`/products/products/?category=${category.id}`);
+      setCategoryProducts(res.data);
+      setSelectedCategory(category);
+    } catch (err) {
+      console.error("Failed to fetch products", err);
+    }
+  };
+
   const resetForm = () => {
     setShowModal(false);
     setIsEditing(false);
@@ -152,20 +164,36 @@ const CategoryManager = () => {
               <FaLeaf className="text-green-700" size={18} />
               <span className="text-xs font-normal text-gray-500 uppercase tracking-wide">Category Management</span>
             </div>
-            <h1 className="text-2xl font-normal text-black">Product Categories</h1>
-            <p className="text-gray-500 text-sm mt-0.5">Manage agricultural product categories</p>
+            <h1 className="text-2xl font-normal text-black">
+              {selectedCategory ? `Products in ${selectedCategory.name}` : 'Product Categories'}
+            </h1>
+            <p className="text-gray-500 text-sm mt-0.5">
+              {selectedCategory ? 'View associated agricultural products' : 'Manage agricultural product categories'}
+            </p>
           </div>
           
-          <button 
-            onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-normal hover:bg-green-800 transition"
-          >
-            <FaPlus size={14} />
-            Add Category
-          </button>
+          {selectedCategory ? (
+            <button 
+              onClick={() => setSelectedCategory(null)}
+              className="flex items-center gap-2 bg-white border border-gray-200 text-black px-4 py-2 rounded-lg text-sm font-normal hover:bg-gray-50 transition"
+            >
+              Back to Categories
+            </button>
+          ) : (
+            <button 
+              onClick={() => setShowModal(true)}
+              className="flex items-center gap-2 bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-normal hover:bg-green-800 transition"
+            >
+              <FaPlus size={14} />
+              Add Category
+            </button>
+          )}
         </div>
 
-        {/* Stats Cards */}
+        {/* Content */}
+        {!selectedCategory ? (
+          <>
+            {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white rounded-lg p-4 border border-gray-200">
             <div className="flex items-center justify-between">
@@ -232,7 +260,8 @@ const CategoryManager = () => {
             {filteredCategories.map((cat) => (
               <div 
                 key={cat.id} 
-                className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-all group"
+                className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-all group cursor-pointer"
+                onClick={() => handleCategoryClick(cat)}
               >
                 <div className="p-5">
                   <div className="flex justify-between items-start mb-4">
@@ -241,13 +270,13 @@ const CategoryManager = () => {
                     </div>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button 
-                        onClick={() => handleEdit(cat)} 
+                        onClick={(e) => { e.stopPropagation(); handleEdit(cat); }} 
                         className="p-2 text-gray-400 hover:text-green-700 rounded-lg hover:bg-green-50 transition"
                       >
                         <FaEdit size={14} />
                       </button>
                       <button 
-                        onClick={() => handleDelete(cat.id)} 
+                        onClick={(e) => { e.stopPropagation(); handleDelete(cat.id); }} 
                         className="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition"
                       >
                         <FaTrash size={14} />
@@ -276,6 +305,42 @@ const CategoryManager = () => {
             </div>
             <p className="text-gray-600 font-normal mb-1">No categories found</p>
             <p className="text-gray-400 text-sm">Try adjusting your search or add a new category</p>
+          </div>
+        )}
+          </>
+        ) : (
+          <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+            {categoryProducts.length > 0 ? (
+              <div className="divide-y divide-gray-100">
+                {categoryProducts.map(product => (
+                  <div key={product.id_product} className="p-5 hover:bg-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors">
+                    <div>
+                      <h3 className="text-lg font-normal text-black mb-1">{product.product_name}</h3>
+                      <p className="text-sm text-gray-500">{product.product_description || 'No description available.'}</p>
+                    </div>
+                    <div className="flex flex-col items-start md:items-end gap-2">
+                      <span className="text-xs font-mono text-gray-500 bg-gray-100 px-2 py-1 rounded border border-gray-200">
+                        {product.product_quality} quality
+                      </span>
+                      {product.current_price && (
+                        <div className="text-sm text-gray-700 flex flex-col md:items-end mt-1">
+                          <span className="text-xs text-gray-500">Official Price Range:</span>
+                          <span>{product.current_price.min_price} - {product.current_price.max_price} {product.current_price.price_unit}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="py-12 text-center">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <FaBoxes className="text-gray-300" size={24} />
+                </div>
+                <p className="text-gray-600 font-normal mb-1">No products found</p>
+                <p className="text-gray-400 text-sm">There are currently no products in this category.</p>
+              </div>
+            )}
           </div>
         )}
       </div>
