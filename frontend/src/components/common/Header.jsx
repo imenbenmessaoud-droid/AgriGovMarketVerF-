@@ -59,6 +59,8 @@ const Header = () => {
         navigate('/ministry/users');
       } else if (notif.notification_type === 'system' && isMinistryPath) {
         navigate('/ministry/users');
+      } else if (isFarmerPath) {
+        navigate('/farmer/dashboard');
       }
     } catch (error) {
       console.error('Error handling notification click:', error);
@@ -242,7 +244,7 @@ const Header = () => {
               </button>
             )}
 
-            {(isTransporterPath || isMinistryPath) && (
+            {(isTransporterPath || isMinistryPath || isFarmerPath) && (
               <div className="relative">
                 <button
                   onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
@@ -308,7 +310,7 @@ const Header = () => {
                     </div>
                     <div className="p-3 bg-gray-50 text-center border-t border-gray-100">
                       <button
-                        onClick={() => navigate(isTransporterPath ? '/transporter/hub' : isMinistryPath ? '/ministry/users' : '/notifications')}
+                        onClick={() => navigate(isTransporterPath ? '/transporter/hub' : isMinistryPath ? '/ministry/users' : isFarmerPath ? '/farmer/dashboard' : '/notifications')}
                         className="text-[11px] text-gray-600 font-normal hover:text-gray-800 transition-colors"
                       >
                         View All Notifications
