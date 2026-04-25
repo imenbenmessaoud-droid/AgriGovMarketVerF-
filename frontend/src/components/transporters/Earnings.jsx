@@ -5,13 +5,13 @@ import api from '../../services/api';
 
 const Earnings = () => {
   const [balance, setBalance] = useState(0);
-  
+
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState({ title: '', subtitle: '' });
   const [loading, setLoading] = useState(false);
   const [filterPeriod, setFilterPeriod] = useState('month');
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  
+
   // Real weekly data with dynamic updates
   const [weeklyData, setWeeklyData] = useState([
     { week: 'Week 1', earnings: 0, deliveries: 0, distance: 0 },
@@ -56,14 +56,14 @@ const Earnings = () => {
 
   const updateStatsFromDeliveries = (deliveries) => {
     const completed = deliveries.filter(d => d.delivery_status === 'delivered');
-    
+
     const realTransactions = completed.map(d => ({
-        id: d.mission_number,
-        date: d.actual_delivery_time ? d.actual_delivery_time.split('T')[0] : d.delivery_date,
-        amount: parseFloat(d.order_total_amount || 0) * 0.1, // 10% delivery commission
-        type: `JOB-` + String(d.mission_number).padStart(3, '0'),
-        location: d.delivery_location || 'Unknown',
-        status: 'completed'
+      id: d.mission_number,
+      date: d.actual_delivery_time ? d.actual_delivery_time.split('T')[0] : d.delivery_date,
+      amount: parseFloat(d.order_total_amount || 0) * 0.1, // 10% delivery commission
+      type: `JOB-` + String(d.mission_number).padStart(3, '0'),
+      location: d.delivery_location || 'Unknown',
+      status: 'completed'
     }));
 
     setTransactions(realTransactions.reverse());
@@ -71,7 +71,7 @@ const Earnings = () => {
     const totalEarnings = realTransactions.reduce((sum, t) => sum + t.amount, 0);
     const totalDistance = completed.length * 120; // 120km average distance roughly
     const totalFuel = totalDistance * 0.08 * 45; // 8L/100km, 45 DZD/L
-    
+
     setDeliveryStats(prev => ({
       ...prev,
       totalDeliveries: deliveries.length,
@@ -79,22 +79,22 @@ const Earnings = () => {
       totalDistance: totalDistance,
       totalFuelCost: Math.round(totalFuel)
     }));
-    
+
     setBalance(totalEarnings - totalFuel);
 
     const weeklyMap = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
     realTransactions.forEach(t => {
-       const date = new Date(t.date);
-       let week = Math.ceil(date.getDate() / 7);
-       if (week > 4) week = 4;
-       weeklyMap[week] += t.amount;
+      const date = new Date(t.date);
+      let week = Math.ceil(date.getDate() / 7);
+      if (week > 4) week = 4;
+      weeklyMap[week] += t.amount;
     });
 
     setWeeklyData([
-      { week: 'Week 1', earnings: weeklyMap[1], deliveries: Math.round(weeklyMap[1]/500), distance: Math.round(weeklyMap[1]/50) },
-      { week: 'Week 2', earnings: weeklyMap[2], deliveries: Math.round(weeklyMap[2]/500), distance: Math.round(weeklyMap[2]/50) },
-      { week: 'Week 3', earnings: weeklyMap[3], deliveries: Math.round(weeklyMap[3]/500), distance: Math.round(weeklyMap[3]/50) },
-      { week: 'Week 4', earnings: weeklyMap[4] + (weeklyMap[5] || 0), deliveries: Math.round((weeklyMap[4]+(weeklyMap[5]||0))/500), distance: Math.round((weeklyMap[4]+(weeklyMap[5]||0))/50) },
+      { week: 'Week 1', earnings: weeklyMap[1], deliveries: Math.round(weeklyMap[1] / 500), distance: Math.round(weeklyMap[1] / 50) },
+      { week: 'Week 2', earnings: weeklyMap[2], deliveries: Math.round(weeklyMap[2] / 500), distance: Math.round(weeklyMap[2] / 50) },
+      { week: 'Week 3', earnings: weeklyMap[3], deliveries: Math.round(weeklyMap[3] / 500), distance: Math.round(weeklyMap[3] / 50) },
+      { week: 'Week 4', earnings: weeklyMap[4] + (weeklyMap[5] || 0), deliveries: Math.round((weeklyMap[4] + (weeklyMap[5] || 0)) / 500), distance: Math.round((weeklyMap[4] + (weeklyMap[5] || 0)) / 50) },
     ]);
   };
 
@@ -105,7 +105,7 @@ const Earnings = () => {
       setTimeout(() => setShowToast(false), 3000);
       return;
     }
-    
+
     const withdrawalAmount = balance;
     const transaction = {
       id: Date.now(),
@@ -115,16 +115,16 @@ const Earnings = () => {
       status: 'pending',
       method: 'bank_transfer'
     };
-    
+
     const updatedTransactions = [transaction, ...transactions];
     localStorage.setItem('transporterTransactions', JSON.stringify(updatedTransactions));
     localStorage.setItem('transporterBalance', '0');
     setTransactions(updatedTransactions);
     setBalance(0);
-    
-    setToastMessage({ 
-      title: 'Withdrawal Successful', 
-      subtitle: `${withdrawalAmount.toLocaleString()} DZD transferred to your bank account` 
+
+    setToastMessage({
+      title: 'Withdrawal Successful',
+      subtitle: `${withdrawalAmount.toLocaleString()} DZD transferred to your bank account`
     });
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
@@ -139,15 +139,15 @@ const Earnings = () => {
       location: earning.location,
       status: 'completed'
     };
-    
+
     const updatedTransactions = [newTransaction, ...transactions];
     setTransactions(updatedTransactions);
     localStorage.setItem('transporterTransactions', JSON.stringify(updatedTransactions));
-    
+
     const newBalance = balance + earning.amount;
     setBalance(newBalance);
     localStorage.setItem('transporterBalance', newBalance.toString());
-    
+
     // Update weekly data
     const currentWeek = Math.ceil(new Date().getDate() / 7);
     const updatedWeeklyData = [...weeklyData];
@@ -157,10 +157,10 @@ const Earnings = () => {
       setWeeklyData(updatedWeeklyData);
       localStorage.setItem('transporterWeeklyEarnings', JSON.stringify(updatedWeeklyData));
     }
-    
-    setToastMessage({ 
-      title: 'Earning Added', 
-      subtitle: `${earning.amount.toLocaleString()} DZD from ${earning.jobId}` 
+
+    setToastMessage({
+      title: 'Earning Added',
+      subtitle: `${earning.amount.toLocaleString()} DZD from ${earning.jobId}`
     });
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
@@ -169,8 +169,8 @@ const Earnings = () => {
   const getFilteredTransactions = () => {
     const now = new Date();
     const startDate = new Date();
-    
-    switch(filterPeriod) {
+
+    switch (filterPeriod) {
       case 'week':
         startDate.setDate(now.getDate() - 7);
         break;
@@ -183,41 +183,41 @@ const Earnings = () => {
       default:
         return transactions;
     }
-    
+
     return transactions.filter(t => new Date(t.date) >= startDate);
   };
 
   const stats = [
-    { 
-      label: 'Available Balance', 
-      value: balance.toLocaleString(), 
+    {
+      label: 'Available Balance',
+      value: balance.toLocaleString(),
       unit: 'DZD',
       sub: 'Net after fuel & expenses',
       icon: FaWallet,
       color: 'green',
       change: '+15%'
     },
-    { 
-      label: 'Total Deliveries', 
-      value: deliveryStats.completedThisMonth.toString(), 
+    {
+      label: 'Total Deliveries',
+      value: deliveryStats.completedThisMonth.toString(),
       unit: '',
       sub: `${deliveryStats.onTimeRate}% on-time delivery rate`,
       icon: FaTruck,
       color: 'blue',
       change: '+8'
     },
-    { 
-      label: 'Fuel Costs', 
-      value: deliveryStats.totalFuelCost.toLocaleString(), 
+    {
+      label: 'Fuel Costs',
+      value: deliveryStats.totalFuelCost.toLocaleString(),
       unit: 'DZD',
       sub: `${deliveryStats.fuelEfficiency} L/100km efficiency`,
       icon: FaGasPump,
       color: 'orange',
       change: '-5%'
     },
-    { 
-      label: 'Distance Covered', 
-      value: deliveryStats.totalDistance.toLocaleString(), 
+    {
+      label: 'Distance Covered',
+      value: deliveryStats.totalDistance.toLocaleString(),
       unit: 'Km',
       sub: `Across ${deliveryStats.activeWilayas.length} wilayas`,
       icon: FaRoute,
@@ -247,11 +247,11 @@ const Earnings = () => {
       stats: deliveryStats,
       exportDate: new Date().toISOString()
     };
-    
+
     const dataStr = JSON.stringify(exportData, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
     const exportFileDefaultName = `earnings_export_${new Date().toISOString().split('T')[0]}.json`;
-    
+
     const linkElement = document.createElement('a');
     linkElement.setAttribute('href', dataUri);
     linkElement.setAttribute('download', exportFileDefaultName);
@@ -260,8 +260,8 @@ const Earnings = () => {
 
   return (
     <div className="min-h-screen bg-[#faf8f0]">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        
+      <div className="max-w-7xl mx-auto px-4 pt-2 pb-8">
+
         {/* Toast Notification */}
         {showToast && (
           <div className="fixed bottom-6 right-6 z-50 animate-slide-up">
@@ -287,7 +287,7 @@ const Earnings = () => {
               </div>
               <p className="text-sm text-gray-500">Real-time freight commissions and performance metrics</p>
             </div>
-            
+
             <div className="flex gap-3">
               <button
                 onClick={handleExportData}
@@ -299,11 +299,10 @@ const Earnings = () => {
               <button
                 onClick={handleWithdraw}
                 disabled={balance === 0}
-                className={`px-5 py-2.5 rounded-lg text-sm font-normal transition-all flex items-center gap-2 ${
-                  balance === 0 
-                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
-                    : 'bg-green-600 text-white hover:bg-green-700 shadow-sm'
-                }`}
+                className={`px-5 py-2.5 rounded-lg text-sm font-normal transition-all flex items-center gap-2 ${balance === 0
+                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  : 'bg-green-600 text-white hover:bg-green-700 shadow-sm'
+                  }`}
               >
                 <FaMoneyBillWave size={14} />
                 Withdraw Funds
@@ -371,19 +370,19 @@ const Earnings = () => {
               <p className="text-xs text-gray-400 mt-1">Delivery commissions and metrics per week</p>
             </div>
             <div className="flex gap-2">
-              <button 
+              <button
                 onClick={() => setFilterPeriod('week')}
                 className={`px-3 py-1 text-xs rounded-lg transition-colors ${filterPeriod === 'week' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}
               >
                 Week
               </button>
-              <button 
+              <button
                 onClick={() => setFilterPeriod('month')}
                 className={`px-3 py-1 text-xs rounded-lg transition-colors ${filterPeriod === 'month' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}
               >
                 Month
               </button>
-              <button 
+              <button
                 onClick={() => setFilterPeriod('year')}
                 className={`px-3 py-1 text-xs rounded-lg transition-colors ${filterPeriod === 'year' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}
               >
@@ -391,33 +390,33 @@ const Earnings = () => {
               </button>
             </div>
           </div>
-          
+
           <div className="p-5">
             <div className="h-80 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={weeklyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="earningsGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#22c55e" stopOpacity={0.15}/>
-                      <stop offset="95%" stopColor="#22c55e" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#22c55e" stopOpacity={0.15} />
+                      <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                  <XAxis 
-                    dataKey="week" 
-                    axisLine={false} 
-                    tickLine={false} 
+                  <XAxis
+                    dataKey="week"
+                    axisLine={false}
+                    tickLine={false}
                     tick={{ fontSize: 11, fill: '#9ca3af', fontWeight: 500 }}
                   />
-                  <YAxis 
-                    axisLine={false} 
-                    tickLine={false} 
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
                     tick={{ fontSize: 11, fill: '#9ca3af', fontWeight: 500 }}
                     tickFormatter={(value) => `${value / 1000}k`}
                   />
-                  <Tooltip 
-                    contentStyle={{ 
-                      borderRadius: '8px', 
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: '8px',
                       border: '1px solid #e5e7eb',
                       backgroundColor: 'white',
                       fontSize: '12px',
@@ -426,13 +425,13 @@ const Earnings = () => {
                     formatter={(value) => [`${value.toLocaleString()} DZD`, 'Earnings']}
                     cursor={{ stroke: '#22c55e', strokeWidth: 1.5, strokeDasharray: '4 4' }}
                   />
-                  <Area 
-                    type="monotone" 
-                    dataKey="earnings" 
-                    stroke="#22c55e" 
-                    strokeWidth={2.5} 
-                    fillOpacity={1} 
-                    fill="url(#earningsGradient)" 
+                  <Area
+                    type="monotone"
+                    dataKey="earnings"
+                    stroke="#22c55e"
+                    strokeWidth={2.5}
+                    fillOpacity={1}
+                    fill="url(#earningsGradient)"
                   />
                 </AreaChart>
               </ResponsiveContainer>
@@ -449,7 +448,7 @@ const Earnings = () => {
               <span className="text-xs text-gray-500">{filterPeriod === 'week' ? 'Last 7 days' : filterPeriod === 'month' ? 'Last 30 days' : 'Last year'}</span>
             </div>
           </div>
-          
+
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-100">
@@ -489,28 +488,6 @@ const Earnings = () => {
           </div>
         </div>
 
-        {/* Performance Insights */}
-        <div className="mt-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-100">
-          <h4 className="text-sm font-normal text-gray-800 mb-3">Performance Insights</h4>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div>
-              <p className="text-xs text-gray-500">On-Time Delivery Rate</p>
-              <p className="text-lg font-normal text-green-600">{deliveryStats.onTimeRate}%</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500">Fuel Efficiency</p>
-              <p className="text-lg font-normal text-blue-600">{deliveryStats.fuelEfficiency} L/100km</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500">Avg Distance per Trip</p>
-              <p className="text-lg font-normal text-purple-600">{deliveryStats.averageDistance} km</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500">Active Wilayas</p>
-              <p className="text-lg font-normal text-orange-600">{deliveryStats.activeWilayas.length}</p>
-            </div>
-          </div>
-        </div>
       </div>
 
       <style jsx>{`

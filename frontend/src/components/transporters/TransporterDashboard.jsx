@@ -24,10 +24,10 @@ const TransporterDashboard = () => {
   }, [location.pathname]);
 
   const dashTabs = [
-    { id: 'overview', name: 'DASHBOARD OVERVIEW' },
-    { id: 'hub', name: 'DELIVERIES HUB' },
-    { id: 'fleet', name: 'FLEET MANAGEMENT' },
-    { id: 'profile', name: 'PROFILE SETTINGS' }
+    { id: 'overview', name: 'Dashboard Overview' },
+    { id: 'hub', name: 'Deliveries Hub' },
+    { id: 'fleet', name: 'Fleet Management' },
+    { id: 'profile', name: 'Profile Settings' }
   ];
 
   return (
@@ -42,10 +42,10 @@ const TransporterDashboard = () => {
 
 
       {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto custom-scrollbar bg-[#faf8f0] relative z-0">
+      <main className="flex-1 overflow-y-auto custom-scrollbar bg-[#faf8f0] relative z-10">
         <div className="max-w-5xl mx-auto px-4 lg:px-5 py-16 min-h-[38vh]">
           {activeTab === 'overview' && <Earnings />}
-          {activeTab === 'hub' && <DeliveryJobs searchQuery={searchQuery} onNavigate={setActiveTab} />}
+          {activeTab === 'hub' && <DeliveryJobs searchQuery={searchQuery} onSearchChange={setSearchQuery} onNavigate={setActiveTab} />}
           {activeTab === 'fleet' && <VehicleManager onNavigate={setActiveTab} />}
           {activeTab === 'profile' && <TransporterProfile />}
         </div>

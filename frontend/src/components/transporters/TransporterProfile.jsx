@@ -8,53 +8,65 @@ import { useAuth } from '../../context/AuthContext';
 const TransporterProfile = () => {
   const { user, updateUser } = useAuth();
   const [isEditMode, setIsEditMode] = useState(false);
-  const [avatarPreview, setAvatarPreview] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(user?.avatar || null);
 
   const [profile, setProfile] = useState({
-    companyName: user?.farmName || 'Express Logistics DZ',
-    representative: user?.name || 'Ahmed Benali',
+    fullName: user?.name || 'Ahmed Benali',
     email: user?.email || 'contact@expresslogistics.dz',
     phone: user?.phone || '0555 12 34 56',
     wilaya: user?.wilaya || 'Algiers',
-    commercialRegister: user?.commercialRegister || 'RC-16-0000000',
-    joinedDate: '2023-11-20'
+    address: user?.address || 'Main Logistics Hub, Algiers',
+    birthDate: '1990-05-15',
+    joinedDate: user?.created_at || '2023-11-20'
   });
 
   const [tempProfile, setTempProfile] = useState({ ...profile });
-  const [tempAvatarPreview, setTempAvatarPreview] = useState(null);
+  const [tempAvatarPreview, setTempAvatarPreview] = useState(user?.avatar || null);
 
   useEffect(() => {
     if (user) {
       const newProfile = {
-        companyName: user.farmName || profile.companyName,
-        representative: user.name || profile.representative,
+        fullName: user.name || profile.fullName,
         email: user.email || profile.email,
         phone: user.phone || profile.phone,
         wilaya: user.wilaya || profile.wilaya,
-        commercialRegister: user.commercialRegister || profile.commercialRegister,
-        joinedDate: profile.joinedDate
+        address: user.address || profile.address,
+        birthDate: profile.birthDate,
+        joinedDate: user.created_at || profile.joinedDate
       };
       setProfile(newProfile);
       setTempProfile(newProfile);
+      setAvatarPreview(user.avatar || null);
+      setTempAvatarPreview(user.avatar || null);
     }
   }, [user]);
 
-  const handleSave = () => {
-    setProfile(tempProfile);
-    if (tempAvatarPreview !== null) {
-      setAvatarPreview(tempAvatarPreview);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const result = await updateUser({
+        name: tempProfile.fullName,
+        email: tempProfile.email,
+        phone: tempProfile.phone,
+        wilaya: tempProfile.wilaya,
+        address: tempProfile.address,
+        avatar: tempAvatarPreview
+      });
+
+      if (result.success) {
+        setProfile(tempProfile);
+        setAvatarPreview(tempAvatarPreview);
+        setIsEditMode(false);
+      } else {
+        alert("Error saving profile: " + result.error);
+      }
+    } catch (error) {
+      alert("An error occurred while saving.");
+    } finally {
+      setIsSaving(false);
     }
-
-    updateUser({
-      name: tempProfile.representative,
-      farmName: tempProfile.companyName,
-      email: tempProfile.email,
-      phone: tempProfile.phone,
-      wilaya: tempProfile.wilaya,
-      commercialRegister: tempProfile.commercialRegister
-    });
-
-    setIsEditMode(false);
   };
 
   const handleCancel = () => {
@@ -87,7 +99,7 @@ const TransporterProfile = () => {
   };
 
   const getInitials = () => {
-    return profile.companyName.charAt(0).toUpperCase();
+    return profile.fullName.charAt(0).toUpperCase();
   };
 
   return (
@@ -145,7 +157,7 @@ const TransporterProfile = () => {
               )}
             </div>
 
-            <h2 className="text-xl font-normal text-gray-900 mb-2 truncate max-w-full">{isEditMode ? tempProfile.companyName || profile.companyName : profile.companyName}</h2>
+            <h2 className="text-xl font-normal text-gray-900 mb-2 truncate max-w-full">{isEditMode ? tempProfile.fullName || profile.fullName : profile.fullName}</h2>
 
             <div className="inline-flex items-center px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-normal mb-6">
               <FaCheckCircle className="mr-1.5" /> Verified Partner
@@ -153,12 +165,8 @@ const TransporterProfile = () => {
 
             <div className="w-full space-y-4 pt-6 border-t border-gray-100">
               <div className="flex items-center text-sm font-normal text-gray-700">
-                <FaIdCard className="mr-3 text-green-600 w-4 h-4" />
-                <span className="truncate">{profile.commercialRegister}</span>
-              </div>
-              <div className="flex items-center text-sm font-normal text-gray-700">
                 <FaCalendarAlt className="mr-3 text-green-600 w-4 h-4" />
-                <span>Active since {new Date(profile.joinedDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
+                <span>Joined {new Date(profile.joinedDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
               </div>
               <div className="flex items-center text-sm font-normal text-gray-700">
                 <FaMapMarkerAlt className="mr-3 text-green-600 w-4 h-4" />
@@ -170,44 +178,27 @@ const TransporterProfile = () => {
           {/* Main Form Area */}
           <div className="w-full lg:w-2/3 bg-white rounded-xl shadow-sm border border-gray-100 p-8">
             <h3 className="text-lg font-normal text-gray-900 mb-6 pb-4 border-b border-gray-100">
-              Company Information
+              Personal Information
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-              {/* Company Name */}
+              {/* Full Name */}
               <div>
                 <label className="flex items-center text-xs font-normal text-gray-500 mb-2">
-                  <FaBuilding className="mr-2 text-gray-400" /> Entity Name
+                  <FaUserTie className="mr-2 text-gray-400" /> Full Name
                 </label>
                 {isEditMode ? (
                   <input
                     type="text"
-                    value={tempProfile.companyName}
-                    onChange={e => setTempProfile({ ...tempProfile, companyName: e.target.value })}
+                    value={tempProfile.fullName}
+                    onChange={e => setTempProfile({ ...tempProfile, fullName: e.target.value })}
                     className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-900 focus:ring-1 focus:ring-green-600 focus:border-green-600 outline-none transition-all"
                   />
                 ) : (
-                  <p className="text-base font-normal text-gray-900">{profile.companyName}</p>
+                  <p className="text-base font-normal text-gray-900">{profile.fullName}</p>
                 )}
               </div>
 
-              {/* Representative Name */}
-              <div>
-                <label className="flex items-center text-xs font-normal text-gray-500 mb-2">
-                  <FaUserTie className="mr-2 text-gray-400" /> Representative
-                </label>
-                {isEditMode ? (
-                  <input
-                    type="text"
-                    value={tempProfile.representative}
-                    onChange={e => setTempProfile({ ...tempProfile, representative: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-900 focus:ring-1 focus:ring-green-600 focus:border-green-600 outline-none transition-all"
-                  />
-                ) : (
-                  <p className="text-base font-normal text-gray-900">{profile.representative}</p>
-                )}
-              </div>
-                
               {/* Email */}
               <div>
                 <label className="flex items-center text-xs font-normal text-gray-500 mb-2">
@@ -242,7 +233,7 @@ const TransporterProfile = () => {
                 )}
               </div>
 
-              {/* Wilaya Selection */}
+              {/* Region Selection */}
               <div>
                 <label className="flex items-center text-xs font-normal text-gray-500 mb-2">
                   <FaMapMarkerAlt className="mr-2 text-gray-400" /> Region
@@ -266,20 +257,37 @@ const TransporterProfile = () => {
                 )}
               </div>
 
-              {/* Commercial Register (Takes up remaining items) */}
+              {/* Delivery Address */}
               <div className="md:col-span-2">
                 <label className="flex items-center text-xs font-normal text-gray-500 mb-2">
-                  <FaIdCard className="mr-2 text-gray-400" /> Commercial Register (RC)
+                  <FaMapMarkerAlt className="mr-2 text-gray-400" /> Delivery Address
                 </label>
                 {isEditMode ? (
                   <input
                     type="text"
-                    value={tempProfile.commercialRegister}
-                    onChange={e => setTempProfile({ ...tempProfile, commercialRegister: e.target.value })}
+                    value={tempProfile.address}
+                    onChange={e => setTempProfile({ ...tempProfile, address: e.target.value })}
                     className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-900 focus:ring-1 focus:ring-green-600 focus:border-green-600 outline-none transition-all"
                   />
                 ) : (
-                  <p className="text-base font-normal text-gray-900">{profile.commercialRegister}</p>
+                  <p className="text-base font-normal text-gray-900">{profile.address}</p>
+                )}
+              </div>
+
+              {/* Birth Date */}
+              <div className="md:col-span-2">
+                <label className="flex items-center text-xs font-normal text-gray-500 mb-2">
+                  <FaCalendarAlt className="mr-2 text-gray-400" /> Birth Date
+                </label>
+                {isEditMode ? (
+                  <input
+                    type="date"
+                    value={tempProfile.birthDate}
+                    onChange={e => setTempProfile({ ...tempProfile, birthDate: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-900 focus:ring-1 focus:ring-green-600 focus:border-green-600 outline-none transition-all"
+                  />
+                ) : (
+                  <p className="text-base font-normal text-gray-900">{new Date(profile.birthDate).toLocaleDateString('fr-DZ')}</p>
                 )}
               </div>
             </div>
@@ -289,9 +297,10 @@ const TransporterProfile = () => {
               <div className="mt-8 pt-6 border-t border-gray-100 flex items-center gap-4">
                 <button
                   onClick={handleSave}
-                  className="bg-green-700 text-white px-8 py-2.5 rounded-lg text-sm font-normal hover:bg-green-800 transition-all flex items-center justify-center gap-2"
+                  disabled={isSaving}
+                  className={`bg-green-700 text-white px-8 py-2.5 rounded-lg text-sm font-normal hover:bg-green-800 transition-all flex items-center justify-center gap-2 ${isSaving ? 'opacity-70 cursor-not-allowed' : ''}`}
                 >
-                  <FaSave size={14} /> Save Changes
+                  <FaSave size={14} /> {isSaving ? 'Saving...' : 'Save Changes'}
                 </button>
                 <button
                   onClick={handleCancel}
