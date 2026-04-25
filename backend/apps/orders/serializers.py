@@ -51,7 +51,10 @@ class OrderSerializer(serializers.ModelSerializer):
         if mission:
             return {
                 'status': mission.delivery_status,
-                'transporter_name': mission.id_transporter.user.name if mission.id_transporter else None
+                'transporter_name': mission.id_transporter.user.name if mission.id_transporter else None,
+                'transporter_phone': mission.id_transporter.user.phone if mission.id_transporter else None,
+                'transporter_email': mission.id_transporter.user.email if mission.id_transporter else None,
+                'transporter_address': mission.id_transporter.user.address if mission.id_transporter else None
             }
         return None
 
