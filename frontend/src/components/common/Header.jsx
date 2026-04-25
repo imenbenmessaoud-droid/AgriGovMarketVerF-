@@ -324,9 +324,13 @@ const Header = () => {
             {isLoggedIn ? (
               <button
                 onClick={() => setIsSidebarOpen(true)}
-                className={`p-2.5 rounded-full transition-colors user-icon-button ${scrolled || (isHome && !scrolled) ? 'text-green-800 hover:bg-black/5' : 'text-white hover:bg-white/20'}`}
+                className={`p-1.5 rounded-full transition-colors user-icon-button flex items-center justify-center overflow-hidden w-10 h-10 ${scrolled || (isHome && !scrolled) ? 'hover:bg-black/5' : 'hover:bg-white/20'}`}
               >
-                <FaUserCircle size={22} />
+                {userProfile.avatar ? (
+                  <img src={userProfile.avatar} alt="Profile" className="w-full h-full object-cover rounded-full" />
+                ) : (
+                  <FaUserCircle size={22} className={scrolled || (isHome && !scrolled) ? 'text-green-800' : 'text-white'} />
+                )}
               </button>
             ) : (
               <div className="hidden sm:flex items-center space-x-3">
@@ -533,24 +537,13 @@ const Header = () => {
                       </div>
                     </div>
 
-                    {/* Wilaya */}
+                    {/* Region */}
                     <div className="border-b border-gray-100 pb-2.5">
                       <div className="flex items-center gap-2.5">
                         <FaMapMarkerAlt className="text-gray-400 text-sm" />
                         <div>
-                          <p className="text-[9px] text-gray-400 uppercase tracking-wider">Wilaya</p>
-                          <p className="text-sm text-gray-800">{userProfile.wilaya}</p>
-                        </div>
-                      </div>
-                    </div>{/* Farm Name */}
-                    <div className="border-b border-gray-100 pb-2.5">
-                      <div className="flex items-center gap-2.5">
-                        <FaStore className="text-gray-400 text-sm" />
-                        <div>
-                          <p className="text-[9px] text-gray-400 uppercase tracking-wider">
-                            {isTransporterPath ? 'Fleet Company' : isMinistryPath ? 'Department' : 'Farm Name'}
-                          </p>
-                          <p className="text-sm text-gray-800">{userProfile.farmName}</p>
+                          <p className="text-[9px] text-gray-400 uppercase tracking-wider">Region</p>
+                          <p className="text-sm text-gray-800">{userProfile.wilaya || 'Not specified'}</p>
                         </div>
                       </div>
                     </div>
@@ -561,7 +554,11 @@ const Header = () => {
                         <FaCalendarAlt className="text-gray-400 text-sm" />
                         <div>
                           <p className="text-[9px] text-gray-400 uppercase tracking-wider">Member Since</p>
-                          <p className="text-sm text-gray-800">{userProfile.memberSince}</p>
+                          <p className="text-sm text-gray-800">
+                            {userProfile.created_at 
+                              ? new Date(userProfile.created_at).toLocaleDateString('en-US', { year: 'numeric' }) 
+                              : userProfile.memberSince}
+                          </p>
                         </div>
                       </div>
                     </div>

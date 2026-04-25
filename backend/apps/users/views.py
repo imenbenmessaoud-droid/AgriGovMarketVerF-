@@ -7,10 +7,11 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.models import Group, Permission
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
-from .models import User, Administrator, Farmer, Buyer, Transporter, Notification
+from .models import User, Administrator, Farmer, Buyer, Transporter, TransporterVehicle, Notification
 from .serializers import (
     UserSerializer, RegisterSerializer, LoginSerializer, ChangePasswordSerializer,
     FarmerSerializer, BuyerSerializer, TransporterSerializer, AdministratorSerializer,
+    TransporterVehicleSerializer,
     ProfileSerializer, GroupSerializer, GroupCreateSerializer, GroupUpdateSerializer,
     PermissionSerializer, NotificationSerializer, PasswordResetSerializer, PasswordResetConfirmSerializer
 )
@@ -39,16 +40,14 @@ class UserViewSet(viewsets.ModelViewSet):
             permission_classes = [permissions.IsAuthenticated]
         return [permission() for permission in permission_classes]
     
-    @action(detail=False, methods=['get'], url_path='me')
-    def get_me(self, request):
-        """Get current user profile"""
-        serializer = ProfileSerializer(request.user)
-        return Response(serializer.data)
-    
-    @action(detail=False, methods=['put'], url_path='me')
-    def update_me(self, request):
-        """Update current user profile"""
+    @action(detail=False, methods=['get', 'put', 'patch'], url_path='me')
+    def me(self, request):
+        """Get or update current user profile"""
         user = request.user
+        if request.method == 'GET':
+            serializer = ProfileSerializer(user)
+            return Response(serializer.data)
+            
         serializer = UserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -246,6 +245,20 @@ class TransporterViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TransporterVehicleViewSet(viewsets.ModelViewSet):
+    """ViewSet for managing transporter vehicles"""
+    serializer_class = TransporterVehicleSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        transporter = get_object_or_404(Transporter, user=self.request.user)
+        return TransporterVehicle.objects.filter(transporter=transporter)
+
+    def perform_create(self, serializer):
+        transporter = get_object_or_404(Transporter, user=self.request.user)
+        serializer.save(transporter=transporter)
 
 
 class AdministratorViewSet(viewsets.ModelViewSet):

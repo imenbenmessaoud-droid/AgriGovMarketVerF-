@@ -10,37 +10,37 @@ const MinistryProfile = () => {
   const { user, updateUser } = useAuth();
   const [isEditMode, setIsEditMode] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [imagePreview, setImagePreview] = useState(user?.avatar || null);
 
   const [profile, setProfile] = useState({
-    fullName: user?.name || 'Director General',
-    role: user?.role === 'MINISTRY' ? 'Ministry Official' : 'Ministry Administrator',
-    department: 'Department of Agricultural Oversight',
+    fullName: user?.name || 'Ahmed Benali',
     email: user?.email || 'admin@minagri.gov.dz',
     phone: user?.phone || '+213 21 00 00 00',
-    location: user?.wilaya || 'Avenue Pasteur, Alger',
-    joinedDate: '2023-01-15',
-    bio: 'Dedicated to national food security and market transparency.'
+    wilaya: user?.wilaya || 'Algiers',
+    address: user?.address || 'Avenue Pasteur, Alger',
+    birthDate: '1990-05-15',
+    joinedDate: user?.created_at || '2023-01-15'
   });
 
   const [tempProfile, setTempProfile] = useState({ ...profile });
   const [tempImage, setTempImage] = useState(null);
-  const [tempImagePreview, setTempImagePreview] = useState(null);
+  const [tempImagePreview, setTempImagePreview] = useState(user?.avatar || null);
 
   useEffect(() => {
     if (user) {
       const newProfile = {
         fullName: user.name || profile.fullName,
-        role: user.role === 'MINISTRY' ? 'Ministry Official' : profile.role,
-        department: profile.department,
         email: user.email || profile.email,
         phone: user.phone || profile.phone,
-        location: user.wilaya || profile.location,
-        joinedDate: profile.joinedDate,
-        bio: profile.bio
+        wilaya: user.wilaya || profile.wilaya,
+        address: user.address || profile.address,
+        birthDate: profile.birthDate,
+        joinedDate: user.created_at || profile.joinedDate
       };
       setProfile(newProfile);
       setTempProfile(newProfile);
+      setImagePreview(user.avatar || null);
+      setTempImagePreview(user.avatar || null);
     }
   }, [user]);
 
@@ -54,6 +54,7 @@ const MinistryProfile = () => {
           setTempImage(file);
         } else {
           setImagePreview(reader.result);
+          setTempImagePreview(reader.result);
           setProfileImage(file);
         }
       };
@@ -67,28 +68,37 @@ const MinistryProfile = () => {
       setTempImage(null);
     } else {
       setImagePreview(null);
+      setTempImagePreview(null);
       setProfileImage(null);
     }
   };
 
-  const handleSave = () => {
-    setProfile(tempProfile);
-    if (tempImage) {
-      setProfileImage(tempImage);
-      setImagePreview(tempImagePreview);
-    } else if (tempImagePreview === null) {
-      setProfileImage(null);
-      setImagePreview(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const result = await updateUser({
+        name: tempProfile.fullName,
+        email: tempProfile.email,
+        phone: tempProfile.phone,
+        wilaya: tempProfile.wilaya,
+        address: tempProfile.address,
+        avatar: tempImagePreview
+      });
+
+      if (result.success) {
+        setProfile(tempProfile);
+        setImagePreview(tempImagePreview);
+        setIsEditMode(false);
+      } else {
+        alert("Error saving profile: " + result.error);
+      }
+    } catch (error) {
+      alert("An error occurred while saving.");
+    } finally {
+      setIsSaving(false);
     }
-
-    updateUser({
-      name: tempProfile.fullName,
-      email: tempProfile.email,
-      phone: tempProfile.phone,
-      wilaya: tempProfile.location
-    });
-
-    setIsEditMode(false);
   };
 
   const handleCancel = () => {
@@ -113,7 +123,7 @@ const MinistryProfile = () => {
               <FaShieldAlt className="mr-1.5 text-green-700 w-3 h-3" /> MINISTRY PROFILE
             </div>
             <h2 className="text-3xl font-normal text-gray-900 mb-1">My Profile</h2>
-            <p className="text-sm text-gray-500 font-normal">Manage administrative credentials and departmental information.</p>
+            <p className="text-sm text-gray-500 font-normal">Manage official credentials and personal information.</p>
           </div>
           {!isEditMode && (
             <button
@@ -164,16 +174,12 @@ const MinistryProfile = () => {
 
             <div className="w-full space-y-4 pt-6 border-t border-gray-100">
               <div className="flex items-center text-sm font-normal text-gray-700">
-                <FaBriefcase className="mr-3 text-green-600 w-4 h-4" />
-                <span className="truncate">{profile.role}</span>
-              </div>
-              <div className="flex items-center text-sm font-normal text-gray-700">
                 <FaCalendarAlt className="mr-3 text-green-600 w-4 h-4" />
                 <span>Joined {new Date(profile.joinedDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
               </div>
               <div className="flex items-center text-sm font-normal text-gray-700">
                 <FaMapMarkerAlt className="mr-3 text-green-600 w-4 h-4" />
-                <span>{profile.location}</span>
+                <span>{profile.wilaya}</span>
               </div>
             </div>
           </div>
@@ -181,7 +187,7 @@ const MinistryProfile = () => {
           {/* Main Form Area */}
           <div className="w-full lg:w-2/3 bg-white rounded-xl shadow-sm border border-gray-100 p-8">
             <h3 className="text-lg font-normal text-gray-900 mb-6 pb-4 border-b border-gray-100">
-              Administrative Information
+              Personal Information
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
@@ -202,27 +208,10 @@ const MinistryProfile = () => {
                 )}
               </div>
 
-              {/* Role */}
-              <div>
-                <label className="flex items-center text-xs font-normal text-gray-500 mb-2">
-                  <FaBriefcase className="mr-2 text-gray-400" /> Administrative Role
-                </label>
-                {isEditMode ? (
-                  <input
-                    type="text"
-                    value={tempProfile.role}
-                    onChange={e => setTempProfile({ ...tempProfile, role: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-900 focus:ring-1 focus:ring-green-600 focus:border-green-600 outline-none transition-all"
-                  />
-                ) : (
-                  <p className="text-base font-normal text-gray-900">{profile.role}</p>
-                )}
-              </div>
-                
               {/* Email */}
               <div>
                 <label className="flex items-center text-xs font-normal text-gray-500 mb-2">
-                  <FaEnvelope className="mr-2 text-gray-400" /> Official Email
+                  <FaEnvelope className="mr-2 text-gray-400" /> Email
                 </label>
                 {isEditMode ? (
                   <input
@@ -239,7 +228,7 @@ const MinistryProfile = () => {
               {/* Phone */}
               <div>
                 <label className="flex items-center text-xs font-normal text-gray-500 mb-2">
-                  <FaPhone className="mr-2 text-gray-400" /> Contact Number
+                  <FaPhone className="mr-2 text-gray-400" /> Phone
                 </label>
                 {isEditMode ? (
                   <input
@@ -253,54 +242,61 @@ const MinistryProfile = () => {
                 )}
               </div>
 
-              {/* Department */}
+              {/* Region Selection */}
+              <div>
+                <label className="flex items-center text-xs font-normal text-gray-500 mb-2">
+                  <FaMapMarkerAlt className="mr-2 text-gray-400" /> Region
+                </label>
+                {isEditMode ? (
+                  <select
+                    value={tempProfile.wilaya}
+                    onChange={e => setTempProfile({ ...tempProfile, wilaya: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-900 focus:ring-1 focus:ring-green-600 focus:border-green-600 outline-none transition-all bg-white"
+                  >
+                    <option value="Algiers">Algiers</option>
+                    <option value="Blida">Blida</option>
+                    <option value="Oran">Oran</option>
+                    <option value="Constantine">Constantine</option>
+                    <option value="Setif">Setif</option>
+                    <option value="Annaba">Annaba</option>
+                    <option value="Tizi Ouzou">Tizi Ouzou</option>
+                  </select>
+                ) : (
+                  <p className="text-base font-normal text-gray-900">{profile.wilaya}</p>
+                )}
+              </div>
+
+              {/* Delivery Address */}
               <div className="md:col-span-2">
                 <label className="flex items-center text-xs font-normal text-gray-500 mb-2">
-                  <FaBuilding className="mr-2 text-gray-400" /> Department / Secretariat
+                  <FaMapMarkerAlt className="mr-2 text-gray-400" /> Office Address
                 </label>
                 {isEditMode ? (
                   <input
                     type="text"
-                    value={tempProfile.department}
-                    onChange={e => setTempProfile({ ...tempProfile, department: e.target.value })}
+                    value={tempProfile.address}
+                    onChange={e => setTempProfile({ ...tempProfile, address: e.target.value })}
                     className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-900 focus:ring-1 focus:ring-green-600 focus:border-green-600 outline-none transition-all"
                   />
                 ) : (
-                  <p className="text-base font-normal text-gray-900">{profile.department}</p>
+                  <p className="text-base font-normal text-gray-900">{profile.address}</p>
                 )}
               </div>
 
-              {/* Location */}
+              {/* Birth Date */}
               <div className="md:col-span-2">
                 <label className="flex items-center text-xs font-normal text-gray-500 mb-2">
-                  <FaMapMarkerAlt className="mr-2 text-gray-400" /> Location
+                  <FaCalendarAlt className="mr-2 text-gray-400" /> Birth Date
                 </label>
                 {isEditMode ? (
                   <input
-                    type="text"
-                    value={tempProfile.location}
-                    onChange={e => setTempProfile({ ...tempProfile, location: e.target.value })}
+                    type="date"
+                    value={tempProfile.birthDate}
+                    onChange={e => setTempProfile({ ...tempProfile, birthDate: e.target.value })}
                     className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-900 focus:ring-1 focus:ring-green-600 focus:border-green-600 outline-none transition-all"
                   />
                 ) : (
-                  <p className="text-base font-normal text-gray-900">{profile.location}</p>
-                )}
-              </div>
-
-              {/* Bio */}
-              <div className="md:col-span-2">
-                <label className="flex items-center text-xs font-normal text-gray-500 mb-2">
-                  Bio / Statement
-                </label>
-                {isEditMode ? (
-                  <textarea
-                    rows="3"
-                    value={tempProfile.bio}
-                    onChange={e => setTempProfile({ ...tempProfile, bio: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-900 focus:ring-1 focus:ring-green-600 focus:border-green-600 outline-none transition-all resize-none"
-                  />
-                ) : (
-                  <p className="text-sm font-normal text-gray-500 italic">"{profile.bio}"</p>
+                  <p className="text-base font-normal text-gray-900">{new Date(profile.birthDate).toLocaleDateString('fr-DZ')}</p>
                 )}
               </div>
             </div>
@@ -310,9 +306,10 @@ const MinistryProfile = () => {
               <div className="mt-8 pt-6 border-t border-gray-100 flex items-center gap-4">
                 <button
                   onClick={handleSave}
-                  className="bg-green-700 text-white px-8 py-2.5 rounded-lg text-sm font-normal hover:bg-green-800 transition-all flex items-center justify-center gap-2"
+                  disabled={isSaving}
+                  className={`bg-green-700 text-white px-8 py-2.5 rounded-lg text-sm font-normal hover:bg-green-800 transition-all flex items-center justify-center gap-2 ${isSaving ? 'opacity-70 cursor-not-allowed' : ''}`}
                 >
-                  <FaSave size={14} /> Save Changes
+                  <FaSave size={14} /> {isSaving ? 'Saving...' : 'Save Changes'}
                 </button>
                 <button
                   onClick={handleCancel}

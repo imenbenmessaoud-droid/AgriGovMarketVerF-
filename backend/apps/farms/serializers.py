@@ -15,7 +15,8 @@ class FarmSerializer(serializers.ModelSerializer):
         fields = [
             'IdFarm', 'FarmName', 'LocationFarm', 'Size',
             'farmer', 'farmer_id', 'farmer_name',
-            'description', 'latitude', 'longitude', 'is_active',
+            'description', 'address', 'phone', 'email',
+            'latitude', 'longitude', 'is_active',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['IdFarm', 'created_at', 'updated_at']
@@ -28,7 +29,8 @@ class FarmCreateSerializer(serializers.ModelSerializer):
         model = Farm
         fields = [
             'FarmName', 'LocationFarm', 'Size',
-            'description', 'latitude', 'longitude'
+            'description', 'address', 'phone', 'email',
+            'latitude', 'longitude'
         ]
     
     def validate_Size(self, value):
@@ -58,7 +60,8 @@ class FarmUpdateSerializer(serializers.ModelSerializer):
         model = Farm
         fields = [
             'FarmName', 'LocationFarm', 'Size',
-            'description', 'latitude', 'longitude', 'is_active'
+            'description', 'address', 'phone', 'email',
+            'latitude', 'longitude', 'is_active'
         ]
     
     def validate_Size(self, value):
@@ -76,7 +79,7 @@ class FarmListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Farm
         fields = [
-            'IdFarm', 'FarmName', 'LocationFarm', 'Size',
+            'IdFarm', 'FarmName', 'LocationFarm', 'Size', 'address',
             'farmer_name', 'products_count', 'is_active', 'created_at'
         ]
     

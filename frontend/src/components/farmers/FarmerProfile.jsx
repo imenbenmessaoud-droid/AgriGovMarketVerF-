@@ -1,67 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import {
     FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaTractor,
-    FaCheckCircle, FaCalendarAlt, FaChartLine, FaSeedling, FaEdit, FaSave, FaTimes, FaCamera
+    FaCheckCircle, FaCalendarAlt, FaEdit, FaSave, FaTimes, FaCamera
 } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 
 const FarmerProfile = () => {
     const { user, updateUser } = useAuth();
     const [isEditing, setIsEditing] = useState(false);
-    const [profile, setProfile] = useState(() => {
-        const saved = localStorage.getItem('farmerProfile');
-        if (saved) {
-            try {
-                const parsed = JSON.parse(saved);
-                if (!parsed.stats) {
-                    parsed.stats = {
-                        totalHarvest: '12.4',
-                        activeCrops: '8',
-                        reliability: '98'
-                    };
-                }
-                return parsed;
-            } catch (e) {
-                console.error("Error parsing farmerProfile", e);
-            }
-        }
-        return {
-            name: user?.name || 'Intissar Zermane',
-            email: user?.email || 'intissarze1@gmail.com',
-            phone: user?.phone || '+213 699 35 10 36',
-            wilaya: user?.wilaya || 'Oran',
-            farmName: user?.farmName || 'Coopérative El Falah',
-            memberSince: 'March 2024',
-            bio: 'Specializing in organic citrus and vegetable production.',
-            photo: null,
-            stats: {
-                totalHarvest: '12.4',
-                activeCrops: '8',
-                reliability: '98'
-            }
-        };
+    
+    const [profile, setProfile] = useState({
+        fullName: user?.name || 'Intissar Zermane',
+        email: user?.email || 'intissarze1@gmail.com',
+        phone: user?.phone || '+213 699 35 10 36',
+        wilaya: user?.wilaya || 'Oran',
+        address: user?.address || 'Your current address',
+        birthDate: '1990-05-15',
+        joinedDate: user?.created_at || '2024-03-10'
     });
 
     const [tempProfile, setTempProfile] = useState({ ...profile });
-    const [photoPreview, setPhotoPreview] = useState(profile.photo || null);
+    const [photoPreview, setPhotoPreview] = useState(user?.avatar || null);
 
-    useEffect(() => {
-        setTempProfile({ ...profile });
-        setPhotoPreview(profile.photo || null);
-    }, [profile]);
-    
     useEffect(() => {
         if (user) {
             const newProfile = {
-                ...profile,
-                name: user.name || profile.name,
+                fullName: user.name || profile.fullName,
                 email: user.email || profile.email,
                 phone: user.phone || profile.phone,
                 wilaya: user.wilaya || profile.wilaya,
-                farmName: user.farmName || profile.farmName,
+                address: user.address || profile.address,
+                birthDate: profile.birthDate,
+                joinedDate: user.created_at || profile.joinedDate
             };
             setProfile(newProfile);
             setTempProfile(newProfile);
+            setPhotoPreview(user.avatar || null);
         }
     }, [user]);
 
@@ -71,26 +45,36 @@ const FarmerProfile = () => {
             const reader = new FileReader();
             reader.onloadend = () => {
                 setPhotoPreview(reader.result);
-                setTempProfile({ ...tempProfile, photo: reader.result });
             };
             reader.readAsDataURL(file);
         }
     };
 
-    const handleSave = () => {
-        const updatedProfile = { ...tempProfile };
-        setProfile(updatedProfile);
-        localStorage.setItem('farmerProfile', JSON.stringify(updatedProfile));
-        
-        updateUser({
-            name: tempProfile.name,
-            email: tempProfile.email,
-            phone: tempProfile.phone,
-            wilaya: tempProfile.wilaya,
-            farmName: tempProfile.farmName
-        });
-        
-        setIsEditing(false);
+    const [isSaving, setIsSaving] = useState(false);
+
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            const result = await updateUser({
+                name: tempProfile.fullName,
+                email: tempProfile.email,
+                phone: tempProfile.phone,
+                wilaya: tempProfile.wilaya,
+                address: tempProfile.address,
+                avatar: photoPreview
+            });
+            
+            if (result.success) {
+                setProfile(tempProfile);
+                setIsEditing(false);
+            } else {
+                alert("Error saving profile: " + result.error);
+            }
+        } catch (error) {
+            alert("An error occurred while saving.");
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -136,7 +120,7 @@ const FarmerProfile = () => {
                                     ) : (
                                         <div className="w-32 h-32 bg-green-100 rounded-full flex items-center justify-center border-4 border-green-100">
                                             <span className="text-4xl font-normal text-green-700">
-                                                {profile.name.charAt(0)}
+                                                {profile.fullName.charAt(0)}
                                             </span>
                                         </div>
                                     )}
@@ -147,30 +131,24 @@ const FarmerProfile = () => {
                                         </label>
                                     )}
                                 </div>
-                                <h2 className="text-xl font-normal text-gray-900 text-center">{profile.name}</h2>
+                                <h2 className="text-xl font-normal text-gray-900 text-center">{profile.fullName}</h2>
                                 <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 rounded-full mt-2">
                                     <FaCheckCircle size={10} className="text-green-700" />
                                     <span className="text-[10px] font-normal text-green-700">Verified Partner</span>
                                 </div>
                             </div>
 
-                            {/* Farm Info */}
+                            {/* Info */}
                             <div className="space-y-3 pt-4 border-t border-gray-100">
                                 <div className="flex items-center gap-3 text-sm">
-                                    <FaTractor className="text-green-600" size={14} />
-                                    <span className="text-gray-700">{profile.farmName}</span>
-                                </div>
-                                <div className="flex items-center gap-3 text-sm">
                                     <FaCalendarAlt className="text-green-600" size={14} />
-                                    <span className="text-gray-700">Joined {profile.memberSince}</span>
+                                    <span className="text-gray-700">Joined {new Date(profile.joinedDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
                                 </div>
                                 <div className="flex items-center gap-3 text-sm">
                                     <FaMapMarkerAlt className="text-green-600" size={14} />
                                     <span className="text-gray-700">{profile.wilaya}</span>
                                 </div>
                             </div>
-
-                            
                         </div>
                     </div>
 
@@ -191,12 +169,12 @@ const FarmerProfile = () => {
                                     {isEditing ? (
                                         <input
                                             type="text"
-                                            value={tempProfile.name}
-                                            onChange={e => setTempProfile({ ...tempProfile, name: e.target.value })}
+                                            value={tempProfile.fullName}
+                                            onChange={e => setTempProfile({ ...tempProfile, fullName: e.target.value })}
                                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-800 text-sm"
                                         />
                                     ) : (
-                                        <p className="text-gray-800 py-2">{profile.name}</p>
+                                        <p className="text-gray-800 py-2">{profile.fullName}</p>
                                     )}
                                 </div>
 
@@ -234,104 +212,78 @@ const FarmerProfile = () => {
                                     )}
                                 </div>
 
-                                {/* Wilaya */}
+                                {/* Region */}
                                 <div>
                                     <label className="block text-xs font-normal text-gray-600 mb-1">
                                         <FaMapMarkerAlt className="inline mr-1" size={10} /> Region
                                     </label>
                                     {isEditing ? (
-                                        <input
-                                            type="text"
+                                        <select
                                             value={tempProfile.wilaya}
                                             onChange={e => setTempProfile({ ...tempProfile, wilaya: e.target.value })}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-800 text-sm"
-                                        />
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-800 text-sm bg-white"
+                                        >
+                                            <option value="Algiers">Algiers</option>
+                                            <option value="Blida">Blida</option>
+                                            <option value="Oran">Oran</option>
+                                            <option value="Constantine">Constantine</option>
+                                            <option value="Setif">Setif</option>
+                                            <option value="Annaba">Annaba</option>
+                                            <option value="Tizi Ouzou">Tizi Ouzou</option>
+                                        </select>
                                     ) : (
                                         <p className="text-gray-800 py-2">{profile.wilaya}</p>
                                     )}
                                 </div>
 
-                                {/* Farm Name */}
+                                {/* Address */}
                                 <div className="md:col-span-2">
                                     <label className="block text-xs font-normal text-gray-600 mb-1">
-                                        <FaTractor className="inline mr-1" size={10} /> Farm Name
+                                        <FaMapMarkerAlt className="inline mr-1" size={10} /> Delivery Address
                                     </label>
                                     {isEditing ? (
                                         <input
                                             type="text"
-                                            value={tempProfile.farmName}
-                                            onChange={e => setTempProfile({ ...tempProfile, farmName: e.target.value })}
+                                            value={tempProfile.address}
+                                            onChange={e => setTempProfile({ ...tempProfile, address: e.target.value })}
                                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-800 text-sm"
                                         />
                                     ) : (
-                                        <p className="text-gray-800 py-2">{profile.farmName}</p>
+                                        <p className="text-gray-800 py-2">{profile.address}</p>
                                     )}
                                 </div>
 
-                                {/* Bio */}
+                                {/* Birth Date */}
                                 <div className="md:col-span-2">
-                                    <label className="block text-xs font-normal text-gray-600 mb-1">Bio</label>
+                                    <label className="block text-xs font-normal text-gray-600 mb-1">
+                                        <FaCalendarAlt className="inline mr-1" size={10} /> Birth Date
+                                    </label>
                                     {isEditing ? (
-                                        <textarea
-                                            rows="3"
-                                            value={tempProfile.bio}
-                                            onChange={e => setTempProfile({ ...tempProfile, bio: e.target.value })}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-800 text-sm resize-none"
+                                        <input
+                                            type="date"
+                                            value={tempProfile.birthDate}
+                                            onChange={e => setTempProfile({ ...tempProfile, birthDate: e.target.value })}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-800 text-sm"
                                         />
                                     ) : (
-                                        <p className="text-gray-600 text-sm py-2 italic">"{profile.bio}"</p>
+                                        <p className="text-gray-800 py-2">{new Date(profile.birthDate).toLocaleDateString('fr-DZ')}</p>
                                     )}
                                 </div>
                             </div>
-
-                            {/* Stats Editing */}
-                            {isEditing && (
-                                <div className="mt-6 pt-4 border-t border-gray-100">
-                                    <h4 className="text-sm font-normal text-gray-800 mb-3">Farm Statistics</h4>
-                                    <div className="grid grid-cols-3 gap-4">
-                                        <div>
-                                            <label className="block text-xs text-gray-500 mb-1">Total Harvest (Tons)</label>
-                                            <input
-                                                type="text"
-                                                value={tempProfile.stats.totalHarvest}
-                                                onChange={e => setTempProfile({ ...tempProfile, stats: { ...tempProfile.stats, totalHarvest: e.target.value } })}
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs text-gray-500 mb-1">Active Crops</label>
-                                            <input
-                                                type="text"
-                                                value={tempProfile.stats.activeCrops}
-                                                onChange={e => setTempProfile({ ...tempProfile, stats: { ...tempProfile.stats, activeCrops: e.target.value } })}
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs text-gray-500 mb-1">Reliability (%)</label>
-                                            <input
-                                                type="text"
-                                                value={tempProfile.stats.reliability}
-                                                onChange={e => setTempProfile({ ...tempProfile, stats: { ...tempProfile.stats, reliability: e.target.value } })}
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
 
                             {/* Action Buttons */}
                             {isEditing && (
                                 <div className="mt-8 flex gap-3">
                                     <button
                                         onClick={handleSave}
-                                        className="flex-1 bg-green-700 text-white px-5 py-2.5 rounded-lg text-sm font-normal hover:bg-green-800 transition flex items-center justify-center gap-2"
+                                        disabled={isSaving}
+                                        className={`flex-1 bg-green-700 text-white px-5 py-2.5 rounded-lg text-sm font-normal hover:bg-green-800 transition flex items-center justify-center gap-2 ${isSaving ? 'opacity-70 cursor-not-allowed' : ''}`}
                                     >
                                         <FaSave size={14} />
-                                        Save Changes
+                                        {isSaving ? 'Saving...' : 'Save Changes'}
                                     </button>
                                     <button
-                                        onClick={() => { setTempProfile(profile); setPhotoPreview(profile.photo); setIsEditing(false); }}
+                                        onClick={() => { setTempProfile(profile); setIsEditing(false); }}
                                         className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-sm font-normal hover:bg-gray-50 transition flex items-center gap-2"
                                     >
                                         <FaTimes size={14} />

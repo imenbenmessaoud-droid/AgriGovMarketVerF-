@@ -8,7 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 const BuyerProfile = () => {
   const { user, updateUser } = useAuth();
   const [isEditMode, setIsEditMode] = useState(false);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [imagePreview, setImagePreview] = useState(user?.avatar || null);
 
   const [profile, setProfile] = useState({
     fullName: user?.name || 'Ahmed Benali',
@@ -16,13 +16,12 @@ const BuyerProfile = () => {
     phone: user?.phone || '0555 12 34 56',
     address: user?.address || '123 Rue des Oliviers, Alger Centre',
     wilaya: user?.wilaya || 'Algiers',
-    cin: user?.cin || '12345678',
-    birthDate: '1990-05-15',
-    joinedDate: '2024-02-10'
+    birth_date: user?.birth_date || '1990-05-15',
+    joinedDate: user?.created_at || '2024-02-10'
   });
 
   const [tempProfile, setTempProfile] = useState({ ...profile });
-  const [tempImagePreview, setTempImagePreview] = useState(null);
+  const [tempImagePreview, setTempImagePreview] = useState(user?.avatar || null);
 
   useEffect(() => {
     if (user) {
@@ -32,12 +31,13 @@ const BuyerProfile = () => {
         phone: user.phone || profile.phone,
         address: user.address || profile.address,
         wilaya: user.wilaya || profile.wilaya,
-        cin: user.cin || profile.cin,
-        birthDate: profile.birthDate,
-        joinedDate: profile.joinedDate
+        birth_date: user.birth_date || profile.birth_date,
+        joinedDate: user.created_at || profile.joinedDate
       };
       setProfile(newProfile);
       setTempProfile(newProfile);
+      setImagePreview(user.avatar || null);
+      setTempImagePreview(user.avatar || null);
     }
   }, [user]);
 
@@ -49,6 +49,7 @@ const BuyerProfile = () => {
         if (isEditMode) {
           setTempImagePreview(reader.result);
         } else {
+          setTempImagePreview(reader.result);
           setImagePreview(reader.result);
         }
       };
@@ -60,26 +61,38 @@ const BuyerProfile = () => {
     if (isEditMode) {
       setTempImagePreview(null);
     } else {
+      setTempImagePreview(null);
       setImagePreview(null);
     }
   };
 
-  const handleSave = () => {
-    setProfile(tempProfile);
-    if (tempImagePreview !== undefined) {
-      setImagePreview(tempImagePreview);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const result = await updateUser({
+        name: tempProfile.fullName,
+        email: tempProfile.email,
+        phone: tempProfile.phone,
+        address: tempProfile.address,
+        wilaya: tempProfile.wilaya,
+        birth_date: tempProfile.birth_date,
+        avatar: tempImagePreview
+      });
+
+      if (result.success) {
+        setProfile(tempProfile);
+        setImagePreview(tempImagePreview);
+        setIsEditMode(false);
+      } else {
+        alert("Error saving profile: " + result.error);
+      }
+    } catch (error) {
+      alert("An error occurred while saving.");
+    } finally {
+      setIsSaving(false);
     }
-
-    updateUser({
-      name: tempProfile.fullName,
-      email: tempProfile.email,
-      phone: tempProfile.phone,
-      address: tempProfile.address,
-      wilaya: tempProfile.wilaya,
-      cin: tempProfile.cin
-    });
-
-    setIsEditMode(false);
   };
 
   const handleCancel = () => {
@@ -185,10 +198,6 @@ const BuyerProfile = () => {
 
             <div className="w-full space-y-4 pt-6 border-t border-gray-100">
               <div className="flex items-center text-sm font-normal text-gray-700">
-                <FaIdCard className="mr-3 text-green-600 w-4 h-4" />
-                <span className="truncate">{profile.cin}</span>
-              </div>
-              <div className="flex items-center text-sm font-normal text-gray-700">
                 <FaCalendarAlt className="mr-3 text-green-600 w-4 h-4" />
                 <span>Joined {new Date(profile.joinedDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
               </div>
@@ -257,7 +266,7 @@ const BuyerProfile = () => {
                 )}
               </div>
 
-              {/* Wilaya Selection */}
+              {/* Region Selection */}
               <div>
                 <label className="flex items-center text-xs font-normal text-gray-500 mb-2">
                   <FaMapMarkerAlt className="mr-2 text-gray-400" /> Region
@@ -281,10 +290,10 @@ const BuyerProfile = () => {
                 )}
               </div>
 
-              {/* Delivery Address (Takes up 2 columns like Bio) */}
+              {/* Delivery Address */}
               <div className="md:col-span-2">
                 <label className="flex items-center text-xs font-normal text-gray-500 mb-2">
-                  Delivery Address
+                  <FaMapMarkerAlt className="mr-2 text-gray-400" /> Delivery Address
                 </label>
                 {isEditMode ? (
                   <input
@@ -306,12 +315,12 @@ const BuyerProfile = () => {
                 {isEditMode ? (
                   <input
                     type="date"
-                    value={tempProfile.birthDate}
-                    onChange={e => setTempProfile({ ...tempProfile, birthDate: e.target.value })}
+                    value={tempProfile.birth_date}
+                    onChange={e => setTempProfile({ ...tempProfile, birth_date: e.target.value })}
                     className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-900 focus:ring-1 focus:ring-green-600 focus:border-green-600 outline-none transition-all"
                   />
                 ) : (
-                  <p className="text-base font-normal text-gray-900">{new Date(profile.birthDate).toLocaleDateString('fr-DZ')}</p>
+                  <p className="text-base font-normal text-gray-900">{profile.birth_date ? new Date(profile.birth_date).toLocaleDateString('fr-DZ') : 'Not specified'}</p>
                 )}
               </div>
             </div>
@@ -321,9 +330,10 @@ const BuyerProfile = () => {
               <div className="mt-8 pt-6 border-t border-gray-100 flex items-center gap-4">
                 <button
                   onClick={handleSave}
-                  className="bg-green-700 text-white px-8 py-2.5 rounded-lg text-sm font-normal hover:bg-green-800 transition-all flex items-center justify-center gap-2"
+                  disabled={isSaving}
+                  className={`bg-green-700 text-white px-8 py-2.5 rounded-lg text-sm font-normal hover:bg-green-800 transition-all flex items-center justify-center gap-2 ${isSaving ? 'opacity-70 cursor-not-allowed' : ''}`}
                 >
-                  <FaSave size={14} /> Save Changes
+                  <FaSave size={14} /> {isSaving ? 'Saving...' : 'Save Changes'}
                 </button>
                 <button
                   onClick={handleCancel}

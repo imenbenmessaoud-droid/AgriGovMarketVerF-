@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
     // Check localStorage for existing session
     const savedUser = localStorage.getItem('user');
     const token = localStorage.getItem('token');
-    
+
     if (savedUser && token) {
       setUser(JSON.parse(savedUser));
       setIsLoggedIn(true);
@@ -32,10 +32,10 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await api.post('/users/login/', { email, password });
       const { user: userData, token } = response.data;
-      
+
       localStorage.setItem('user', JSON.stringify(userData));
       localStorage.setItem('token', token);
-      
+
       setUser(userData);
       setIsLoggedIn(true);
       return { success: true, user: userData };
@@ -52,15 +52,42 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     localStorage.removeItem('cart');
     sessionStorage.clear();
-    
+
     setUser(null);
     setIsLoggedIn(false);
   };
 
-  const updateUser = (updatedData) => {
-    const newUser = { ...user, ...updatedData };
-    localStorage.setItem('user', JSON.stringify(newUser));
-    setUser(newUser);
+  const updateUser = async (updatedData) => {
+    try {
+      const response = await api.patch('/users/users/me/', updatedData);
+      const userData = response.data;
+      
+      localStorage.setItem('user', JSON.stringify(userData));
+      setUser(userData);
+      return { success: true, user: userData };
+    } catch (error) {
+      console.error("Update profile failed:", error);
+      const errData = error.response?.data;
+      
+      // Handle Django REST Framework validation errors
+      let parsedError = 'Update failed';
+      if (errData) {
+        if (typeof errData === 'string') {
+          parsedError = errData;
+        } else if (errData.detail) {
+          parsedError = errData.detail;
+        } else if (errData.message) {
+          parsedError = errData.message;
+        } else {
+          // It's likely a validation error object {field: [errors]}
+          const firstKey = Object.keys(errData)[0];
+          const firstError = errData[firstKey];
+          parsedError = Array.isArray(firstError) ? `${firstKey}: ${firstError[0]}` : `${firstKey}: ${firstError}`;
+        }
+      }
+      
+      return { success: false, error: parsedError };
+    }
   };
 
   return (

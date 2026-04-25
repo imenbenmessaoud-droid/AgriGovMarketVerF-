@@ -11,6 +11,7 @@ router.register(r'administrators', views.AdministratorViewSet, basename='adminis
 router.register(r'groups', views.GroupViewSet, basename='group')
 router.register(r'permissions', views.PermissionViewSet, basename='permission') 
 router.register(r'notifications', views.NotificationViewSet, basename='notification') 
+router.register(r'vehicles', views.TransporterVehicleViewSet, basename='vehicle')
 
 urlpatterns = [
     path('', include(router.urls)),

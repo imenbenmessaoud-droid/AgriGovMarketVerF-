@@ -96,71 +96,42 @@ const Checkout = () => {
     }
   };
 
-  if (step === 3) {
-    return (
-      <div className="min-h-screen bg-black/80 backdrop-blur-2xl flex items-center justify-center p-6 fixed inset-0 z-[1000] animate-fadeIn">
-        <div className="bg-white/95 border border-white/20 rounded-[3rem] shadow-2xl max-w-lg w-full p-12 text-center relative overflow-hidden animate-scaleUp">
-          {/* Success Decoration */}
-          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-400 via-emerald-500 to-green-600"></div>
-          
-          <div className="inline-flex items-center justify-center w-28 h-28 bg-green-50 rounded-full mb-8 relative group">
-            <div className="absolute inset-0 bg-green-200 rounded-full animate-ping opacity-20 group-hover:opacity-40 transition-opacity"></div>
-            <FaCheckCircle className="text-green-600 text-6xl relative z-10" />
-          </div>
-          
-          <h2 className="text-4xl font-normal text-gray-900 mb-4 tracking-tight">Order Confirmed!</h2>
-          <p className="text-gray-500 text-lg mb-8 font-normal">
-            Thank you for supporting local farmers. Your fresh harvest is being prepared.
-          </p>
-          
-          <div className="bg-gray-50/50 border border-gray-100 rounded-3xl p-6 mb-10 text-left">
-            <div className="flex justify-between items-center mb-3">
-              <span className="text-xs font-normal text-gray-400 uppercase tracking-widest">Order Status</span>
-              <span className="px-3 py-1 bg-green-100 text-green-700 text-[10px] font-normal uppercase rounded-full">Pending Confirmation</span>
-            </div>
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-600 font-normal">Estimated arrival</span>
-              <span className="font-normal text-gray-900">2-3 Business Days</span>
-            </div>
-          </div>
-          
-          <div className="flex flex-col gap-4">
-            <button 
-              onClick={() => navigate('/buyer/orders')}
-              className="w-full bg-gray-900 text-white py-5 rounded-2xl font-normal text-sm hover:bg-black transition-all shadow-xl hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-3"
-            >
-              <FaShoppingBag /> Track My Order
-            </button>
-            <p className="text-[10px] text-gray-400 font-normal uppercase tracking-widest mt-2 animate-pulse">
-              Redirecting you in {countdown}s...
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="animate-fadeIn w-full bg-[#faf8f0] pb-16 min-h-screen">
 
-
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <button
-            onClick={() => navigate('/buyer/cart')}
-            className="flex items-center gap-2 text-gray-500 hover:text-gray-800 transition-colors group"
-          >
-            <FaChevronLeft size={12} className="group-hover:-translate-x-1 transition-transform" />
-            <span className="text-sm font-normal">Back to Cart</span>
-          </button>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-              <FaLeaf className="text-white text-sm" />
-            </div>
-          </div>
+      {/* Hero Section */}
+      <div
+        className="relative w-full overflow-hidden flex flex-col items-center justify-center text-center text-white mb-10"
+        style={{
+          height: '350px',
+          minHeight: '350px',
+          backgroundColor: '#f4f5f0'
+        }}
+      >
+        <div
+          className="absolute inset-0 bg-cover bg-center overflow-hidden"
+          style={{
+            backgroundImage: `url('https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80')`,
+            zIndex: 0,
+            filter: 'blur(2px) brightness(0.7)'
+          }}
+        >
+          <div className="absolute inset-0 bg-black/40"></div>
         </div>
 
+        <div className="relative h-full w-full max-w-7xl mx-auto px-8 flex flex-col items-center justify-center text-center text-white" style={{ zIndex: 2 }}>
+          <h1 className="text-4xl md:text-4xl font-normal mb-4 text-white uppercase tracking-tight">
+            Check<span className="font-normal text-white">out</span>
+          </h1>
+          <p className="text-xs md:text-sm font-normal text-white/90 max-w-2xl uppercase tracking-[0.2em]">
+            Finalize your credentials and secure your farm-to-table delivery.
+          </p>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Checkout Form */}
           <div className="flex-1">
@@ -379,7 +350,7 @@ const Checkout = () => {
                         {item.product_name}
                       </p>
                       <p className="text-[10px] font-normal text-gray-400 uppercase tracking-widest mt-0.5">
-                         {item.quantity} kg • {item.farmer_name || 'Direct from Farm'}
+                        {item.quantity} kg • {item.farmer_name || 'Direct from Farm'}
                       </p>
                     </div>
                     <div className="text-right">
@@ -473,6 +444,48 @@ const Checkout = () => {
           background: #a8a8a8;
         }
       `}</style>
+      {/* Order Success Modal Overlay */}
+      {step === 3 && (
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center p-6 bg-black/40 backdrop-blur-xl animate-fadeIn">
+          <div className="bg-white/95 border border-white/20 rounded-[2rem] shadow-2xl max-w-sm w-full p-6 text-center relative overflow-hidden animate-scaleUp">
+            {/* Success Decoration */}
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-400 via-emerald-500 to-green-600"></div>
+
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-green-50 rounded-full mb-4 relative group">
+              <div className="absolute inset-0 bg-green-200 rounded-full animate-ping opacity-20 group-hover:opacity-40 transition-opacity"></div>
+              <FaCheckCircle className="text-green-600 text-3xl relative z-10" />
+            </div>
+
+            <h2 className="text-xl font-normal text-gray-900 mb-1 tracking-tight">Order Confirmed!</h2>
+            <p className="text-gray-500 text-xs mb-5 font-normal">
+              Your fresh harvest is being prepared.
+            </p>
+
+            <div className="bg-gray-50/50 border border-gray-100 rounded-xl p-3 mb-6 text-left">
+              <div className="flex justify-between items-center mb-1.5">
+                <span className="text-[9px] font-normal text-gray-400 uppercase tracking-widest">Status</span>
+                <span className="px-2 py-0.5 bg-green-100 text-green-700 text-[8px] font-normal uppercase rounded-full">Pending</span>
+              </div>
+              <div className="flex justify-between items-center text-[10px]">
+                <span className="text-gray-600 font-normal">Delivery</span>
+                <span className="font-normal text-gray-900">2-3 Days</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => navigate('/buyer/orders')}
+                className="w-full bg-gray-900 text-white py-3.5 rounded-xl font-normal text-xs hover:bg-black transition-all shadow-lg hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2"
+              >
+                <FaShoppingBag size={12} /> Track My Order
+              </button>
+              <p className="text-[8px] text-gray-400 font-normal uppercase tracking-widest mt-1 animate-pulse">
+                Redirecting in {countdown}s
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
