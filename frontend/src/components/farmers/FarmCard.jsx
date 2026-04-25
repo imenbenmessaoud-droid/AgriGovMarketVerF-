@@ -53,6 +53,18 @@ const FarmCard = ({ farm, onToggleStatus, onEdit, onDelete, onManageStock }) => 
 
       {/* Body Section */}
       <div className="p-4 space-y-4">
+        {farm.address && (
+          <div className="flex items-start gap-2">
+            <FaMapMarkerAlt className="text-gray-400 mt-0.5" size={12} />
+            <div>
+              <p className="text-xs text-gray-500 mb-0.5">Address</p>
+              <p className="text-sm font-normal text-black leading-relaxed">
+                {farm.address}
+              </p>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-4">
           <div className="flex items-start gap-2">
             <FaMapMarkerAlt className="text-gray-400 mt-0.5" size={12} />

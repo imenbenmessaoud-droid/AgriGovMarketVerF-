@@ -23,36 +23,20 @@ const VehicleManager = ({ onNavigate }) => {
     wilayas: []
   });
 
-  const fetchProfile = async () => {
+  const fetchFleet = async () => {
     setLoading(true);
     try {
-      const res = await api.get('users/me/');
-      if (res.data && res.data.user) {
-        setUserId(res.data.user.id_user);
-        const profile = res.data.profile;
-        if (profile && profile.license_number) {
-          setFleet([{
-            id: res.data.user.id_user,
-            plates: profile.license_number,
-            capacity: profile.vehicle_capacity,
-            type: profile.vehicle_type,
-            model: '-',
-            areas: profile.area_service || 'National',
-            status: 'ACTIVE'
-          }]);
-        } else {
-          setFleet([]);
-        }
-      }
+      const res = await api.get('users/vehicles/');
+      setFleet(res.data || []);
     } catch (err) {
-      console.error('Failed to fetch profile', err);
+      console.error('Failed to fetch fleet', err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchProfile();
+    fetchFleet();
   }, []);
 
   const handleChange = (e) => {
@@ -86,26 +70,22 @@ const VehicleManager = ({ onNavigate }) => {
     try {
       const areas = formData.wilayas.length === 0 ? 'National' : formData.wilayas.join(', ');
 
-      await api.patch('users/transporters/update_my_profile/', {
+      await api.post('users/vehicles/', {
         license_number: formData.plates,
-        vehicle_capacity: parseFloat(formData.capacity),
+        capacity: parseFloat(formData.capacity),
         vehicle_type: formData.type,
+        model: formData.model,
         area_service: areas
       });
 
-      await fetchProfile();
+      await fetchFleet();
       resetForm();
       setIsFormOpen(false);
-
-      // Go back to the dashboard if a prop exist
-      if (onNavigate) {
-        onNavigate('hub');
-      }
     } catch (err) {
       console.error("Failed to save vehicle", err);
       const errorMsg = err.response?.data?.license_number?.[0] ||
         err.response?.data?.detail ||
-        "Failed to register vehicle. Please check your connection or license plate.";
+        "Failed to register vehicle. This license plate may already be registered.";
       alert(errorMsg);
     } finally {
       setSaving(false);
@@ -113,24 +93,20 @@ const VehicleManager = ({ onNavigate }) => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Remove this vehicle from fleet?')) {
+    if (window.confirm('Permanently remove this vehicle from your fleet?')) {
       try {
-        await api.patch(`users/transporters/${userId}/`, {
-          license_number: null,
-          vehicle_capacity: 0,
-          vehicle_type: null,
-          area_service: null
-        });
-        setFleet([]);
+        await api.delete(`users/vehicles/${id}/`);
+        await fetchFleet();
       } catch (err) {
-        console.error("Failed to clear vehicle", err);
+        console.error("Failed to delete vehicle", err);
+        alert("Failed to delete vehicle. Please try again.");
       }
     }
   };
 
   const stats = {
     total: fleet.length,
-    pending: fleet.filter(v => v.status === 'PENDING').length,
+    active: fleet.filter(v => v.is_active).length,
     totalCapacity: fleet.reduce((sum, v) => sum + parseFloat(v.capacity || 0), 0)
   };
 
@@ -144,7 +120,7 @@ const VehicleManager = ({ onNavigate }) => {
 
   return (
     <div className="min-h-screen bg-[#faf8f0]">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 pt-2 pb-8">
 
         {/* Header */}
         <div className="mb-8">
@@ -164,13 +140,13 @@ const VehicleManager = ({ onNavigate }) => {
                 if (!isFormOpen) resetForm();
                 setIsFormOpen(!isFormOpen);
               }}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-normal transition-all ${isFormOpen || fleet.length > 0
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-normal transition-all ${isFormOpen
                 ? 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 : 'bg-green-700 text-white hover:bg-green-800 shadow-sm'
                 }`}
             >
-              {isFormOpen || fleet.length > 0 ? <FaTimes size={14} /> : <FaPlus size={14} />}
-              {isFormOpen ? 'Cancel' : fleet.length > 0 ? 'Change Vehicle Info' : 'Add Vehicle'}
+              {isFormOpen ? <FaTimes size={14} /> : <FaPlus size={14} />}
+              {isFormOpen ? 'Cancel' : 'Add Vehicle'}
             </button>
           </div>
         </div>
@@ -302,8 +278,8 @@ const VehicleManager = ({ onNavigate }) => {
         {/* Fleet Table */}
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
           <div className="p-5 border-b border-gray-100 flex justify-between items-center">
-            <h2 className="text-base font-normal text-gray-800">Primary Vehicle</h2>
-            {fleet.length > 0 && <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full font-normal">ACTIVE</span>}
+            <h2 className="text-base font-normal text-gray-800">Vehicle Fleet</h2>
+            {fleet.length > 0 && <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full font-normal">MANAGED</span>}
           </div>
 
           {fleet.length === 0 ? (
@@ -316,7 +292,7 @@ const VehicleManager = ({ onNavigate }) => {
                 onClick={() => setIsFormOpen(true)}
                 className="mt-3 text-sm text-green-700 hover:text-green-800 font-normal"
               >
-                Add your primary vehicle to accept missions
+                Add your vehicles to manage your fleet
               </button>
             </div>
           ) : (
@@ -324,10 +300,10 @@ const VehicleManager = ({ onNavigate }) => {
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-100">
                   <tr className="text-left">
-                    <th className="px-5 py-3 text-xs font-normal text-gray-500 uppercase">Plates</th>
-                    <th className="px-5 py-3 text-xs font-normal text-gray-500 uppercase">Type</th>
+                    <th className="px-5 py-3 text-xs font-normal text-gray-500 uppercase">License Plate</th>
+                    <th className="px-5 py-3 text-xs font-normal text-gray-500 uppercase">Model / Type</th>
                     <th className="px-5 py-3 text-xs font-normal text-gray-500 uppercase">Capacity</th>
-                    <th className="px-5 py-3 text-xs font-normal text-gray-500 uppercase hidden lg:table-cell">Areas</th>
+                    <th className="px-5 py-3 text-xs font-normal text-gray-500 uppercase hidden lg:table-cell">Area</th>
                     <th className="px-5 py-3 text-xs font-normal text-gray-500 uppercase text-right">Actions</th>
                   </tr>
                 </thead>
@@ -336,21 +312,26 @@ const VehicleManager = ({ onNavigate }) => {
                     <tr key={vehicle.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-2">
-                          <FaIdCard className="text-gray-300 text-xs" />
-                          <span className="text-sm font-normal text-gray-800">{vehicle.plates}</span>
+                          <div className="w-8 h-8 rounded bg-gray-50 flex items-center justify-center">
+                            <FaIdCard className="text-gray-400 text-xs" />
+                          </div>
+                          <span className="text-sm font-normal text-gray-800">{vehicle.license_number}</span>
                         </div>
                       </td>
                       <td className="px-5 py-4">
-                        <span className="text-xs font-normal text-gray-700">{vehicle.type}</span>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-normal text-gray-800">{vehicle.model || 'Unknown Model'}</span>
+                          <span className="text-[10px] text-gray-400 uppercase tracking-wider">{vehicle.vehicle_type_display || vehicle.vehicle_type}</span>
+                        </div>
                       </td>
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-1">
                           <FaWeightHanging className="text-gray-300 text-[10px]" />
-                          <span className="text-sm text-gray-700">{vehicle.capacity} T</span>
+                          <span className="text-sm text-gray-700 font-normal">{vehicle.capacity} Tons</span>
                         </div>
                       </td>
                       <td className="px-5 py-4 hidden lg:table-cell">
-                        <span className="text-xs text-gray-500">{vehicle.areas}</span>
+                        <span className="text-xs text-gray-500">{vehicle.area_service || 'National'}</span>
                       </td>
                       <td className="px-5 py-4 text-right">
                         <button

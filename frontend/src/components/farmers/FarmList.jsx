@@ -34,6 +34,7 @@ const FarmList = () => {
           name: f.FarmName,
           region: f.LocationFarm,
           size: f.Size,
+          address: f.address,
           status: f.is_active ? 'Active' : 'Inactive',
           registeredDate: f.created_at.split('T')[0],
           crops: [] // Handled separately if implemented

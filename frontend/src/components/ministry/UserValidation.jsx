@@ -62,8 +62,8 @@ const UserValidation = () => {
   const regions = ['All', 'Algiers', 'Blida', 'Biskra', 'Medea', 'Oran', 'Constantine', 'Setif'];
 
   const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          user.id.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = (user.name?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+                          String(user.id || '').toLowerCase().includes(searchQuery.toLowerCase());
     const matchesType = typeFilter === 'All' || user.type === typeFilter;
     const matchesRegion = regionFilter === 'All' || user.region === regionFilter;
     return matchesSearch && matchesType && matchesRegion;
@@ -129,23 +129,28 @@ const UserValidation = () => {
         {/* Search and Filters */}
         <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-3">
           {/* Search Bar */}
-          <div className="relative">
-            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={14} />
+          <div className="relative flex items-center">
+            <FaSearch className="absolute left-3 text-gray-400" size={14} />
             <input
               type="text"
               placeholder="Search by name or ID..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-10 py-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-800 text-sm"
+              className="w-full pl-9 pr-28 py-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 text-gray-800 text-sm transition-all"
             />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                <FaTimes size={12} />
+            <div className="absolute right-1 flex items-center gap-1">
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="p-2 text-gray-400 hover:text-gray-600"
+                >
+                  <FaTimes size={12} />
+                </button>
+              )}
+              <button className="bg-green-700 text-white px-4 py-1.5 rounded-md text-xs font-normal hover:bg-green-800 transition">
+                Search
               </button>
-            )}
+            </div>
           </div>
 
           {/* Filters */}

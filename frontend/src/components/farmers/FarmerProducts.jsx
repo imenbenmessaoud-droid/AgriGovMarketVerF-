@@ -81,11 +81,11 @@ const FarmerProducts = () => {
             formData.append('quantity', parseFloat(newProduct.quantity));
             formData.append('production_date', newProduct.production_date);
             formData.append('is_available', newProduct.is_available);
-            
+
             if (newProduct.image_file) {
                 formData.append('product_image', newProduct.image_file);
             }
-            
+
             const config = {
                 headers: { 'Content-Type': 'multipart/form-data' }
             };
@@ -95,7 +95,7 @@ const FarmerProducts = () => {
             } else {
                 await api.post('products/product-items/', formData, config);
             }
-            
+
             fetchData();
             closeModal();
         } catch (err) {
@@ -188,7 +188,7 @@ const FarmerProducts = () => {
         const stars = [];
         const fullStars = Math.floor(rating);
         const hasHalfStar = rating % 1 !== 0;
-        
+
         for (let i = 0; i < fullStars; i++) {
             stars.push(<FaStar key={i} className="text-yellow-400 text-xs" />);
         }
@@ -201,7 +201,7 @@ const FarmerProducts = () => {
     return (
         <div className="w-full min-h-screen" style={{ backgroundColor: '#faf8f0' }}>
             <div className="max-w-7xl mx-auto px-4 py-8">
-                
+
                 {/* Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                     <div>
@@ -210,7 +210,7 @@ const FarmerProducts = () => {
                                 {filterFarmName ? `Products: ${filterFarmName}` : 'My Products'}
                             </h1>
                             {filterFarmId && (
-                                <button 
+                                <button
                                     onClick={() => navigate('/farmer/products', { replace: true, state: {} })}
                                     className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-md hover:bg-red-200 transition flex items-center"
                                 >
@@ -450,7 +450,7 @@ const FarmerProducts = () => {
                                                 ))}
                                             </select>
                                         </div>
-                                        
+
                                         {newProduct.id_product && blueprints.find(b => b.id_product === parseInt(newProduct.id_product))?.current_price && (
                                             <div className="mt-3 p-3 bg-green-50 border border-green-100 rounded-lg flex justify-between items-center animate-in slide-in-from-top-2 duration-300 transition-all">
                                                 <span className="text-[10px] uppercase font-normal text-green-700 tracking-wider">Authorized Price Range:</span>
@@ -466,7 +466,7 @@ const FarmerProducts = () => {
                                                     </div>
                                                 </div>
                                             </div>
-                                         )}
+                                        )}
                                     </div>
 
                                     <div>
@@ -507,11 +507,11 @@ const FarmerProducts = () => {
 
                                     <div className="flex items-center pt-6">
                                         <label className="relative inline-flex items-center cursor-pointer">
-                                            <input 
-                                                type="checkbox" 
-                                                className="sr-only peer" 
+                                            <input
+                                                type="checkbox"
+                                                className="sr-only peer"
                                                 checked={newProduct.is_available}
-                                                onChange={e => setNewProduct({...newProduct, is_available: e.target.checked})}
+                                                onChange={e => setNewProduct({ ...newProduct, is_available: e.target.checked })}
                                             />
                                             <span className="ml-3 text-sm font-normal text-gray-700">Available for sale</span>
                                         </label>
@@ -523,9 +523,9 @@ const FarmerProducts = () => {
                                             {newProduct.image_preview && (
                                                 <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-gray-200">
                                                     <img src={newProduct.image_preview} alt="Preview" className="w-full h-full object-cover" />
-                                                    <button 
+                                                    <button
                                                         type="button"
-                                                        onClick={() => setNewProduct({...newProduct, image_file: null, image_preview: null})}
+                                                        onClick={() => setNewProduct({ ...newProduct, image_file: null, image_preview: null })}
                                                         className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-bl-lg"
                                                     >
                                                         <FaTimes size={10} />
@@ -569,7 +569,7 @@ const FarmerProducts = () => {
                 {/* Product Details Modal */}
                 {showDetailsModal && selectedProduct && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-                        <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                        <div className="bg-white rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto scrollbar-hide">
                             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
                                 <h3 className="text-lg font-normal text-gray-900">Product Details</h3>
                                 <button
@@ -582,17 +582,17 @@ const FarmerProducts = () => {
 
                             <div className="p-6">
                                 {selectedProduct.product_image ? (
-                                    <img 
-                                        src={selectedProduct.product_image} 
+                                    <img
+                                        src={selectedProduct.product_image}
                                         alt={selectedProduct.product_name}
-                                        className="w-full h-64 object-cover rounded-lg mb-6 shadow-sm"
+                                        className="w-full h-48 object-cover rounded-lg mb-6 shadow-sm"
                                     />
                                 ) : (
-                                    <div className="w-full h-64 bg-emerald-50 rounded-lg mb-6 flex items-center justify-center text-emerald-200">
+                                    <div className="w-full h-48 bg-emerald-50 rounded-lg mb-6 flex items-center justify-center text-emerald-200">
                                         <FaBoxOpen size={64} />
                                     </div>
                                 )}
-                                
+
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-start">
                                         <div>
@@ -628,15 +628,9 @@ const FarmerProducts = () => {
                                         <p className="text-xs text-gray-500 mb-1">Description</p>
                                         <p className="text-gray-700">{selectedProduct.product_description}</p>
                                     </div>
-                                        <button
-                                            onClick={closeModal}
-                                            className="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-lg font-normal hover:bg-gray-200 transition-colors"
-                                        >
-                                            Close
-                                        </button>
-                                    </div>
                                 </div>
                             </div>
+                        </div>
                     </div>
                 )}
             </div>

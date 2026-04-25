@@ -10,14 +10,14 @@ import {
 import api from '../../services/api';
 
 
-const DeliveryJobs = ({ searchQuery: externalSearchQuery, onNavigate }) => {
+const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavigate }) => {
   const [activeTab, setActiveTab] = useState('requests');
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [internalSearchQuery, setInternalSearchQuery] = useState('');
 
   const searchQuery = externalSearchQuery !== undefined ? externalSearchQuery : internalSearchQuery;
-  const setSearchQuery = externalSearchQuery !== undefined ? () => { } : setInternalSearchQuery;
+  const setSearchQuery = onSearchChange || (externalSearchQuery !== undefined ? () => { } : setInternalSearchQuery);
   const [showDeclineConfirm, setShowDeclineConfirm] = useState(null);
   const [selectedJob, setSelectedJob] = useState(null);
   const [toast, setToast] = useState(null);
@@ -26,18 +26,27 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onNavigate }) => {
     const saved = localStorage.getItem('ignored_jobs');
     return saved ? JSON.parse(saved) : [];
   });
+  const [fleet, setFleet] = useState([]);
+  const [selectedVehicles, setSelectedVehicles] = useState({});
   const [transporterProfile, setTransporterProfile] = useState(null);
 
   const fetchTransporterProfile = async () => {
     try {
-      const res = await api.get('users/transporters/me/'); // Assuming there's a 'me' or just get first from list
-      // Or filter list by current user ID. Let's try users/me first then filter.
       const profileRes = await api.get('users/me/');
       if (profileRes.data && profileRes.data.profile) {
         setTransporterProfile(profileRes.data.profile);
       }
     } catch (err) {
       console.error('Failed to fetch transporter profile:', err);
+    }
+  };
+
+  const fetchFleet = async () => {
+    try {
+      const res = await api.get('users/vehicles/');
+      setFleet(res.data || []);
+    } catch (err) {
+      console.error('Failed to fetch fleet:', err);
     }
   };
 
@@ -61,6 +70,7 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onNavigate }) => {
   useEffect(() => {
     fetchJobs();
     fetchTransporterProfile();
+    fetchFleet();
   }, [activeTab]);
 
   const showToast = (message, type = 'success') => {
@@ -78,12 +88,14 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onNavigate }) => {
 
   const handleAccept = async (id) => {
     try {
-      await api.patch(`deliveries/missions/${id}/accept/`);
+      const vehicleId = selectedVehicles[id];
+      await api.patch(`deliveries/missions/${id}/accept/`, { vehicle_id: vehicleId });
       showToast(`Mission #${id} assigned to you`, 'success');
       fetchJobs();
     } catch (err) {
       console.error('Accept mission error:', err.response?.data || err.message);
-      const errorMsg = err.response?.data?.error || 'Error accepting mission. Please try again.';
+      const errorData = err.response?.data;
+      const errorMsg = errorData?.error || errorData?.detail || 'Error accepting mission. Please try again.';
       showToast(errorMsg, 'error');
     }
   };
@@ -241,8 +253,11 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onNavigate }) => {
   };
 
   const DetailModal = ({ job, onClose }) => (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[100] p-4 pt-20" onClick={onClose}>
+      <div
+        className="bg-white rounded-2xl max-w-md w-full max-h-[75vh] overflow-y-auto shadow-2xl animate-modalEntry mt-10"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="sticky top-0 bg-white border-b border-gray-100 p-5 flex justify-between items-center">
           <div>
             <h2 className="text-xl font-normal text-gray-800">Job Details</h2>
@@ -425,8 +440,8 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onNavigate }) => {
       <div className="p-4">
         {activeTab === 'requests' && (
           <div className="space-y-3">
-            {/* Vehicle Selection Area */}
-            {!job.vehicle_license_snapshot && !transporterProfile?.license_number ? (
+            {/* Fleet Selection Area */}
+            {fleet.length === 0 ? (
               <button
                 onClick={() => onNavigate && onNavigate('fleet')}
                 className="w-full py-2.5 border-2 border-dashed border-green-200 text-green-700 text-sm font-normal rounded-lg hover:bg-green-50 flex items-center justify-center gap-2 transition-all"
@@ -434,16 +449,23 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onNavigate }) => {
                 <FaPlus size={12} /> Add Vehicle in Fleet
               </button>
             ) : (
-              <div className="p-3 bg-green-50 rounded-lg border border-green-100 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm">
-                    <FaTruck size={12} className="text-green-600" />
-                  </div>
-                  <div>
-                    <p className="text-[9px] text-gray-400 uppercase font-normal">Primary Vehicle Selected</p>
-                    <p className="text-xs font-normal text-gray-800">
-                      {job.vehicle_license_snapshot || transporterProfile?.license_number}
-                    </p>
+              <div className="space-y-2">
+                <label className="text-[10px] text-gray-400 uppercase font-normal ml-1">Select Delivery Vehicle</label>
+                <div className="relative">
+                  <select
+                    value={selectedVehicles[job.mission_number] || ''}
+                    onChange={(e) => setSelectedVehicles({ ...selectedVehicles, [job.mission_number]: e.target.value })}
+                    className="w-full pl-3 pr-10 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm font-normal appearance-none focus:outline-none focus:ring-1 focus:ring-green-500"
+                  >
+                    <option value="">Primary Profile Vehicle</option>
+                    {fleet.map(v => (
+                      <option key={v.id} value={v.id}>
+                        {v.license_number} ({v.vehicle_type_display || v.vehicle_type})
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                    <FaTruck size={12} />
                   </div>
                 </div>
               </div>
@@ -494,7 +516,7 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onNavigate }) => {
 
   return (
     <div className="min-h-screen bg-[#faf8f0]">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 pt-2 pb-8">
         {toast && (
           <div className="fixed top-20 right-6 z-50 animate-slide-up">
             <div className={`px-5 py-3 rounded-lg shadow-lg flex items-center gap-3 ${toast.type === 'success' ? 'bg-green-600 text-white' : 'bg-blue-600 text-white'
@@ -579,10 +601,15 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onNavigate }) => {
       {selectedJob && <DetailModal job={selectedJob} onClose={() => setSelectedJob(null)} />}
 
       <style jsx>{`
+        @keyframes modalEntry {
+          from { opacity: 0; transform: scale(0.95) translateY(10px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
+        }
         @keyframes slide-up {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
         }
+        .animate-modalEntry { animation: modalEntry 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .animate-slide-up { animation: slide-up 0.3s ease-out; }
       `}</style>
     </div>

@@ -38,12 +38,11 @@ const AppraisalModal = ({ order, isOpen, onClose, onRefresh }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 shadow-2xl backdrop-blur-sm animate-fadeIn">
-      <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden relative shadow-2xl animate-scaleUp">
-        
+      <div className="bg-white rounded-[24px] w-full max-w-[380px] overflow-hidden relative shadow-2xl animate-scaleUp">
+
         {/* Header Decor */}
-        <div className="bg-gradient-to-r from-green-600 to-emerald-700 h-2 w-full"></div>
-        
-        <button 
+
+        <button
           onClick={onClose}
           className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
         >
@@ -59,30 +58,30 @@ const AppraisalModal = ({ order, isOpen, onClose, onRefresh }) => {
             <p className="text-sm text-gray-500">Thank you for your genuine feedback. It helps our farming community grow.</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="p-8">
-            <div className="text-center mb-8">
-              <span className="text-[10px] font-normal text-green-600 uppercase tracking-[0.2em] mb-2 block">Order Appraisal</span>
-              <h2 className="text-2xl font-normal text-gray-900 leading-tight">How was your experience?</h2>
-              <p className="text-xs text-gray-500 mt-2">Rate your order from Farmer {order.farmer_name || 'AgriGov Partner'}</p>
+          <form onSubmit={handleSubmit} className="px-8 py-6">
+            <div className="text-center mb-5">
+              <span className="text-[10px] font-normal text-green-600 uppercase tracking-[0.2em] mb-1.5 block">Order Appraisal</span>
+              <h2 className="text-xl font-normal text-gray-900 leading-tight">How was your experience?</h2>
+              <p className="text-[11px] text-gray-500 mt-1.5">Rate your order from Farmer {order.farmer_name || 'AgriGov Partner'}</p>
             </div>
 
-            <div className="flex flex-col items-center mb-8">
-              <div className="flex gap-2 mb-3">
+            <div className="flex flex-col items-center mb-5">
+              <div className="flex gap-1.5 mb-2.5">
                 {[...Array(5)].map((_, index) => {
                   const ratingValue = index + 1;
                   return (
                     <label key={index} className="cursor-pointer">
-                      <input 
-                        type="radio" 
-                        name="rating" 
-                        value={ratingValue} 
+                      <input
+                        type="radio"
+                        name="rating"
+                        value={ratingValue}
                         className="hidden"
                         onClick={() => setRating(ratingValue)}
                       />
-                      <FaStar 
+                      <FaStar
                         className="transition-all duration-200"
                         color={ratingValue <= (hover || rating) ? "#FFB82E" : "#e2e8f0"}
-                        size={36}
+                        size={30}
                         onMouseEnter={() => setHover(ratingValue)}
                         onMouseLeave={() => setHover(null)}
                       />
@@ -95,11 +94,11 @@ const AppraisalModal = ({ order, isOpen, onClose, onRefresh }) => {
               </p>
             </div>
 
-            <div className="mb-8">
+            <div className="mb-5">
               <label className="text-[10px] font-normal text-gray-400 uppercase tracking-widest mb-2 block">Detailed Feedback (Optional)</label>
               <textarea
                 placeholder="Tell us about the quality, delivery, or service..."
-                className="w-full h-32 bg-gray-50 border border-gray-100 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-green-500/20 focus:outline-none resize-none transition-all"
+                className="w-full h-24 bg-gray-50 border border-gray-100 rounded-xl p-3 text-sm focus:ring-2 focus:ring-green-500/20 focus:outline-none resize-none transition-all"
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
               />
@@ -112,7 +111,7 @@ const AppraisalModal = ({ order, isOpen, onClose, onRefresh }) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-black text-white py-4 rounded-xl font-normal text-sm hover:bg-green-600 transition-all duration-300 shadow-xl flex items-center justify-center gap-2 group"
+              className="w-full bg-black text-white py-3.5 rounded-xl font-normal text-sm hover:bg-green-600 transition-all duration-300 shadow-lg flex items-center justify-center gap-2 group"
             >
               {loading ? (
                 <FaSpinner className="animate-spin" />

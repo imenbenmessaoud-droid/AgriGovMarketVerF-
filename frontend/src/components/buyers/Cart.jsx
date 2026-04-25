@@ -19,26 +19,38 @@ const Cart = () => {
   const total = subtotal + deliveryFee + tax;
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-10">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <button 
-            onClick={() => navigate('/buyer')}
-            className="flex items-center gap-2 text-gray-500 hover:text-gray-800 transition-colors"
-          >
-            <FaChevronLeft size={12} />
-            <span className="text-xs font-normal uppercase tracking-wider">Continue Shopping</span>
-          </button>
+    <div className="min-h-screen bg-[#faf8f0] font-sans pb-16">
+      {/* Hero Section */}
+      <div className="relative h-64 md:h-80 w-full overflow-hidden flex items-center justify-center text-center">
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ 
+            backgroundImage: `url('https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80')`,
+            filter: 'brightness(0.6)'
+          }}
+        >
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]"></div>
         </div>
+        
+        <div className="relative z-10 px-4">
+          <h1 className="text-4xl md:text-5xl font-normal text-white mb-4 tracking-tight">Shopping Cart</h1>
+          <p className="text-xs md:text-sm font-normal text-white/90 max-w-2xl uppercase tracking-[0.2em]">
+            Finalize your selections and secure your farm-to-table delivery.
+          </p>
+        </div>
+      </div>
 
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 mt-12 relative z-20">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Cart Items */}
           <div className="flex-1">
-            <div className="bg-white rounded-2xl shadow-sm p-8">
-              <div className="flex justify-between items-center mb-10">
-                <h1 className="text-3xl font-normal text-gray-900 border-l-4 border-green-600 pl-4">Shopping Cart</h1>
-                <span className="text-sm font-normal text-gray-400 uppercase tracking-widest">{cart.length} items</span>
+            <div className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
+              <div className="flex justify-between items-center mb-10 border-b border-gray-50 pb-6">
+                <div className="flex items-center gap-4">
+                   <div className="w-1 h-8 bg-green-600 rounded-full"></div>
+                   <h2 className="text-2xl font-normal text-gray-900">Your Selection</h2>
+                </div>
+                <span className="text-xs font-normal text-gray-400 uppercase tracking-[0.2em] bg-gray-50 px-3 py-1 rounded-full">{cart.length} items</span>
               </div>
 
               {cart.length === 0 ? (
@@ -55,73 +67,71 @@ const Cart = () => {
                   </button>
                 </div>
               ) : (
-                <>
-                  <div className="divide-y divide-gray-100">
-                    {cart.map(item => (
-                      <div key={item._cartId || Math.random()} className="grid grid-cols-1 md:grid-cols-12 gap-6 py-8 items-center group">
-                        <div className="md:col-span-6 flex gap-6">
-                          <div className="w-20 h-20 bg-gradient-to-br from-green-50 to-emerald-100 rounded-2xl flex items-center justify-center shrink-0 shadow-sm overflow-hidden group-hover:scale-105 transition-transform">
-                            {item.product_image || item.image ? (
-                              <img src={item.product_image || item.image} alt={item.product_name || item.name} className="w-full h-full object-cover" />
-                            ) : (
-                              <FaLeaf className="text-green-300 text-3xl" />
-                            )}
-                          </div>
-                          <div className="flex flex-col justify-center">
-                            <h3 className="font-normal text-gray-900 text-lg mb-1">{item.product_name || item.name}</h3>
-                            <div className="flex items-center gap-3">
-                               <span className="text-[10px] font-normal text-green-600 uppercase bg-green-50 px-2 py-0.5 rounded tracking-tighter">
-                                 {item.category_name || 'Agri Product'}
-                               </span>
-                               <span className="text-xs text-gray-400 font-normal flex items-center gap-1">
-                                 <FaMapMarkerAlt size={10} className="text-green-500 opacity-50" />
-                                 {item.farmer_name || 'Unknown Farm'}
-                               </span>
-                            </div>
-                          </div>
+                <div className="divide-y divide-gray-100">
+                  {cart.map(item => (
+                    <div key={item._cartId || Math.random()} className="grid grid-cols-1 md:grid-cols-12 gap-8 py-10 items-center group border-b border-gray-50 last:border-0">
+                      <div className="md:col-span-6 flex gap-8">
+                        <div className="w-32 h-32 bg-gradient-to-br from-green-50 to-emerald-100 rounded-[2rem] flex items-center justify-center shrink-0 shadow-sm overflow-hidden group-hover:scale-105 transition-all duration-500">
+                          {item.product_image || item.image ? (
+                            <img src={item.product_image || item.image} alt={item.product_name || item.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <FaLeaf className="text-green-300 text-4xl" />
+                          )}
                         </div>
-
-                        <div className="md:col-span-3 flex flex-col items-center">
-                          <div className="flex items-center justify-center gap-4 bg-gray-50 rounded-xl p-2 w-full max-w-[140px]">
-                            <button
-                              onClick={() => handleUpdateQty(item._cartId, -0.5, item.quantity)}
-                              className="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center text-gray-400 hover:text-green-600 hover:shadow transition-all active:scale-90"
-                            ><FaMinus size={10} /></button>
-                            <input 
-                              type="number"
-                              step="0.1"
-                              value={item.quantity}
-                              onChange={(e) => updateQuantity(item._cartId, parseFloat(e.target.value) || 0.1)}
-                              className="w-12 text-center font-normal bg-transparent border-none outline-none focus:ring-0 text-gray-900"
-                            />
-                            <button
-                              onClick={() => handleUpdateQty(item._cartId, 0.5, item.quantity)}
-                              className="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center text-gray-400 hover:text-green-600 hover:shadow transition-all active:scale-90"
-                            ><FaPlus size={10} /></button>
+                        <div className="flex flex-col justify-center">
+                          <h3 className="font-normal text-gray-900 text-xl mb-1.5 tracking-tight">{item.product_name || item.name}</h3>
+                          <div className="flex items-center gap-4">
+                             <span className="text-[11px] font-normal text-green-600 uppercase bg-green-50 px-3 py-1 rounded-full tracking-wider">
+                               {item.category_name || 'Agri Product'}
+                             </span>
+                             <span className="text-sm text-gray-400 font-normal flex items-center gap-1.5">
+                               <FaMapMarkerAlt size={12} className="text-green-500 opacity-50" />
+                               {item.farmer_name || 'Unknown Farm'}
+                             </span>
                           </div>
-                          <span className="text-[10px] font-normal text-gray-400 uppercase tracking-widest mt-1">
-                            {item.unit === 'ton' ? 'Tons' : item.unit === 'litre' ? 'Litres' : 'Kilograms'}
-                          </span>
-                        </div>
-
-                        <div className="md:col-span-3 flex items-center justify-between pl-4">
-                          <div className="text-right">
-                             <div className="text-lg font-normal text-gray-900">
-                               {(getPrice(item) * item.quantity * (item.unit === 'ton' ? 1000 : 1)).toLocaleString()} <span className="text-[10px] font-normal text-gray-400 ml-0.5">DZD</span>
-                             </div>
-                             <div className="text-[10px] text-gray-400 font-normal uppercase tracking-wider">
-                               {getPrice(item)} DZD / kg
-                             </div>
-                          </div>
-                          <button
-                            onClick={() => removeFromCart(item._cartId)}
-                            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 transition-all ml-4"
-                          ><FaTimes size={12} /></button>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </>
+
+                      <div className="md:col-span-3 flex flex-col items-center">
+                        <div className="flex items-center justify-center gap-5 bg-gray-50 rounded-2xl p-3 w-full max-w-[160px]">
+                          <button
+                            onClick={() => handleUpdateQty(item._cartId, -0.5, item.quantity)}
+                            className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-gray-400 hover:text-green-600 hover:shadow-md transition-all active:scale-90"
+                          ><FaMinus size={12} /></button>
+                          <input 
+                            type="number"
+                            step="0.1"
+                            value={item.quantity}
+                            onChange={(e) => updateQuantity(item._cartId, parseFloat(e.target.value) || 0.1)}
+                            className="w-14 text-center font-normal bg-transparent border-none outline-none focus:ring-0 text-gray-900 text-lg"
+                          />
+                          <button
+                            onClick={() => handleUpdateQty(item._cartId, 0.5, item.quantity)}
+                            className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-gray-400 hover:text-green-600 hover:shadow-md transition-all active:scale-90"
+                          ><FaPlus size={12} /></button>
+                        </div>
+                        <span className="text-[11px] font-normal text-gray-400 uppercase tracking-widest mt-2">
+                          {item.unit === 'ton' ? 'Tons' : item.unit === 'litre' ? 'Litres' : 'Kilograms'}
+                        </span>
+                      </div>
+
+                      <div className="md:col-span-3 flex items-center justify-between pl-6">
+                        <div className="text-right">
+                           <div className="text-2xl font-normal text-gray-900 tracking-tight">
+                             {(getPrice(item) * item.quantity * (item.unit === 'ton' ? 1000 : 1)).toLocaleString()} <span className="text-xs font-normal text-gray-400 ml-1">DZD</span>
+                           </div>
+                           <div className="text-[11px] text-gray-400 font-normal uppercase tracking-[0.1em] mt-1">
+                             {getPrice(item)} DZD / kg
+                           </div>
+                        </div>
+                        <button
+                          onClick={() => removeFromCart(item._cartId)}
+                          className="w-10 h-10 rounded-full flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 transition-all ml-6"
+                        ><FaTimes size={14} /></button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           </div>
@@ -129,37 +139,37 @@ const Cart = () => {
           {/* Order Summary */}
           {cart.length > 0 && (
             <div className="w-full lg:w-96">
-              <div className="bg-white rounded-2xl shadow-sm p-6 sticky top-24">
-                <h2 className="text-xl  mb-6">Order Summary</h2>
-                
-                <div className="space-y-3 pb-4 border-b">
-                <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Subtotal</span>
-                    <span>{subtotal.toLocaleString()} DZD</span>
+              <div className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100 sticky top-24">
+                <h2 className="text-2xl font-normal text-gray-900 mb-8 border-b border-gray-50 pb-4">Order Summary</h2>
+
+                <div className="space-y-4 pb-6 border-b border-gray-50">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-400 font-normal">Subtotal</span>
+                    <span className="text-gray-900">{subtotal.toLocaleString()} DZD</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Delivery Fee</span>
-                    <span >{deliveryFee === 0 ? 'Free' : deliveryFee.toLocaleString() + ' DZD'}</span>
+                    <span className="text-gray-400 font-normal">Delivery Fee</span>
+                    <span className="text-gray-900">{deliveryFee === 0 ? 'Free' : deliveryFee.toLocaleString() + ' DZD'}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Tax (19%)</span>
-                    <span >{tax.toLocaleString()} DZD</span>
+                    <span className="text-gray-400 font-normal">Tax (19%)</span>
+                    <span className="text-gray-900">{tax.toLocaleString()} DZD</span>
                   </div>
                 </div>
-                
-                <div className="flex justify-between items-center pt-4 pb-6">
-                  <span className=" text-lg">Total</span>
-                  <span className="text-2xl  text-green-600">{total.toLocaleString()} DZD</span>
+
+                <div className="flex justify-between items-center pt-6 pb-10">
+                  <span className="text-lg text-gray-500">Total</span>
+                  <span className="text-3xl font-normal text-green-600 tracking-tighter">{total.toLocaleString()} DZD</span>
                 </div>
-                
+
                 <button
                   onClick={() => navigate('/buyer/checkout')}
-                  className="w-full bg-green-600 text-white py-3 rounded-xl  hover:bg-green-700 transition-colors"
+                  className="w-full bg-[#1e2330] text-white py-4 rounded-2xl font-normal text-sm hover:bg-black transition-all shadow-xl hover:-translate-y-1 active:scale-95"
                 >
                   Proceed to Checkout
                 </button>
-                
-                <p className="text-xs text-gray-400 text-center mt-4">
+
+                <p className="text-[10px] text-gray-400 text-center mt-6 uppercase tracking-widest">
                   Free delivery on orders over 5000 DZD
                 </p>
               </div>

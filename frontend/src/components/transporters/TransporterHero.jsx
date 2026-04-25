@@ -27,15 +27,15 @@ const TransporterHero = ({ title = 'Logistics Portal', subtitle = 'Fast Agri Log
       
       {/* Content Layout */}
       <div className="relative h-full w-full max-w-5xl mx-auto px-6 flex flex-col items-center justify-center text-center text-white" style={{ zIndex: 2 }}>
-        <h1 className="text-4xl md:text-5xl font-normal mb-4 animate-fadeIn text-white uppercase ">
+        <h1 className="text-4xl md:text-5xl font-normal mb-4 animate-fadeIn text-white">
           {title}
         </h1>
-        <p className="text-xs md:text-sm font-normal text-white/90 max-w-2xl animate-fadeIn uppercase tracking-[0.2em] mb-12" style={{ animationDelay: '0.2s' }}>
+        <p className="text-xs md:text-sm font-normal text-white/90 max-w-2xl animate-fadeIn tracking-[0.1em] mb-12" style={{ animationDelay: '0.2s' }}>
           {subtitle}
         </p>
 
         {/* Specific Search Bar Style from Reference Image */}
-        <div className="w-full max-w-3xl relative animate-fadeIn group" style={{ animationDelay: '0.4s' }}>
+        <div className="w-full max-w-xl relative animate-fadeIn group" style={{ animationDelay: '0.4s' }}>
           <div className="relative flex items-center">
             <input
               type="text"

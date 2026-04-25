@@ -22,6 +22,9 @@ class Farm(models.Model):
         verbose_name="Size (hectares)",
         help_text="Size in hectares, minimum 0.01 ha"
     )
+    address = models.TextField(blank=True, verbose_name="Address")
+    phone = models.CharField(max_length=20, blank=True, verbose_name="Phone Number")
+    email = models.EmailField(blank=True, verbose_name="Email Address")
     
     # Relationship with Farmer (1 → 1..*)
     farmer = models.ForeignKey(
@@ -89,7 +92,7 @@ class Farm(models.Model):
     def UpdateFarmInfo(self, **kwargs):
         """Update farm information"""
         allowed_fields = ['FarmName', 'LocationFarm', 'Size', 'description', 
-                          'latitude', 'longitude', 'is_active']
+                          'latitude', 'longitude', 'is_active', 'address', 'phone', 'email']
         
         for key, value in kwargs.items():
             if key in allowed_fields and hasattr(self, key):

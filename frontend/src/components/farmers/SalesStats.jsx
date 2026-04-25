@@ -105,7 +105,9 @@ const FarmerSales = () => {
   });
 
   const totalSalesRevenue = Object.values(productSalesMap).reduce((sum, val) => sum + val, 0);
-  const topProducts = Object.keys(productSalesMap).map(p => ({
+  const topProducts = Object.keys(productSalesMap)
+    .filter(name => name !== 'Unknown Product')
+    .map(p => ({
       name: p,
       sales: productSalesMap[p],
       growth: 0,

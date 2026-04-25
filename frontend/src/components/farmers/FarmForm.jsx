@@ -22,7 +22,8 @@ const FarmForm = ({ onClose, editingFarm: editingFarmProp }) => {
     status: editingFarm?.status || 'Active',
     crops: editingFarm?.crops || [],
     phone: editingFarm?.phone || '',
-    email: editingFarm?.email || ''
+    email: editingFarm?.email || '',
+    address: editingFarm?.address || ''
   });
 
   const [newCrop, setNewCrop] = useState('');
@@ -46,7 +47,10 @@ const FarmForm = ({ onClose, editingFarm: editingFarmProp }) => {
         FarmName: formData.FarmName,
         LocationFarm: formData.LocationFarm,
         Size: parseFloat(formData.Size),
-        description: formData.description
+        description: formData.description,
+        address: formData.address,
+        phone: formData.phone,
+        email: formData.email
       };
 
       if (editingFarm) {
@@ -90,6 +94,19 @@ const FarmForm = ({ onClose, editingFarm: editingFarmProp }) => {
             className={inputClass}
             value={formData.FarmName}
             onChange={(e) => setFormData({...formData, FarmName: e.target.value})}
+          />
+        </div>
+
+        {/* Address */}
+        <div>
+          <label className={labelClass}>Address *</label>
+          <input
+            required
+            type="text"
+            placeholder="e.g., 123 Rue de la Liberté, Blida"
+            className={inputClass}
+            value={formData.address}
+            onChange={(e) => setFormData({...formData, address: e.target.value})}
           />
         </div>
 

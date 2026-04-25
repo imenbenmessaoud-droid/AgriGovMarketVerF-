@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import Group, Permission
 from django.utils.translation import gettext_lazy as _
 from django.db.models import Sum
-from .models import User, Administrator, Farmer, Buyer, Transporter, Notification
+from .models import User, Administrator, Farmer, Buyer, Transporter, TransporterVehicle, Notification
 
 
 # ============================================================
@@ -19,7 +19,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'id_user', 'name', 'email', 'phone', 'address',
+            'id_user', 'name', 'email', 'phone', 'address', 'avatar', 'wilaya', 'birth_date',
             'user_type', 'user_type_display', 'is_validated',
             'is_active', 'created_at', 'updated_at', 'full_name'
         ]
@@ -176,15 +176,29 @@ class BuyerSerializer(serializers.ModelSerializer):
         return float(total)
 
 
+class TransporterVehicleSerializer(serializers.ModelSerializer):
+    """Serializer for Transporter Vehicles"""
+    vehicle_type_display = serializers.CharField(source='get_vehicle_type_display', read_only=True)
+
+    class Meta:
+        model = TransporterVehicle
+        fields = [
+            'id', 'transporter', 'license_number', 'vehicle_type', 
+            'vehicle_type_display', 'capacity', 'model', 'area_service', 'is_active'
+        ]
+        read_only_fields = ['id', 'transporter']
+
+
 class TransporterSerializer(serializers.ModelSerializer):
     """Serializer for Transporter"""
     user = UserSerializer(read_only=True)
     total_deliveries = serializers.SerializerMethodField()
+    vehicles = TransporterVehicleSerializer(many=True, read_only=True)
     
     class Meta:
         model = Transporter
         fields = ['user', 'area_service', 'delivery_earnings', 'vehicle_type',
-                  'vehicle_capacity', 'license_number', 'total_deliveries']
+                  'vehicle_capacity', 'license_number', 'total_deliveries', 'vehicles']
         read_only_fields = ['delivery_earnings']
     
     def get_total_deliveries(self, obj):
