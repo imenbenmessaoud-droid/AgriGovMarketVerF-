@@ -57,6 +57,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     phone = models.CharField(max_length=20, blank=True, db_column='Phone')
     address = models.CharField(max_length=500, blank=True, db_column='Address')
     password = models.CharField(max_length=255, db_column='Password')
+    avatar = models.TextField(blank=True, null=True, db_column='Avatar')
+    wilaya = models.CharField(max_length=100, blank=True, db_column='Wilaya')
+    birth_date = models.DateField(null=True, blank=True, db_column='BirthDate')
 
     USER_TYPE_CHOICES = [
         ('farmer', 'Farmer'),
@@ -435,6 +438,35 @@ class Buyer(models.Model):
 # ============================================
 # TRANSPORTER MODEL
 # ============================================
+class TransporterVehicle(models.Model):
+    """Stores multiple vehicles for a transporter"""
+    VEHICLE_TYPES = [
+        ('REFRIGERATED', 'Refrigerated'),
+        ('STANDARD', 'Standard'),
+        ('SEMI-TRAILER', 'Semi-Trailer'),
+    ]
+    
+    transporter = models.ForeignKey(
+        'Transporter', 
+        on_delete=models.CASCADE, 
+        related_name="vehicles",
+        db_column='IdTransporter'
+    )
+    license_number = models.CharField(max_length=50, unique=True, db_column='LicenseNumber')
+    vehicle_type = models.CharField(max_length=50, choices=VEHICLE_TYPES, default='STANDARD', db_column='VehicleType')
+    capacity = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, db_column='Capacity')
+    model = models.CharField(max_length=100, blank=True, null=True, db_column='Model')
+    area_service = models.CharField(max_length=255, blank=True, null=True, db_column='AreaService')
+    is_active = models.BooleanField(default=True, db_column='IsActive')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'TransporterVehicle'
+
+    def __str__(self):
+        return f"{self.license_number} ({self.get_vehicle_type_display()})"
+
+
 class Transporter(models.Model):
     user = models.OneToOneField(
         User, 

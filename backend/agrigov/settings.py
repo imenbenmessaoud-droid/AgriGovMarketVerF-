@@ -111,3 +111,6 @@ REST_FRAMEWORK = {
 # Email Settings (Console backend for development)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'no-reply@agrisouk.dz'
+
+# Increase max payload size for Base64 image uploads (10MB)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760

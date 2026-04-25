@@ -61,20 +61,37 @@ class DeliveryMissionViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # 1. Calculate total payload for the mission (Sum of OrderItems)
+        # 1. Calculate total payload for the mission
         from django.db.models import Sum
         total_quantity = mission.id_order.items.aggregate(total=Sum('quantity_item'))['total'] or 0
 
-        # 2. Validate capacity
-        if transporter.vehicle_capacity and total_quantity > float(transporter.vehicle_capacity):
+        # 2. Handle Vehicle Assignment
+        vehicle_id = request.data.get('vehicle_id')
+        vehicle = None
+        if vehicle_id:
+            from apps.users.models import TransporterVehicle
+            try:
+                vehicle = TransporterVehicle.objects.get(id=vehicle_id, transporter=transporter)
+            except TransporterVehicle.DoesNotExist:
+                return Response({'error': 'Selected vehicle not found in your fleet'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # 3. Capacity Validation
+        effective_capacity = 0
+        if vehicle:
+            effective_capacity = float(vehicle.capacity or 0)
+        else:
+            effective_capacity = float(transporter.vehicle_capacity or 0)
+
+        if effective_capacity > 0 and total_quantity > effective_capacity:
+            cap_source = f"Vehicle {vehicle.license_number}" if vehicle else "Profile"
             return Response(
-                {'error': f'Vehicle capacity ({transporter.vehicle_capacity}) is insufficient for this mission load ({total_quantity}).'},
+                {'error': f'{cap_source} capacity ({effective_capacity}) is insufficient for this load ({total_quantity}).'},
                 status=status.HTTP_400_BAD_REQUEST
             )
             
-        # 3. Save snapshot and assign
+        # 4. Save snapshot and assign
         mission.id_transporter = transporter
-        mission.vehicle_license_snapshot = transporter.license_number or "N/A"
+        mission.vehicle_license_snapshot = vehicle.license_number if vehicle else (transporter.license_number or "N/A")
         mission.delivery_status = DeliveryStatusEnum.IN_TRANSIT
         mission.save()
 
