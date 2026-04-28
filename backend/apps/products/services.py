@@ -43,17 +43,34 @@ class ProductService:
             # Use get_or_create to ensure the profile exists
             admin, _ = Administrator.objects.get_or_create(user_id=admin_id)
             
-            # Allow updating the same day's price record instead of failing
-            price_off, created = PriceOff.objects.update_or_create(
-                id_product=product,
-                date_set=timezone.now().date(),
-                defaults={
-                    'max_price': max_price,
-                    'min_price': min_price,
-                    'price_unit': price_unit,
-                    'id_admin': admin
-                }
-            )
+            # Use a robust try-catch block for IntegrityError to bypass any timezone discrepancy issues.
+            # We try to create the new price. If the database blocks it because a price for today
+            # already exists (UNIQUE constraint on id_product + date_set), we catch that error 
+            # and update the latest existing price instead.
+            from django.db import IntegrityError, transaction
+            
+            try:
+                with transaction.atomic():
+                    price_off = PriceOff.objects.create(
+                        id_product=product,
+                        max_price=max_price,
+                        min_price=min_price,
+                        price_unit=price_unit,
+                        id_admin=admin
+                    )
+            except IntegrityError:
+                # The constraint failed, meaning a record for "today" (whatever date the DB is using) exists.
+                # Just fetch the latest one and update it.
+                existing_price = PriceOff.objects.filter(id_product=product).order_by('-date_set').first()
+                if existing_price:
+                    existing_price.min_price = min_price
+                    existing_price.max_price = max_price
+                    existing_price.price_unit = price_unit
+                    existing_price.id_admin = admin
+                    existing_price.save()
+                    price_off = existing_price
+                else:
+                    raise ValueError("Database constraint error: Could not save the official price.")
 
             # Notify farmers who are actively selling this product
             from apps.users.models import Notification

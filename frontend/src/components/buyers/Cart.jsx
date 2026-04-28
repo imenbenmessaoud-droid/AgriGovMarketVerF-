@@ -94,19 +94,19 @@ const Cart = () => {
 
                       <div className="md:col-span-3 flex flex-col items-center">
                         <div className="flex items-center justify-center gap-5 bg-gray-50 rounded-2xl p-3 w-full max-w-[160px]">
-                          <button
-                            onClick={() => handleUpdateQty(item._cartId, -0.5, item.quantity)}
+                           <button
+                            onClick={() => handleUpdateQty(item._cartId, -0.1, item.quantity)}
                             className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-gray-400 hover:text-green-600 hover:shadow-md transition-all active:scale-90"
                           ><FaMinus size={12} /></button>
                           <input 
                             type="number"
-                            step="0.1"
+                            step="any"
                             value={item.quantity}
                             onChange={(e) => updateQuantity(item._cartId, parseFloat(e.target.value) || 0.1)}
                             className="w-14 text-center font-normal bg-transparent border-none outline-none focus:ring-0 text-gray-900 text-lg"
                           />
                           <button
-                            onClick={() => handleUpdateQty(item._cartId, 0.5, item.quantity)}
+                            onClick={() => handleUpdateQty(item._cartId, 0.1, item.quantity)}
                             className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-gray-400 hover:text-green-600 hover:shadow-md transition-all active:scale-90"
                           ><FaPlus size={12} /></button>
                         </div>

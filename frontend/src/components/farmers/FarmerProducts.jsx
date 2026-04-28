@@ -474,7 +474,7 @@ const FarmerProducts = () => {
                                         <input
                                             required
                                             type="number"
-                                            step="0.01"
+                                            step="any"
                                             placeholder="0.00"
                                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                                             value={newProduct.product_price}
@@ -487,6 +487,7 @@ const FarmerProducts = () => {
                                         <input
                                             required
                                             type="number"
+                                            step="any"
                                             placeholder="0"
                                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                                             value={newProduct.quantity}

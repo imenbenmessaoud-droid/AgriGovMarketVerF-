@@ -2,7 +2,7 @@ import React from 'react';
 import { FaSearch } from 'react-icons/fa';
 
 const TransporterHero = ({ title = 'Logistics Portal', subtitle = 'Fast Agri Logistics System', searchQuery = '', onSearchChange }) => {
-  const heroBg = 'https://i.pinimg.com/736x/4e/9c/29/4e9c290f3951e20ad11daa67e03fcbae.jpg';
+  const heroBg = 'https://i.pinimg.com/736x/02/d6/75/02d675d404762182e92e6bd639b7e2bc.jpg';
 
   return (
     <div 

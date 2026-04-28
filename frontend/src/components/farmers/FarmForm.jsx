@@ -137,7 +137,7 @@ const FarmForm = ({ onClose, editingFarm: editingFarmProp }) => {
               required
               type="number"
               min="0.1"
-              step="0.1"
+              step="any"
               placeholder="0.00"
               className={inputClass}
               value={formData.Size}

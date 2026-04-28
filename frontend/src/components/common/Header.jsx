@@ -90,7 +90,7 @@ const Header = () => {
   const textColor = isHome && !scrolled ? 'text-[#142e1d]' : 'text-white';
   const navHoverColor = isHome && !scrolled ? 'hover:text-[#2d6a4f]' : 'hover:text-white';
   const iconColor = isHome && !scrolled ? 'text-[#142e1d]' : 'text-white';
-  const logoTextColor = isHome && !scrolled ? 'text-[#142e1d]' : 'text-white';
+  const logoTextColor = (scrolled || (isHome && !scrolled)) ? 'text-[#142e1d]' : 'text-white';
 
   const userProfile = authUser || {
     name: isTransporterPath ? 'Khaled Transport' : isMinistryPath ? 'Ministry Official' : isFarmerPath ? 'John Farmer' : 'Local Buyer',
@@ -636,14 +636,14 @@ const Header = () => {
 
                       <div className="flex items-center gap-3 mt-2">
                         <button
-                          onClick={() => updateQuantity(item._cartId, parseFloat(Math.max(0.1, item.quantity - 1)))}
+                          onClick={() => updateQuantity(item._cartId, parseFloat(Math.max(0.1, item.quantity - 0.1).toFixed(2)))}
                           className="w-7 h-7 flex items-center justify-center bg-gray-50 border border-gray-200 rounded-full hover:bg-green-600 hover:text-white transition-all text-xs shadow-sm hover:border-green-600 active:scale-95"
                         >
                           -
                         </button>
                         <span className="text-xs font-normal w-4 text-center">{item.quantity}</span>
                         <button
-                          onClick={() => updateQuantity(item._cartId, parseFloat(item.quantity + 1))}
+                          onClick={() => updateQuantity(item._cartId, parseFloat((item.quantity + 0.1).toFixed(2)))}
                           className="w-7 h-7 flex items-center justify-center bg-gray-50 border border-gray-200 rounded-full hover:bg-green-600 hover:text-white transition-all text-xs shadow-sm hover:border-green-600 active:scale-95"
                         >
                           +

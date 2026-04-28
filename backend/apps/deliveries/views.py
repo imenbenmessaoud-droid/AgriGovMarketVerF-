@@ -88,8 +88,21 @@ class DeliveryMissionViewSet(viewsets.ModelViewSet):
                 {'error': f'{cap_source} capacity ({effective_capacity}) is insufficient for this load ({total_quantity}).'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+        # 4. Service Area Validation
+        effective_service_area = vehicle.area_service if vehicle else transporter.area_service
+        if effective_service_area:
+            # Split comma-separated regions and check if any match the destination
+            regions = [r.strip().lower() for r in effective_service_area.split(',')]
+            dest_lower = mission.delivery_location.lower()
+            if not any(region in dest_lower for region in regions):
+                area_source = f"Vehicle {vehicle.license_number}" if vehicle else "Profile"
+                return Response(
+                    {'error': f'Destination ({mission.delivery_location}) is outside the service area of this { "vehicle" if vehicle else "transporter" } ({effective_service_area}).'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             
-        # 4. Save snapshot and assign
+        # 5. Save snapshot and assign
         mission.id_transporter = transporter
         mission.vehicle_license_snapshot = vehicle.license_number if vehicle else (transporter.license_number or "N/A")
         mission.delivery_status = DeliveryStatusEnum.IN_TRANSIT

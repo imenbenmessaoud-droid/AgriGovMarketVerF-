@@ -289,15 +289,7 @@ const AdminOrders = () => {
               </div>
             </div>
             
-            {/* Modal Footer */}
-            <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-end">
-              <button
-                onClick={() => setSelectedOrder(null)}
-                className="px-6 py-2 bg-white border border-gray-200 text-black font-medium rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Close
-              </button>
-            </div>
+
           </div>
         </div>
       )}

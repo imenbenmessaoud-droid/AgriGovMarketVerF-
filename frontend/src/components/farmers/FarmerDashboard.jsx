@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  FaCheckCircle, FaMoneyBillWave, FaClipboardCheck, FaChartLine, FaTractor, 
+import {
+  FaCheckCircle, FaMoneyBillWave, FaClipboardCheck, FaChartLine, FaTractor,
   FaArrowRight, FaSeedling, FaTruck, FaCalendarAlt, FaWarehouse, FaLeaf,
   FaShoppingCart, FaStar, FaBox, FaStore
 } from 'react-icons/fa';
@@ -39,9 +39,9 @@ const QUICK_ACTIONS = [
 
 const StatCard = ({ stat, onClick }) => {
   const Icon = stat.icon;
-  
+
   return (
-    <div 
+    <div
       onClick={onClick}
       className="bg-white p-5 rounded-xl border border-gray-200 hover:shadow-md transition-all cursor-pointer"
     >
@@ -65,9 +65,9 @@ const HarvestCard = ({ harvest, onClick }) => {
     'Growing': 'bg-blue-100 text-blue-700',
     'Ready': 'bg-amber-100 text-amber-700'
   };
-  
+
   return (
-    <div 
+    <div
       onClick={onClick}
       className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all cursor-pointer"
     >
@@ -89,7 +89,7 @@ const HarvestCard = ({ harvest, onClick }) => {
 
 const ActivityItem = ({ activity, onClick }) => {
   return (
-    <div 
+    <div
       onClick={onClick}
       className="flex gap-3 p-3 rounded-lg hover:bg-gray-50 transition-all cursor-pointer border border-gray-100"
     >
@@ -148,7 +148,7 @@ const FarmerDashboard = () => {
         ]);
         setStats(statsRes.data);
         setRecentOrders(ordersRes.data.slice(0, 5));
-        
+
         const mappedFarms = farmsRes.data.slice(0, 4).map(f => ({
           id: f.IdFarm,
           name: f.FarmName,
@@ -184,12 +184,12 @@ const FarmerDashboard = () => {
   return (
     <div className="w-full min-h-screen" style={{ backgroundColor: '#faf8f0' }}>
       <div className="max-w-7xl mx-auto px-6 py-8">
-        
+
         {/* Header */}
         <div className="mb-8">
 
           <h1 className="text-2xl font-normal text-gray-900">
-            {greeting}, Farmer 
+            {greeting}, Farmer
           </h1>
           <p className="text-gray-500 text-sm font-normal mt-1">
             Welcome back to your farm dashboard
@@ -205,27 +205,27 @@ const FarmerDashboard = () => {
 
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
+
           {/* Left Column */}
           <div className="lg:col-span-2 space-y-6">
-            
+
             {/* Active Harvests */}
             <div className="bg-white rounded-xl p-5 border border-gray-200">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="font-normal text-gray-900">Active Harvests</h3>
-                <button 
+                <button
                   onClick={() => navigate('/farmer/farms')}
                   className="text-xs text-green-700 font-normal hover:text-green-800"
                 >
                   View All →
                 </button>
               </div>
-              
+
               <div className="space-y-2">
                 {activeHarvests.length > 0 ? (
                   activeHarvests.map((harvest) => (
-                    <HarvestCard 
-                      key={harvest.id} 
+                    <HarvestCard
+                      key={harvest.id}
                       harvest={harvest}
                       onClick={() => navigate('/farmer/farms')}
                     />
@@ -259,7 +259,7 @@ const FarmerDashboard = () => {
               <h3 className="font-normal text-gray-900">Recent Activity</h3>
               <FaCalendarAlt size={14} className="text-gray-400" />
             </div>
-            
+
             <div className="space-y-2 max-h-[400px] overflow-y-auto">
               {loading ? (
                 <div className="text-center py-8">
@@ -267,10 +267,10 @@ const FarmerDashboard = () => {
                 </div>
               ) : displayActivities.length > 0 ? (
                 displayActivities.map((activity) => (
-                  <ActivityItem 
-                    key={activity.id} 
-                    activity={activity} 
-                    onClick={() => navigate(activity.path)} 
+                  <ActivityItem
+                    key={activity.id}
+                    activity={activity}
+                    onClick={() => navigate(activity.path)}
                   />
                 ))
               ) : (
@@ -279,8 +279,8 @@ const FarmerDashboard = () => {
                 </div>
               )}
             </div>
-            
-            <button 
+
+            <button
               onClick={() => navigate('/farmer/orders')}
               className="mt-4 w-full py-2 bg-green-700 text-white text-sm font-normal rounded-lg hover:bg-green-800 transition-colors"
             >

@@ -218,6 +218,7 @@ const OfficialPriceManager = () => {
                         <div className="flex items-center gap-2">
                            <input 
                              type="number" 
+                             step="any"
                              value={editForm.min_price} 
                              onChange={e => setEditForm({...editForm, min_price: e.target.value})} 
                              className="w-20 px-2 py-1.5 border border-gray-300 rounded text-sm text-center"
@@ -226,6 +227,7 @@ const OfficialPriceManager = () => {
                            <span className="text-gray-400">-</span>
                            <input 
                              type="number" 
+                             step="any"
                              value={editForm.max_price} 
                              onChange={e => setEditForm({...editForm, max_price: e.target.value})} 
                              className="w-20 px-2 py-1.5 border border-gray-300 rounded text-sm text-center"

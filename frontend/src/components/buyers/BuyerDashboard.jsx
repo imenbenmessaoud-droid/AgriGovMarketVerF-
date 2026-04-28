@@ -449,7 +449,7 @@ const BuyerDashboard = () => {
 
       {/* Quantity Modal */}
       {qtyModalProduct && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fadeIn">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-3 bg-black/40 backdrop-blur-sm animate-fadeIn">
           <div className="bg-white rounded-2xl shadow-lg max-w-sm w-full p-8 relative animate-scaleUp">
             
             <button 
@@ -511,7 +511,7 @@ const BuyerDashboard = () => {
       {/* Product Modal */}
       {selectedProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full flex flex-col md:flex-row overflow-hidden max-h-[80vh] animate-scaleUp">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full flex flex-col md:flex-row overflow-hidden max-h-[80vh] animate-scaleUp">
             <div className="w-full md:w-1/2 bg-gradient-to-br from-gray-50 to-gray-100 p-6 flex items-center justify-center overflow-hidden">
               {selectedProduct.product_image ? (
                 <img 
@@ -534,7 +534,7 @@ const BuyerDashboard = () => {
               </p>
               <div className="flex items-center gap-2 mb-4">{renderStars()}</div>
               <p className="text-gray-600 mb-6">{selectedProduct.product_description || 'Fresh agricultural product, listed directly by the farmer.'}</p>
-              <div className="text-3xl font-normal text-green-600 mb-6">
+              <div className="text-xl font-normal text-green-600 mb-6">
                 {selectedProduct.product_price} DZD <span className="text-sm text-gray-400">/ kg</span>
               </div>
               <div className="flex gap-3">
@@ -545,13 +545,13 @@ const BuyerDashboard = () => {
                     setModalUnit('kg');
                     setSelectedProduct(null);
                   }}
-                  className="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white py-3 rounded-xl font-normal hover:from-green-700 hover:to-green-800 transition-all shadow-md"
+                  className="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white py-2 rounded-xl font-normal hover:from-green-700 hover:to-green-800 transition-all shadow-md"
                 >
                   Add to Cart
                 </button>
                 <button
                   onClick={() => toggleFavorite(selectedProduct.id)}
-                  className={`px-6 py-3 rounded-xl border-2 transition-all ${favorites.includes(selectedProduct.id)
+                  className={`px-5 py-2 rounded-xl border-2 transition-all ${favorites.includes(selectedProduct.id)
                     ? 'border-red-500 text-red-500 bg-red-50'
                     : 'border-gray-300 text-gray-500 hover:border-red-500 hover:text-red-500'}`}
                 >

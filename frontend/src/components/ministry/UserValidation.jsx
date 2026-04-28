@@ -24,7 +24,7 @@ const UserValidation = () => {
         id: user.id_user,
         name: user.name,
         type: user.user_type_display || user.user_type,
-        region: user.address || 'Unknown',
+        region: user.wilaya || 'Unknown',
         date: new Date(user.created_at).toISOString().split('T')[0],
         documents: 'Verified digitally',
         status: user.is_active ? (user.is_validated ? 'Approved' : 'Pending') : 'Rejected',
