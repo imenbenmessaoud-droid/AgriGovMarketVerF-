@@ -89,6 +89,27 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
   const handleAccept = async (id) => {
     try {
       const vehicleId = selectedVehicles[id];
+      const job = jobs.find(j => j.mission_number === id);
+      
+      // Frontend validation for Service Area
+      const validateArea = (serviceArea, dest) => {
+        if (!serviceArea || !dest) return true;
+        const regions = serviceArea.split(',').map(r => r.trim().toLowerCase());
+        const destinationLower = dest.toLowerCase();
+        return regions.some(region => destinationLower.includes(region));
+      };
+
+      if (vehicleId) {
+        const vehicle = fleet.find(v => String(v.id) === String(vehicleId));
+        if (vehicle?.area_service && !validateArea(vehicle.area_service, job?.delivery_location)) {
+          showToast(`Vehicle ${vehicle.license_number} is only for ${vehicle.area_service}. Destination: ${job.delivery_location}`, 'error');
+          return;
+        }
+      } else if (transporterProfile?.area_service && !validateArea(transporterProfile.area_service, job?.delivery_location)) {
+        showToast(`Your profile service area (${transporterProfile.area_service}) doesn't match destination: ${job.delivery_location}`, 'error');
+        return;
+      }
+
       await api.patch(`deliveries/missions/${id}/accept/`, { vehicle_id: vehicleId });
       showToast(`Mission #${id} assigned to you`, 'success');
       fetchJobs();
@@ -460,7 +481,7 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
                     <option value="">Primary Profile Vehicle</option>
                     {fleet.map(v => (
                       <option key={v.id} value={v.id}>
-                        {v.license_number} ({v.vehicle_type_display || v.vehicle_type})
+                        {v.license_number} - {v.area_service || 'Global'} ({v.vehicle_type_display || v.vehicle_type})
                       </option>
                     ))}
                   </select>

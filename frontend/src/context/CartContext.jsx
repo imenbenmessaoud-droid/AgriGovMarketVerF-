@@ -59,7 +59,7 @@ export const CartProvider = ({ children }) => {
         setCart([]);
     };
 
-    const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
+    const cartCount = cart.length;
     // use product_price (API field) with fallback to price (old mock)
     const cartSubtotal = cart.reduce(
         (total, item) => {

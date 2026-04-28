@@ -7,20 +7,22 @@ import {
   FaArrowRight, FaLock, FaShoppingBag, FaTag, FaPercent
 } from 'react-icons/fa';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 
 const Checkout = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderError, setOrderError] = useState(null);
   const [formData, setFormData] = useState({
-    fullName: 'Ahmed Benali',
-    email: 'ahmed.benali@example.com',
-    phone: '0555123456',
-    address: 'Zone Industrielle Oued Smar, Lot 44',
-    wilaya: 'Algiers',
-    postalCode: '16000',
+    fullName: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    address: user?.address || '',
+    wilaya: user?.wilaya || 'Algiers',
+    postalCode: '',
     notes: ''
   });
 

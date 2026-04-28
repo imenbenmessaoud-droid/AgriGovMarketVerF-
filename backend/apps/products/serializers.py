@@ -29,10 +29,9 @@ class ProductSerializer(serializers.ModelSerializer):
     def get_current_price(self, obj):
         from django.utils import timezone
         from django.db.models import Q
-        current_date = timezone.now().date()
+        current_date = timezone.localdate()
         current_price = PriceOff.objects.filter(
-            id_product=obj,
-            date_set__lte=current_date
+            id_product=obj
         ).filter(
             Q(valid_until__isnull=True) | Q(valid_until__gte=current_date)
         ).order_by('-date_set').first()

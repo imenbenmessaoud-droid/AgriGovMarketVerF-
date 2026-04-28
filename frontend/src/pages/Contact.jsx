@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaCheckCircle } from 'react-icons/fa';
-import contactBg from '../assets/images/contact-bg.jpg';
+import contactHeroBg from '../assets/images/contact-hero.png';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -41,7 +41,7 @@ const Contact = () => {
       <section
         className="relative bg-[#0f2215] border-b-[0.5px] border-gray-200 h-[60vh] min-h-[400px] flex items-center justify-center"
         style={{
-          backgroundImage: `url(${contactBg})`,
+          backgroundImage: `url(${contactHeroBg})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat"

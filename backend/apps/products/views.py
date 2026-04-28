@@ -85,10 +85,9 @@ class ProductViewSet(viewsets.ModelViewSet):
         Get current valid price for a product
         """
         product = self.get_object()
-        current_date = timezone.now().date()
+        current_date = timezone.localdate()
         current_price = PriceOff.objects.filter(
-            id_product=product,
-            date_set__lte=current_date
+            id_product=product
         ).filter(
             Q(valid_until__isnull=True) | Q(valid_until__gte=current_date)
         ).order_by('-date_set').first()

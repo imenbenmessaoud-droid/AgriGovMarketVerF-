@@ -10,17 +10,25 @@ const Login = () => {
    const [role, setRole] = useState('buyer'); // For the UI dropdown
    const [errorMsg, setErrorMsg] = useState('');
    const navigate = useNavigate();
-   const { login } = useAuth(); // Extract login from context
+   const { login, logout } = useAuth(); // Extract auth methods from context
 
    const handleLogin = async (e) => {
       e.preventDefault();
       setErrorMsg('');
 
       const res = await login(email, password);
-
+      
       if (res && res.success) {
-         // Optionally navigate dynamically if the backend returns the role
-         const userRole = res.user?.user_type || role;
+         const userRole = res.user?.user_type;
+         const selectedRole = role === 'ministry' ? 'admin' : role;
+
+         // Strict Role Validation: Ensure the selected role matches the account type
+         if (userRole !== selectedRole) {
+            logout(); // Log out from context if mismatched
+            setErrorMsg(`Access denied. This account is registered as a ${userRole}, but you selected ${role}.`);
+            return;
+         }
+
          if (userRole === 'transporter') {
             navigate('/transporter');
          } else if (userRole === 'farmer') {
