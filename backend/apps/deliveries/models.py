@@ -15,7 +15,7 @@ class DeliveryMission(models.Model):
     delivery_status = models.CharField(
         max_length=20, 
         choices=DeliveryStatusEnum.choices, 
-        default=DeliveryStatusEnum.PENDING,
+        default=DeliveryStatusEnum.OPEN,
         db_column='DeliveryStatus'
     )
     delivery_location = models.CharField(max_length=255, db_column='DeliveryLocation')
@@ -67,6 +67,11 @@ class DeliveryMission(models.Model):
                 raise ValidationError(_('Longitude must be between -180 and 180'))
 
     def save(self, *args, **kwargs):
+        if not self.delivery_location and self.id_order:
+            dest = self.id_order.delivery_address
+            if not dest and hasattr(self.id_order.id_buyer.user, 'address'):
+                dest = self.id_order.id_buyer.user.address
+            self.delivery_location = dest or 'AgriGov Distribution Point'
         if self.delivery_status == DeliveryStatusEnum.DELIVERED and not self.actual_delivery_time:
             self.actual_delivery_time = timezone.now()
         self.full_clean()

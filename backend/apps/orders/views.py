@@ -74,9 +74,15 @@ class OrderViewSet(viewsets.ModelViewSet):
         
         # Create delivery task
         from apps.deliveries.models import DeliveryMission
+        
+        # Priority: 1. Order delivery address, 2. Buyer profile address, 3. Generic fallback
+        dest = order.delivery_address
+        if not dest and hasattr(order.id_buyer.user, 'address'):
+            dest = order.id_buyer.user.address
+            
         DeliveryMission.objects.create(
             id_order=order,
-            delivery_location=order.delivery_address or 'To be confirmed',
+            delivery_location=dest or 'AgriGov Distribution Point',
         )
 
         # Create notifications for all transporters

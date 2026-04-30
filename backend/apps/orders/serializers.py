@@ -5,11 +5,12 @@ from .models import Order, OrderItem, Appraisal
 
 class OrderItemSerializer(serializers.ModelSerializer):
     product_image = serializers.SerializerMethodField()
+    category_name = serializers.SerializerMethodField()
 
     class Meta:
         model = OrderItem
         fields = ['id_order_item', 'quantity_item', 'quantity_unit', 'price_item',
-                  'sub_total_item', 'product_name_snapshot', 'product_image']
+                  'sub_total_item', 'product_name_snapshot', 'product_image', 'category_name']
 
     def get_product_image(self, obj):
         # ProductItem has FK id_order_item -> OrderItem, so reverse is productitem_set
@@ -20,6 +21,12 @@ class OrderItemSerializer(serializers.ModelSerializer):
                 return request.build_absolute_uri(product_item.product_image.url)
             return product_item.product_image.url
         return None
+
+    def get_category_name(self, obj):
+        product_item = obj.productitem_set.first()
+        if product_item and product_item.id_product and product_item.id_product.id_category:
+            return product_item.id_product.id_category.category_name
+        return "Others"
 
 
 class AppraisalSerializer(serializers.ModelSerializer):
@@ -32,7 +39,15 @@ class AppraisalSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
     buyer_name = serializers.CharField(source='id_buyer.user.name', read_only=True)
+    buyer_phone = serializers.CharField(source='id_buyer.user.phone', read_only=True)
+    buyer_email = serializers.CharField(source='id_buyer.user.email', read_only=True)
+    buyer_avatar = serializers.CharField(source='id_buyer.user.avatar', read_only=True)
+    buyer_address = serializers.CharField(source='id_buyer.user.address', read_only=True)
     farmer_name = serializers.CharField(source='id_farmer.user.name', read_only=True)
+    farmer_phone = serializers.CharField(source='id_farmer.user.phone', read_only=True)
+    farmer_email = serializers.CharField(source='id_farmer.user.email', read_only=True)
+    farmer_avatar = serializers.CharField(source='id_farmer.user.avatar', read_only=True)
+    farmer_address = serializers.CharField(source='id_farmer.user.address', read_only=True)
     tracking_info = serializers.SerializerMethodField()
     appraisal = AppraisalSerializer(read_only=True)
 
@@ -40,8 +55,10 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = [
             'order_number', 'order_date', 'order_status', 'total_amount',
-            'payment_status', 'id_buyer', 'buyer_name', 'id_farmer',
-            'farmer_name', 'notes', 'delivery_address', 'created_at', 
+            'payment_status', 'id_buyer', 'buyer_name', 'buyer_phone', 
+            'buyer_email', 'buyer_avatar', 'buyer_address', 'id_farmer',
+            'farmer_name', 'farmer_phone', 'farmer_email', 'farmer_avatar',
+            'farmer_address', 'notes', 'delivery_address', 'created_at', 
             'items', 'tracking_info', 'appraisal'
         ]
         read_only_fields = ['order_number', 'order_date', 'created_at']
@@ -54,7 +71,9 @@ class OrderSerializer(serializers.ModelSerializer):
                 'transporter_name': mission.id_transporter.user.name if mission.id_transporter else None,
                 'transporter_phone': mission.id_transporter.user.phone if mission.id_transporter else None,
                 'transporter_email': mission.id_transporter.user.email if mission.id_transporter else None,
-                'transporter_address': mission.id_transporter.user.address if mission.id_transporter else None
+                'transporter_address': mission.id_transporter.user.address if mission.id_transporter else None,
+                'transporter_avatar': mission.id_transporter.user.avatar if mission.id_transporter else None,
+                'transporter_license': mission.id_transporter.license_number if mission.id_transporter else None
             }
         return None
 

@@ -200,3 +200,25 @@ class ProductItem(models.Model):
     
     def __str__(self):
         return f"{self.id_product.product_name} - {self.quantity} units @ {self.product_price} DZD"
+
+
+class ProductPriceHistory(models.Model):
+    """Historical average price of a product across the platform"""
+    id_product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='price_history',
+        verbose_name="Product"
+    )
+    average_price = models.FloatField(verbose_name="Average Price")
+    history_date = models.DateField(default=timezone.now, verbose_name="History Date")
+
+    class Meta:
+        db_table = 'ProductPriceHistory'
+        unique_together = ['id_product', 'history_date']
+        ordering = ['-history_date']
+        verbose_name = "Product Price History"
+        verbose_name_plural = "Product Price Histories"
+
+    def __str__(self):
+        return f"{self.id_product.product_name} - {self.history_date}: {self.average_price}"

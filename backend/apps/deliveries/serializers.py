@@ -6,29 +6,37 @@ from .models import DeliveryMission
 class DeliveryMissionSerializer(serializers.ModelSerializer):
     order_number = serializers.IntegerField(source='id_order.order_number', read_only=True)
     buyer_name = serializers.CharField(source='id_order.id_buyer.user.name', read_only=True)
+    buyer_phone = serializers.CharField(source='id_order.id_buyer.user.phone', read_only=True)
+    buyer_email = serializers.CharField(source='id_order.id_buyer.user.email', read_only=True)
+    buyer_image = serializers.CharField(source='id_order.id_buyer.user.avatar', read_only=True)
     farmer_name = serializers.CharField(source='id_order.id_farmer.user.name', read_only=True)
     farmer_phone = serializers.CharField(source='id_order.id_farmer.user.phone', read_only=True)
     farmer_email = serializers.CharField(source='id_order.id_farmer.user.email', read_only=True)
+    farmer_image = serializers.CharField(source='id_order.id_farmer.user.avatar', read_only=True)
     farmer_address = serializers.SerializerMethodField()
     transporter_name = serializers.CharField(source='id_transporter.user.name', read_only=True)
     order_total_amount = serializers.DecimalField(source='id_order.total_amount', max_digits=12, decimal_places=2, read_only=True)
+    order_address = serializers.CharField(source='id_order.delivery_address', read_only=True)
     load_type = serializers.SerializerMethodField()
 
     class Meta:
         model = DeliveryMission
         fields = [
             'mission_number', 'delivery_date', 'delivery_status',
-            'delivery_location', 'id_order', 'order_number',
-            'buyer_name', 'farmer_name', 'farmer_phone', 'farmer_email', 'farmer_address',
+            'delivery_location', 'id_order', 'order_number', 'order_address',
+            'buyer_name', 'buyer_phone', 'buyer_email', 'buyer_image',
+            'farmer_name', 'farmer_phone', 'farmer_email', 'farmer_image', 'farmer_address',
             'id_transporter', 'transporter_name', 'vehicle_license_snapshot',
             'actual_delivery_time', 'notes', 'order_total_amount', 'load_type'
         ]
         read_only_fields = ['mission_number', 'delivery_date']
 
     def get_load_type(self, obj):
-        first_item = obj.id_order.items.first()
-        if first_item:
-            return first_item.product_name_snapshot
+        items = obj.id_order.items.all()
+        if items.exists():
+            # Create a summary like "2x Pepper, 1x Tomato"
+            summary = ", ".join([f"{int(item.quantity_item)}x {item.product_name_snapshot}" for item in items])
+            return summary
         return "Standard Agricultural Produce"
 
     def get_farmer_address(self, obj):

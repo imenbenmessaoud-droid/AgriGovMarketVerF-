@@ -6,10 +6,11 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.db.models import Q
 from django.utils import timezone
-from .models import Category, Product, PriceOff, ProductItem
+from .models import Category, Product, PriceOff, ProductItem, ProductPriceHistory
 from .serializers import *
 from .services import ProductService
 from .price_validator import PriceValidator
+from datetime import timedelta
 
 class CategoryViewSet(viewsets.ModelViewSet):
     """
@@ -96,6 +97,56 @@ class ProductViewSet(viewsets.ModelViewSet):
             serializer = PriceOffSerializer(current_price)
             return Response(serializer.data)
         return Response({'message': 'No active price found'}, status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=False, methods=['get'])
+    def price_overview(self, request):
+        """
+        Get market price overview for top products
+        """
+        from django.db.models import Avg, Count
+        
+        # 1. Identify top 5 products by number of active listings
+        top_products = Product.objects.filter(is_active=True).annotate(
+            listings_count=Count('items')
+        ).order_by('-listings_count')[:5]
+        
+        current_date = timezone.localdate()
+        week_ago = current_date - timedelta(days=7)
+        
+        results = []
+        for product in top_products:
+            # Current Average Price from active listings
+            active_listings = ProductItem.objects.filter(id_product=product, is_available=True)
+            current_avg = active_listings.aggregate(Avg('product_price'))['product_price__avg'] or 0
+            
+            # Previous Average Price from history
+            prev_history = ProductPriceHistory.objects.filter(
+                id_product=product, 
+                history_date__lte=week_ago
+            ).order_by('-history_date').first()
+            
+            # Fallback if no history exists: use current as baseline (0% change)
+            prev_avg = prev_history.average_price if prev_history else current_avg
+            
+            # Calculate Percentage Change
+            change_pct = 0
+            if prev_avg > 0:
+                change_pct = ((current_avg - prev_avg) / prev_avg) * 100
+                
+            # Get product image
+            first_item = active_listings.filter(product_image__isnull=False).first()
+            img_url = first_item.product_image.url if first_item and first_item.product_image else None
+                
+            results.append({
+                'product_id': product.id_product,
+                'product_name': product.product_name,
+                'image': img_url,
+                'average_price': round(current_avg, 2),
+                'price_change_percentage': round(change_pct, 1)
+            })
+            
+        return Response(results)
+
 
 
 class ProductItemViewSet(viewsets.ModelViewSet):
