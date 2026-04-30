@@ -22,16 +22,16 @@ const Cart = () => {
     <div className="min-h-screen bg-[#faf8f0] font-sans pb-16">
       {/* Hero Section */}
       <div className="relative h-64 md:h-80 w-full overflow-hidden flex items-center justify-center text-center">
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ 
+          style={{
             backgroundImage: `url('https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80')`,
             filter: 'brightness(0.6)'
           }}
         >
           <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]"></div>
         </div>
-        
+
         <div className="relative z-10 px-4">
           <h1 className="text-4xl md:text-5xl font-normal text-white mb-4 tracking-tight">Shopping Cart</h1>
           <p className="text-xs md:text-sm font-normal text-white/90 max-w-2xl uppercase tracking-[0.2em]">
@@ -44,13 +44,13 @@ const Cart = () => {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Cart Items */}
           <div className="flex-1">
-            <div className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
-              <div className="flex justify-between items-center mb-10 border-b border-gray-50 pb-6">
+            <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
+              <div className="flex justify-between items-center mb-8 border-b border-gray-50 pb-5">
                 <div className="flex items-center gap-4">
-                   <div className="w-1 h-8 bg-green-600 rounded-full"></div>
-                   <h2 className="text-2xl font-normal text-gray-900">Your Selection</h2>
+                  <div className="w-1 h-8 bg-green-600 rounded-full"></div>
+                  <h2 className="text-xl font-normal text-gray-900">Your Selection</h2>
                 </div>
-                <span className="text-xs font-normal text-gray-400 uppercase tracking-[0.2em] bg-gray-50 px-3 py-1 rounded-full">{cart.length} items</span>
+                <span className="text-sm font-normal text-gray-400  tracking-[0.2em] bg-gray-50 px-1 py-1 rounded-full">{cart.length} items</span>
               </div>
 
               {cart.length === 0 ? (
@@ -69,60 +69,60 @@ const Cart = () => {
               ) : (
                 <div className="divide-y divide-gray-100">
                   {cart.map(item => (
-                    <div key={item._cartId || Math.random()} className="grid grid-cols-1 md:grid-cols-12 gap-8 py-10 items-center group border-b border-gray-50 last:border-0">
-                      <div className="md:col-span-6 flex gap-8">
-                        <div className="w-32 h-32 bg-gradient-to-br from-green-50 to-emerald-100 rounded-[2rem] flex items-center justify-center shrink-0 shadow-sm overflow-hidden group-hover:scale-105 transition-all duration-500">
+                    <div key={item._cartId || Math.random()} className="grid grid-cols-1 md:grid-cols-12 gap-4 py-4 items-center group border-b border-gray-50 last:border-0">
+                      <div className="md:col-span-6 flex gap-4">
+                        <div className="w-14 h-14 bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl flex items-center justify-center shrink-0 shadow-sm overflow-hidden group-hover:scale-105 transition-all duration-500">
                           {item.product_image || item.image ? (
                             <img src={item.product_image || item.image} alt={item.product_name || item.name} className="w-full h-full object-cover" />
                           ) : (
-                            <FaLeaf className="text-green-300 text-4xl" />
+                            <FaLeaf className="text-green-300 text-2xl" />
                           )}
                         </div>
                         <div className="flex flex-col justify-center">
-                          <h3 className="font-normal text-gray-900 text-xl mb-1.5 tracking-tight">{item.product_name || item.name}</h3>
-                          <div className="flex items-center gap-4">
-                             <span className="text-[11px] font-normal text-green-600 uppercase bg-green-50 px-3 py-1 rounded-full tracking-wider">
-                               {item.category_name || 'Agri Product'}
-                             </span>
-                             <span className="text-sm text-gray-400 font-normal flex items-center gap-1.5">
-                               <FaMapMarkerAlt size={12} className="text-green-500 opacity-50" />
-                               {item.farmer_name || 'Unknown Farm'}
-                             </span>
+                          <h3 className="font-normal text-gray-900 text-base mb-1 tracking-tight">{item.product_name || item.name}</h3>
+                          <div className="flex items-center gap-2.5">
+                            <span className="text-[9px] font-normal text-green-600 uppercase bg-green-50 px-2 py-0.5 rounded-full tracking-wider">
+                              {item.category_name || 'Agri Product'}
+                            </span>
+                            <span className="text-[10px] text-gray-400 font-normal flex items-center gap-1">
+                              <FaMapMarkerAlt size={9} className="text-green-500 opacity-50" />
+                              {item.farmer_name || 'Unknown Farm'}
+                            </span>
                           </div>
                         </div>
                       </div>
 
                       <div className="md:col-span-3 flex flex-col items-center">
-                        <div className="flex items-center justify-center gap-5 bg-gray-50 rounded-2xl p-3 w-full max-w-[160px]">
-                           <button
+                        <div className="flex items-center justify-center gap-4 bg-gray-50 rounded-xl p-2 w-full max-w-[140px]">
+                          <button
                             onClick={() => handleUpdateQty(item._cartId, -0.1, item.quantity)}
-                            className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-gray-400 hover:text-green-600 hover:shadow-md transition-all active:scale-90"
-                          ><FaMinus size={12} /></button>
-                          <input 
+                            className="w-7 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center text-gray-400 hover:text-green-600 hover:shadow-md transition-all active:scale-90"
+                          ><FaMinus size={10} /></button>
+                          <input
                             type="number"
                             step="any"
                             value={item.quantity}
                             onChange={(e) => updateQuantity(item._cartId, parseFloat(e.target.value) || 0.1)}
-                            className="w-14 text-center font-normal bg-transparent border-none outline-none focus:ring-0 text-gray-900 text-lg"
+                            className="w-8 text-center font-normal bg-transparent border-none outline-none focus:ring-0 text-gray-900 text-base"
                           />
                           <button
                             onClick={() => handleUpdateQty(item._cartId, 0.1, item.quantity)}
-                            className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-gray-400 hover:text-green-600 hover:shadow-md transition-all active:scale-90"
-                          ><FaPlus size={12} /></button>
+                            className="w-7 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center text-gray-400 hover:text-green-600 hover:shadow-md transition-all active:scale-90"
+                          ><FaPlus size={10} /></button>
                         </div>
-                        <span className="text-[11px] font-normal text-gray-400 uppercase tracking-widest mt-2">
+                        <span className="text-[8px] font-normal text-gray-400 uppercase tracking-widest mt-1.5">
                           {item.unit === 'ton' ? 'Tons' : item.unit === 'litre' ? 'Litres' : 'Kilograms'}
                         </span>
                       </div>
 
                       <div className="md:col-span-3 flex items-center justify-between pl-6">
                         <div className="text-right">
-                           <div className="text-2xl font-normal text-gray-900 tracking-tight">
-                             {(getPrice(item) * item.quantity * (item.unit === 'ton' ? 1000 : 1)).toLocaleString()} <span className="text-xs font-normal text-gray-400 ml-1">DZD</span>
-                           </div>
-                           <div className="text-[11px] text-gray-400 font-normal uppercase tracking-[0.1em] mt-1">
-                             {getPrice(item)} DZD / kg
-                           </div>
+                          <div className="text-lg font-medium text-gray-900 tracking-tight">
+                            {(getPrice(item) * item.quantity * (item.unit === 'ton' ? 1000 : 1)).toLocaleString()} <span className="text-xs font-normal text-gray-400 ml-1">DZD</span>
+                          </div>
+                          <div className="text-[10px] text-gray-400 font-normal uppercase tracking-[0.1em] mt-0.5">
+                            {getPrice(item)} DZD / kg
+                          </div>
                         </div>
                         <button
                           onClick={() => removeFromCart(item._cartId)}
@@ -138,9 +138,9 @@ const Cart = () => {
 
           {/* Order Summary */}
           {cart.length > 0 && (
-            <div className="w-full lg:w-96">
-              <div className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100 sticky top-24">
-                <h2 className="text-2xl font-normal text-gray-900 mb-8 border-b border-gray-50 pb-4">Order Summary</h2>
+            <div className="w-full lg:w-80">
+              <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 sticky top-24">
+                <h2 className="text-xl font-normal text-gray-900 mb-6 border-b border-gray-50 pb-3">Order Summary</h2>
 
                 <div className="space-y-4 pb-6 border-b border-gray-50">
                   <div className="flex justify-between text-sm">
@@ -159,7 +159,7 @@ const Cart = () => {
 
                 <div className="flex justify-between items-center pt-6 pb-10">
                   <span className="text-lg text-gray-500">Total</span>
-                  <span className="text-3xl font-normal text-green-600 tracking-tighter">{total.toLocaleString()} DZD</span>
+                  <span className="text-xl font-normal text-green-600 tracking-tighter">{total.toLocaleString()} DZD</span>
                 </div>
 
                 <button

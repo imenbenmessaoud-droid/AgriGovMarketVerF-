@@ -64,27 +64,31 @@ const Checkout = () => {
 
     try {
       // Group cart items by farmer to create one order per farmer
-      // For simplicity, take the first unique farmer_id from cart
       const farmerIds = [...new Set(cart.map(item => item.farmer_id).filter(Boolean))];
-      const farmerId = farmerIds[0];
 
-      if (!farmerId) {
+      if (farmerIds.length === 0) {
         setOrderError('Could not determine the farmer. Please re-add products to cart.');
         setIsProcessing(false);
         return;
       }
 
-      const payload = {
-        farmer_id: farmerId,
-        delivery_address: `${formData.address}, ${formData.wilaya}`,
-        items: cart.map(item => ({
-          product_item_id: item.id || item.id_order_item,
-          quantity: item.quantity,
-          unit: item.unit || 'kg',
-        })),
-      };
+      const orderPromises = farmerIds.map(fId => {
+        const payload = {
+          farmer_id: fId,
+          delivery_address: `${formData.address}, ${formData.wilaya}`,
+          items: cart
+            .filter(item => item.farmer_id === fId)
+            .map(item => ({
+              product_item_id: item.id || item.id_order_item,
+              quantity: item.quantity,
+              unit: item.unit || 'kg',
+            })),
+        };
+        return api.post('orders/orders/create_order/', payload);
+      });
 
-      await api.post('orders/orders/create_order/', payload);
+      await Promise.all(orderPromises);
+      
       clearCart();
       setIsProcessing(false);
       setStep(3);
