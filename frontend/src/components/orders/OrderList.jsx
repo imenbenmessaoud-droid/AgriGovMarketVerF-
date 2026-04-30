@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import {
   FaSpinner, FaBoxOpen, FaCheckCircle, FaTimesCircle, FaClock,
-  FaTruck, FaMapMarkerAlt, FaLeaf, FaEye, FaEyeSlash, FaStar
+  FaTruck, FaMapMarkerAlt, FaLeaf, FaEye, FaEyeSlash, FaStar, FaTimes
 } from 'react-icons/fa';
 import AppraisalModal from '../buyers/AppraisalModal';
 
@@ -12,64 +12,70 @@ const CarrierModal = ({ isOpen, onClose, transporter }) => {
   const hasTransporter = !!transporter.name;
 
   return (
-    <div className="fixed inset-0 z-[3000] flex items-center justify-center p-6 bg-black/40 backdrop-blur-xl animate-fadeIn">
-      <div className="bg-white rounded-[2rem] shadow-2xl max-w-[320px] w-full overflow-hidden animate-scaleUp border border-gray-100 relative">
-        {/* Close icon */}
-        <button 
-          onClick={onClose}
-          className="absolute top-5 right-5 text-gray-300 hover:text-gray-500 z-20 transition-colors p-1"
-        >
-          <FaTimesCircle size={18} />
-        </button>
-
-        <div className="p-6 text-center relative border-b border-gray-50">
-          <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-3 border border-green-100">
-            <FaTruck size={22} className={hasTransporter ? "text-green-600" : "text-blue-600"} />
-          </div>
-          <h3 className="text-lg font-normal tracking-tight text-gray-900">
-            {hasTransporter ? "Carrier Details" : "Support Center"}
-          </h3>
-          <p className="text-[8px] text-gray-400 uppercase tracking-[0.2em] mt-1 font-normal">
-            {hasTransporter ? "Verified Logistics" : "Order Help"}
-          </p>
-        </div>
-        
-        <div className="p-5 bg-white">
-          <div className="space-y-2.5">
-            {hasTransporter ? (
-              <>
-                <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
-                  <p className="text-[7px] text-gray-400 uppercase tracking-widest mb-0.5 font-normal">Full Name</p>
-                  <p className="text-xs font-normal text-gray-900">{transporter.name}</p>
-                </div>
-                
-                <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
-                  <p className="text-[7px] text-gray-400 uppercase tracking-widest mb-0.5 font-normal">Email Address</p>
-                  <p className="text-xs font-normal text-gray-900 break-all">{transporter.email || 'No email'}</p>
-                </div>
-
-                <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
-                  <p className="text-[7px] text-gray-400 uppercase tracking-widest mb-0.5 font-normal">Location</p>
-                  <p className="text-xs font-normal text-gray-900">{transporter.address || 'No address'}</p>
-                </div>
-
-                <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
-                  <p className="text-[7px] text-gray-400 uppercase tracking-widest mb-0.5 font-normal">Contact</p>
-                  <p className="text-xs font-normal text-green-600">{transporter.phone || 'No phone'}</p>
-                </div>
-              </>
+    <div className="fixed inset-0 z-[3000] flex items-center justify-center p-6 bg-black/40 backdrop-blur-sm animate-fadeIn">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-[420px] w-full overflow-hidden animate-scaleUp">
+        {/* Header */}
+        <div className="p-6 border-b border-gray-50 flex justify-between items-start">
+          <div className="flex items-center gap-4">
+            {hasTransporter && transporter.avatar ? (
+              <img src={transporter.avatar} alt="" className="w-12 h-12 rounded-full object-cover shadow-sm" />
             ) : (
-              <div className="text-center py-2">
-                <p className="text-[10px] text-gray-500 font-normal leading-relaxed mb-3">
-                  Transporter assignment in progress.
-                </p>
-                <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm text-left">
-                   <p className="text-[7px] text-gray-400 uppercase tracking-widest mb-0.5 font-normal">Support</p>
-                   <p className="text-xs font-normal text-blue-600">0555 000 000</p>
-                </div>
+              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                <FaTruck className="text-gray-400 text-xl" />
               </div>
             )}
+            <div>
+              <h3 className="text-base font-normal text-gray-900 tracking-tight">
+                {hasTransporter ? "Verified Logistics" : "Support Center"}
+              </h3>
+              <p className="text-[11px] text-gray-400 mt-0.5 font-normal">
+                {hasTransporter ? transporter.name : "Order Help"}
+              </p>
+            </div>
           </div>
+          <button
+            onClick={onClose}
+            className="text-gray-300 hover:text-gray-500 transition-colors p-1"
+          >
+            <FaTimes size={14} />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="p-6 space-y-6">
+          {hasTransporter ? (
+            <>
+              <div>
+                <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-1.5 font-normal">Phone Number</p>
+                <p className="text-[13px] font-normal text-gray-900">{transporter.phone || 'Not provided'}</p>
+              </div>
+
+              <div>
+                <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-1.5 font-normal">Email Address</p>
+                <p className="text-[13px] font-normal text-gray-900">{transporter.email || 'Not provided'}</p>
+              </div>
+
+              <div>
+                <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-1.5 font-normal">Home Address</p>
+                <p className="text-[13px] font-normal text-gray-900">{transporter.address || 'Not provided'}</p>
+              </div>
+
+              <div>
+                <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-1.5 font-normal">Carrier License</p>
+                <p className="text-[13px] font-normal text-gray-900">{transporter.license || 'Not provided'}</p>
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-4">
+              <p className="text-[11px] text-gray-500 font-normal leading-relaxed mb-4">
+                Transporter assignment is currently in progress.
+              </p>
+              <div>
+                <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-1 font-normal">Support</p>
+                <p className="text-sm font-normal text-blue-600">0555 000 000</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -101,14 +107,16 @@ const OrderCard = ({ order, userRole, onRate }) => {
   return (
     <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 mb-6 font-sans">
       {/* Carrier Modal */}
-      <CarrierModal 
-        isOpen={showCarrierModal} 
-        onClose={() => setShowCarrierModal(false)} 
+      <CarrierModal
+        isOpen={showCarrierModal}
+        onClose={() => setShowCarrierModal(false)}
         transporter={{
           name: order.tracking_info?.transporter_name,
           phone: order.tracking_info?.transporter_phone,
           email: order.tracking_info?.transporter_email,
-          address: order.tracking_info?.transporter_address
+          address: order.tracking_info?.transporter_address,
+          avatar: order.tracking_info?.transporter_avatar,
+          license: order.tracking_info?.transporter_license
         }}
       />
       {/* Header */}
@@ -231,55 +239,71 @@ const OrderCard = ({ order, userRole, onRate }) => {
         {/* Expanded Details */}
         {isExpanded && (
           <div className="mt-8 pt-6 border-t border-gray-100 animate-fadeIn">
-            <div className="border-l-[3px] border-gray-100 ml-4 pl-8 pb-6 relative">
-              <p className="text-[10px] uppercase font-normal text-gray-400 tracking-widest absolute -top-3 left-0 bg-white pr-3">Tracking Timeline</p>
+            <div className="relative py-4">
+              <p className="text-[10px] uppercase font-normal text-gray-400 tracking-widest mb-6">Tracking Timeline</p>
 
-              {/* Dynamic Timeline based on order status */}
-              <div className="space-y-8 mt-8">
-                {order.order_status?.toLowerCase() === 'cancelled' ? (
-                  <div className="relative">
-                    <div className="absolute -left-[45px] top-0 w-6 h-6 rounded-full bg-red-500 flex items-center justify-center border-[3px] border-white shadow-sm">
-                      <FaTimesCircle className="text-white text-[10px]" />
-                    </div>
-                    <p className="text-[10px] text-gray-400 mb-0.5 font-normal">{new Date(order.order_date).toLocaleDateString('en-GB')}</p>
-                    <p className="text-sm font-normal text-red-700">Order Rejected</p>
-                    <p className="text-[11px] text-gray-500 mt-1">This order has been rejected or cancelled by the farmer.</p>
-                  </div>
-                ) : (
-                  <div className="relative">
-                    <div className={`absolute -left-[45px] top-0 w-6 h-6 rounded-full ${order.order_status?.toLowerCase() === 'pending' ? 'bg-yellow-500' : 'bg-green-500'} flex items-center justify-center border-[3px] border-white shadow-sm`}>
-                      {order.order_status?.toLowerCase() === 'pending' ? <FaClock className="text-white text-[10px]" /> : <FaCheckCircle className="text-white text-[10px]" />}
-                    </div>
-                    <p className="text-[10px] text-gray-400 mb-0.5 font-normal">{new Date(order.order_date).toLocaleDateString('en-GB')}</p>
-                    <p className={`text-sm font-normal ${order.order_status?.toLowerCase() === 'pending' ? 'text-yellow-700' : 'text-green-700'}`}>
-                      {order.order_status?.toLowerCase() === 'pending' ? 'Order Pending' : 'Order Confirmed'}
-                    </p>
-                    <p className="text-[11px] text-gray-500 mt-1">
-                      {order.order_status?.toLowerCase() === 'pending' ? 'Awaiting farmer approval.' : 'Your order has been received and verified.'}
-                    </p>
-                  </div>
-                )}
-                {['shipped', 'delivered'].includes(order.order_status?.toLowerCase()) && (
-                  <div className="relative">
-                    <div className="absolute -left-[45px] top-0 w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center border-[3px] border-white shadow-sm">
-                      <FaTruck className="text-white text-[10px]" />
-                    </div>
-                    <p className="text-[10px] text-gray-400 mb-0.5 font-normal">Updated Status</p>
-                    <p className="text-sm font-normal text-blue-700">On Shipping</p>
-                    <p className="text-[11px] text-gray-500 mt-1">Your package has been picked up by our transport partner.</p>
-                  </div>
-                )}
+              <div className="space-y-8 relative before:absolute before:left-[19px] before:top-2 before:bottom-2 before:w-[2px] before:bg-gray-50">
+                {[
+                  {
+                    label: 'Order Pending',
+                    status: 'pending',
+                    statusLabel: order.order_date ? new Date(order.order_date).toLocaleDateString() : 'Today',
+                    icon: FaClock,
+                    desc: 'Your order is pending confirmation.',
+                    color: 'text-orange-600',
+                    bgColor: 'bg-orange-500'
+                  },
+                  {
+                    label: 'Order Confirmed',
+                    status: 'confirmed',
+                    statusLabel: 'Confirmed Status',
+                    icon: FaCheckCircle,
+                    desc: 'Your order has been received and verified.',
+                    color: 'text-green-600',
+                    bgColor: 'bg-green-500'
+                  },
+                  {
+                    label: 'On Shipping',
+                    status: 'shipped',
+                    statusLabel: 'Updated Status',
+                    icon: FaTruck,
+                    desc: 'Your package has been picked up by our transport partner.',
+                    color: 'text-blue-600',
+                    bgColor: 'bg-blue-600'
+                  },
+                  {
+                    label: 'Delivered successfully',
+                    status: 'delivered',
+                    statusLabel: 'Recent Update',
+                    icon: FaMapMarkerAlt,
+                    desc: 'Package has arrived at its final destination.',
+                    color: 'text-red-600',
+                    bgColor: 'bg-red-500'
+                  }
+                ].map((step, i) => {
+                  const statuses = ['pending', 'confirmed', 'shipped', 'delivered'];
+                  const status = order.order_status?.toLowerCase() === 'on shipping' ? 'shipped' : order.order_status?.toLowerCase();
+                  const currentIndex = statuses.indexOf(status);
+                  const stepIndex = statuses.indexOf(step.status);
+                  const isReached = stepIndex <= currentIndex;
 
-                {order.order_status?.toLowerCase() === 'delivered' && (
-                  <div className="relative">
-                    <div className="absolute -left-[45px] top-0 w-6 h-6 rounded-full bg-red-500 flex items-center justify-center border-[3px] border-white shadow-sm">
-                      <FaMapMarkerAlt className="text-white text-[10px]" />
+                  if (!isReached && status !== 'delivered') return null;
+
+                  return (
+                    <div key={i} className="flex gap-6 items-start relative z-10">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-sm ${step.bgColor} text-white`}>
+                        {step.status === 'confirmed' ? <FaCheckCircle size={16} /> : <step.icon size={16} />}
+                      </div>
+                      <div className="flex-1 pt-1">
+                        <p className="text-[9px] text-gray-400 font-normal uppercase tracking-wider mb-0.5">{step.statusLabel}</p>
+                        <div className="flex justify-between items-start mb-0.5">
+                          <h4 className={`text-sm font-normal ${step.color}`}>{step.label}</h4>
+                        </div>
+                        <p className="text-xs text-gray-500 font-normal leading-relaxed">{step.desc}</p>
+                      </div>
                     </div>
-                    <p className="text-[10px] text-gray-400 mb-0.5 font-normal">Recent Update</p>
-                    <p className="text-sm font-normal text-red-700">Delivered successfully</p>
-                    <p className="text-[11px] text-gray-500 mt-1">Package has arrived at its final destination.</p>
-                  </div>
-                )}
+                  );
+                })}
               </div>
             </div>
 
@@ -294,7 +318,7 @@ const OrderCard = ({ order, userRole, onRate }) => {
                   <p className="text-[10px] text-gray-500 uppercase tracking-wider mt-0.5 font-normal">Carrier • TR-{new Date().getFullYear()}-001</p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setShowCarrierModal(true)}
                 className="px-5 py-2.5 bg-white border border-gray-200 rounded-lg text-xs font-normal text-gray-700 shadow-sm hover:bg-gray-50 transition-colors"
               >
@@ -308,12 +332,82 @@ const OrderCard = ({ order, userRole, onRate }) => {
   );
 };
 
-const OrderList = ({ userRole, filterStatus, searchQuery }) => {
+const OrderList = ({ userRole, filterStatus, searchQuery, initialFilter = 'all' }) => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('all');
+  const [activeTab, setActiveTab] = useState(initialFilter);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showAppraisalModal, setShowAppraisalModal] = useState(false);
+  const [profileModal, setProfileModal] = useState(null);
+
+  const ProfileModal = ({ isOpen, onClose, data, title, subtitle }) => {
+    if (!isOpen || !data) return null;
+
+    return (
+      <div className="fixed inset-0 z-[4000] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fadeIn">
+        <div className="bg-white shadow-2xl max-w-[520px] w-full overflow-hidden animate-scaleUp rounded-[2.5rem] border border-gray-100">
+          {/* Header Background Decoration */}
+          <div className="h-32 bg-gradient-to-r from-green-50 to-emerald-50 relative">
+            <button
+              onClick={onClose}
+              className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition-colors p-2 bg-white rounded-full shadow-sm z-10"
+            >
+              <FaTimes size={14} />
+            </button>
+          </div>
+
+          {/* Profile Info */}
+          <div className="px-10 pb-10 -mt-12 relative text-center">
+            <div className="inline-block relative">
+              <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-xl bg-white mx-auto">
+                {data.avatar ? (
+                  <img src={data.avatar} className="w-full h-full object-cover" alt="" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gray-50 text-gray-200">
+                    <FaUserCircle size={40} />
+                  </div>
+                )}
+              </div>
+              <div className="absolute bottom-1 right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white flex items-center justify-center text-white shadow-sm">
+                <FaCheckCircle size={10} />
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <h3 className="text-xl font-bold text-gray-900 tracking-tight">{data.name}</h3>
+              <p className="text-[10px] text-green-600 font-bold uppercase tracking-[0.2em] mt-1.5">{title}</p>
+            </div>
+
+            {/* Contact Details Grid */}
+            <div className="mt-8 space-y-5 text-left">
+              {[
+                { label: 'Phone Number', value: data.phone },
+                { label: 'Email Address', value: data.email },
+                { label: 'Home Address', value: data.address }
+              ].map((item, idx) => (
+                <div key={idx} className="group">
+                  <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1.5 transition-colors group-hover:text-green-500">{item.label}</p>
+                  <div className="bg-gray-50/50 px-5 py-3.5 rounded-2xl border border-transparent transition-all group-hover:bg-white group-hover:border-gray-100 group-hover:shadow-sm">
+                    <p className="text-sm text-gray-700 font-medium">{item.value || 'Not provided'}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Action Footer */}
+            <div className="mt-8 pt-8 border-t border-gray-50 flex gap-4">
+              <button className="flex-1 py-4 bg-green-600 text-white rounded-2xl text-xs font-bold hover:bg-green-700 transition-all shadow-lg shadow-green-100">
+                Send Message
+              </button>
+              <button className="flex-1 py-4 bg-white border border-gray-200 text-gray-700 rounded-2xl text-xs font-bold hover:bg-gray-50 transition-all">
+                View Profile
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -354,14 +448,22 @@ const OrderList = ({ userRole, filterStatus, searchQuery }) => {
   };
 
   useEffect(() => {
+    if (initialFilter) {
+      setActiveTab(initialFilter);
+    }
+  }, [initialFilter]);
+
+  useEffect(() => {
     fetchOrders();
   }, []);
 
   const tabs = [
-    { id: 'All', key: 'all', count: orders.length },
+    { id: 'All Orders', key: 'all', count: orders.length },
     { id: 'Pending', key: 'pending', count: orders.filter(o => o.order_status === 'pending').length },
+    { id: 'Confirmed', key: 'confirmed', count: orders.filter(o => o.order_status === 'confirmed').length },
     { id: 'On Shipping', key: 'shipped', count: orders.filter(o => o.order_status === 'shipped').length },
-    { id: 'Arrived', key: 'delivered', count: orders.filter(o => o.order_status === 'delivered').length }
+    { id: 'Delivered', key: 'delivered', count: orders.filter(o => o.order_status === 'delivered').length },
+    { id: 'Cancelled', key: 'cancelled', count: orders.filter(o => o.order_status === 'cancelled').length }
   ];
 
   let displayOrders = orders;
@@ -394,14 +496,14 @@ const OrderList = ({ userRole, filterStatus, searchQuery }) => {
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
               className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-normal transition-all whitespace-nowrap shadow-sm border border-gray-100 ${isActive
-                  ? 'bg-black text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-50'
+                ? 'bg-black text-white'
+                : 'bg-white text-gray-600 hover:bg-gray-50'
                 }`}
             >
               {tab.id}
               <span className={`px-2 py-0.5 rounded-full text-[10px] font-normal ${isActive
-                  ? 'bg-white text-black'
-                  : 'bg-gray-100 text-gray-500'
+                ? 'bg-white text-black'
+                : 'bg-gray-100 text-gray-500'
                 }`}>
                 {tab.count}
               </span>

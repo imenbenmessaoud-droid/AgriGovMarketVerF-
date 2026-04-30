@@ -113,7 +113,6 @@ const Header = () => {
     { name: 'Dashboard', path: '/buyer' },
     { name: 'Products', path: '/buyer/products' },
     { name: 'My Orders', path: '/buyer/orders' },
-    { name: 'Favorites', path: '/buyer/favorites' },
   ];
 
   const transporterTabs = [
@@ -282,11 +281,11 @@ const Header = () => {
                             <div className="flex gap-3">
                               <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${notif.notification_type === 'delivery' ? 'bg-blue-100 text-blue-600' :
                                 notif.notification_type === 'registration' ? 'bg-green-100 text-green-600' :
-                                notif.notification_type === 'status' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'
+                                  notif.notification_type === 'status' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'
                                 }`}>
                                 {notif.notification_type === 'delivery' ? <FaBox size={14} /> :
                                   notif.notification_type === 'registration' ? <FaUserCircle size={14} /> :
-                                  notif.notification_type === 'status' ? <FaBox size={14} /> : <FaBell size={14} />}
+                                    notif.notification_type === 'status' ? <FaBox size={14} /> : <FaBell size={14} />}
                               </div>
                               <div className="flex-1">
                                 <p className="text-xs font-normal text-gray-800">{notif.title}</p>
@@ -555,8 +554,8 @@ const Header = () => {
                         <div>
                           <p className="text-[9px] text-gray-400 uppercase tracking-wider">Member Since</p>
                           <p className="text-sm text-gray-800">
-                            {userProfile.created_at 
-                              ? new Date(userProfile.created_at).toLocaleDateString('en-US', { year: 'numeric' }) 
+                            {userProfile.created_at
+                              ? new Date(userProfile.created_at).toLocaleDateString('en-US', { year: 'numeric' })
                               : userProfile.memberSince}
                           </p>
                         </div>

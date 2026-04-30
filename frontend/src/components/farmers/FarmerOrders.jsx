@@ -25,6 +25,7 @@ const FarmerOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingId, setLoadingId] = useState(null);
+  const [profileModal, setProfileModal] = useState({ isOpen: false, data: null, title: '' });
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -123,6 +124,71 @@ const FarmerOrders = () => {
     );
   };
 
+  const ProfileModal = ({ isOpen, onClose, data, title }) => {
+    if (!isOpen || !data) return null;
+
+    return (
+      <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fadeIn">
+        <div className="bg-white rounded-[1.5rem] shadow-2xl max-w-[420px] w-full overflow-hidden animate-scaleUp border border-gray-100 relative">
+        <button 
+          onClick={onClose}
+          className="absolute top-4 right-4 p-1.5 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-all z-10"
+        >
+          <FaTimes size={14} />
+        </button>
+          <div className="p-6 text-center border-b border-gray-50 bg-gray-50/50">
+            <div className="relative inline-block mb-3">
+              <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-sm mx-auto bg-white flex items-center justify-center">
+                {data.avatar ? (
+                  <img src={data.avatar} alt={data.name} className="w-full h-full object-cover" />
+                ) : (
+                  <FaUserCircle className="text-gray-200 w-full h-full" />
+                )}
+              </div>
+              <div className="absolute bottom-0 right-0 w-5 h-5 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
+                <FaCheckCircle className="text-white text-[8px]" />
+              </div>
+            </div>
+            <h3 className="text-lg font-normal text-gray-900">{data.name}</h3>
+            <p className="text-[9px] text-gray-400 uppercase tracking-widest mt-0.5">{title}</p>
+          </div>
+          
+          <div className="p-5 space-y-4 text-left">
+            <div className="flex items-center gap-3 group">
+              <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                <FaPhoneAlt size={12} />
+              </div>
+              <div>
+                <p className="text-[9px] text-gray-400 uppercase font-normal tracking-wider">Phone</p>
+                <p className="text-sm font-normal text-gray-800">{data.phone || 'Not available'}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 group">
+              <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-all">
+                <FaUserCircle size={12} />
+              </div>
+              <div>
+                <p className="text-[9px] text-gray-400 uppercase font-normal tracking-wider">Email</p>
+                <p className="text-sm font-normal text-gray-800 truncate">{data.email || 'Not available'}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 group">
+              <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center text-green-600 group-hover:bg-green-600 group-hover:text-white transition-all">
+                <FaMapMarkerAlt size={12} />
+              </div>
+              <div>
+                <p className="text-[9px] text-gray-400 uppercase font-normal tracking-wider">Location</p>
+                <p className="text-sm font-normal text-gray-800 line-clamp-1">{data.address || 'Not available'}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="w-full min-h-screen" style={{ backgroundColor: '#faf8f0' }}>
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -214,7 +280,53 @@ const FarmerOrders = () => {
                   </div>
 
                   <div className="pt-1">
-                    <p className="text-base font-normal text-gray-900">{order.buyer_name}</p>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                      <div 
+                        onClick={() => setProfileModal({
+                          isOpen: true,
+                          title: 'Verified Buyer',
+                          data: {
+                            name: order.buyer_name,
+                            phone: order.buyer_phone,
+                            email: order.buyer_email,
+                            avatar: order.buyer_avatar,
+                            address: order.buyer_address
+                          }
+                        })}
+                        className="flex items-center gap-2 cursor-pointer group"
+                      >
+                        <p className="text-base font-normal text-gray-900 group-hover:text-green-700 transition-colors">
+                          <span className="text-gray-400 font-normal">Buyer:</span> {order.buyer_name}
+                        </p>
+                        <div className="w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                          <FaUserCircle size={10} />
+                        </div>
+                      </div>
+
+                      {order.tracking_info?.transporter_name && (
+                        <div 
+                          onClick={() => setProfileModal({
+                            isOpen: true,
+                            title: 'Verified Transporter',
+                            data: {
+                              name: order.tracking_info.transporter_name,
+                              phone: order.tracking_info.transporter_phone,
+                              email: order.tracking_info.transporter_email,
+                              avatar: order.tracking_info.transporter_avatar,
+                              address: order.tracking_info.transporter_address
+                            }
+                          })}
+                          className="flex items-center gap-2 cursor-pointer group border-l border-gray-200 pl-4"
+                        >
+                          <p className="text-base font-normal text-gray-900 group-hover:text-emerald-700 transition-colors">
+                            <span className="text-gray-400 font-normal">Transporter:</span> {order.tracking_info.transporter_name}
+                          </p>
+                          <div className="w-5 h-5 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                            <FaTruck size={10} />
+                          </div>
+                        </div>
+                      )}
+                    </div>
                     <p className="text-xs text-gray-500 font-normal">
                        <FaMapMarkerAlt className="inline mr-1 text-green-600" size={10} />
                        {order.delivery_address || order.notes || 'Pick up at farm'}
@@ -302,6 +414,20 @@ const FarmerOrders = () => {
           </div>
         )}
       </div>
+      
+      <ProfileModal 
+        isOpen={profileModal.isOpen}
+        onClose={() => setProfileModal({ ...profileModal, isOpen: false })}
+        data={profileModal.data}
+        title={profileModal.title}
+      />
+
+      <style>{`
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .animate-fadeIn { animation: fadeIn 0.2s ease-out; }
+        .animate-scaleUp { animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+      `}</style>
     </div>
   );
 };

@@ -6,9 +6,11 @@ const OfficialPriceManager = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [editingId, setEditingId] = useState(null);
+  const [editingDetailsId, setEditingDetailsId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [editForm, setEditForm] = useState({ min_price: 0, max_price: 0 });
+  const [detailsForm, setDetailsForm] = useState({ product_name: '', id_category: '' });
   const [loading, setLoading] = useState(true);
   
   // Add new Product state
@@ -39,9 +41,19 @@ const OfficialPriceManager = () => {
 
   const handleEdit = (productReq) => {
     setEditingId(productReq.id_product);
+    setEditingDetailsId(null);
     setEditForm({ 
       min_price: productReq.current_price?.min_price || 0, 
       max_price: productReq.current_price?.max_price || 0
+    });
+  };
+
+  const handleEditDetails = (item) => {
+    setEditingDetailsId(item.id_product);
+    setEditingId(null);
+    setDetailsForm({
+      product_name: item.product_name,
+      id_category: item.id_category
     });
   };
 
@@ -59,6 +71,17 @@ const OfficialPriceManager = () => {
       console.error("Failed to update pricing:", err);
       const errorMsg = err.response?.data?.detail || err.response?.data?.error || err.message || "Failed to update pricing constraints";
       alert(errorMsg);
+    }
+  };
+
+  const handleUpdateDetails = async (id) => {
+    try {
+      await api.patch(`products/products/${id}/`, detailsForm);
+      fetchData();
+      setEditingDetailsId(null);
+    } catch (err) {
+      console.error("Failed to update product details:", err);
+      alert("Failed to update product details.");
     }
   };
 
@@ -208,8 +231,30 @@ const OfficialPriceManager = () => {
                 {filteredPrices.map((item) => (
                   <tr key={item.id_product} className="hover:bg-gray-50 transition-colors group">
                     <td className="px-5 py-4">
-                      <p className="text-sm font-normal text-gray-900">{item.product_name}</p>
-                      <p className="text-xs text-green-700 font-normal">{item.category_name}</p>
+                      {editingDetailsId === item.id_product ? (
+                        <div className="space-y-2">
+                          <input 
+                            type="text"
+                            value={detailsForm.product_name}
+                            onChange={e => setDetailsForm({...detailsForm, product_name: e.target.value})}
+                            className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-green-500"
+                          />
+                          <select 
+                            value={detailsForm.id_category}
+                            onChange={e => setDetailsForm({...detailsForm, id_category: e.target.value})}
+                            className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-green-500"
+                          >
+                            {categories.map(cat => (
+                              <option key={cat.id_category} value={cat.id_category}>{cat.category_name}</option>
+                            ))}
+                          </select>
+                        </div>
+                      ) : (
+                        <>
+                          <p className="text-sm font-normal text-gray-900">{item.product_name}</p>
+                          <p className="text-xs text-green-700 font-normal">{item.category_name}</p>
+                        </>
+                      )}
                     </td>
                     
                     {/* Constraints */}
@@ -264,6 +309,11 @@ const OfficialPriceManager = () => {
                            <button onClick={() => setEditingId(null)} className="px-3 py-2 bg-gray-100 text-gray-600 text-xs font-normal uppercase rounded hover:bg-gray-200 transition">Cancel</button>
                            <button onClick={() => handleSave(item.id_product)} className="px-3 py-2 bg-green-700 text-white text-xs font-normal uppercase rounded hover:bg-green-800 transition">Commit</button>
                         </div>
+                      ) : editingDetailsId === item.id_product ? (
+                        <div className="flex justify-end gap-2">
+                           <button onClick={() => setEditingDetailsId(null)} className="px-3 py-2 bg-gray-100 text-gray-600 text-xs font-normal uppercase rounded hover:bg-gray-200 transition">Cancel</button>
+                           <button onClick={() => handleUpdateDetails(item.id_product)} className="px-3 py-2 bg-green-700 text-white text-xs font-normal uppercase rounded hover:bg-green-800 transition">Save</button>
+                        </div>
                       ) : (
                         <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button 
@@ -271,6 +321,12 @@ const OfficialPriceManager = () => {
                             className="px-3 py-2 border border-red-200 text-red-600 text-xs font-normal uppercase rounded hover:bg-red-50 hover:border-red-300 transition"
                           >
                             Delete
+                          </button>
+                          <button 
+                            onClick={() => handleEditDetails(item)} 
+                            className="px-3 py-2 border border-gray-200 text-gray-600 text-xs font-normal uppercase rounded hover:bg-gray-100 hover:text-green-700 hover:border-green-300 transition"
+                          >
+                            Update
                           </button>
                           <button 
                             onClick={() => handleEdit(item)} 

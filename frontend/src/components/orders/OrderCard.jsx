@@ -1,4 +1,4 @@
- import React, { useState } from 'react';
+import React, { useState } from 'react';
 import {
   FaTruck, FaMapMarkerAlt, FaShoppingBag,
   FaChevronDown, FaChevronUp, FaCheckCircle,
@@ -10,7 +10,7 @@ const OrderCard = ({ order }) => {
   const [expanded, setExpanded] = useState(false);
 
   const getStatusStyle = (status) => {
-    switch(status?.toLowerCase()) {
+    switch (status?.toLowerCase()) {
       case 'confirmed':
         return 'bg-green-100 text-green-700 border-green-200';
       case 'delivered':
@@ -26,7 +26,7 @@ const OrderCard = ({ order }) => {
 
   return (
     <div className="group bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-500 overflow-hidden">
-      
+
       {/* Header - مسافة أقل */}
       <div className="bg-gradient-to-r from-gray-900 to-gray-800 px-4 py-2.5">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
@@ -54,7 +54,7 @@ const OrderCard = ({ order }) => {
 
       {/* Body - مسافة أقل */}
       <div className="p-4">
-        
+
         {/* Route - مسافة أقل */}
         <div className="bg-gradient-to-r from-gray-50 to-white rounded-lg p-3 mb-4 border border-gray-100">
           <div className="flex items-center justify-between">
@@ -128,15 +128,15 @@ const OrderCard = ({ order }) => {
         {/* Expanded Content - مسافة أقل */}
         {expanded && (
           <div className="mt-4 pt-4 border-t border-gray-100 animate-fadeIn">
-            
+
             {/* Tracking Timeline */}
             <div className="flex items-center gap-1.5 mb-3">
               <div className="w-0.5 h-4 bg-gray-500 rounded-full"></div>
               <h4 className="text-xs font-normal text-gray-700 uppercase tracking-wider">Tracking Timeline</h4>
             </div>
-            
+
             <div className="space-y-3 mb-4">
-              
+
               {/* 1. Order confirmed - VERT */}
               <div className="flex gap-3">
                 <div className="flex flex-col items-center">

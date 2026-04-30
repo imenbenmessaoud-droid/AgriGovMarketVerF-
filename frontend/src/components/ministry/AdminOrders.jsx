@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { FaSearch, FaFilter, FaBoxOpen, FaUser, FaTractor, FaCalendarAlt, FaMoneyBillWave, FaTimes, FaMapMarkerAlt, FaSpinner } from 'react-icons/fa';
+import {
+  FaSearch, FaFilter, FaBoxOpen, FaUser, FaTractor,
+  FaCalendarAlt, FaMoneyBillWave, FaTimes, FaMapMarkerAlt,
+  FaSpinner, FaUserCircle, FaCheckCircle, FaPhoneAlt, FaTruck
+} from 'react-icons/fa';
 import api from '../../services/api';
 
 const AdminOrders = () => {
@@ -8,6 +12,7 @@ const AdminOrders = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [profileModal, setProfileModal] = useState({ isOpen: false, data: null, title: '' });
 
   useEffect(() => {
     fetchOrders();
@@ -36,20 +41,72 @@ const AdminOrders = () => {
   };
 
   const filteredOrders = orders.filter(order => {
-    const matchesSearch = 
+    const matchesSearch =
       (order.order_number?.toString().toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
       (order.buyer_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-      (order.farmer_name?.toLowerCase() || '').includes(searchTerm.toLowerCase());
-    
+      (order.farmer_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (order.tracking_info?.transporter_name?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+
     const matchesStatus = statusFilter === 'All' || order.order_status === statusFilter;
 
     return matchesSearch && matchesStatus;
   });
 
+  const ProfileModal = ({ isOpen, onClose, data, title }) => {
+    if (!isOpen || !data) return null;
+
+    return (
+      <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+        <div className="bg-white rounded-lg shadow-2xl max-w-lg w-full overflow-hidden border border-gray-100">
+          {/* Header */}
+          <div className="border-b border-gray-200 px-5 py-4 flex justify-between items-center bg-white">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full overflow-hidden border border-gray-100 bg-gray-50 flex items-center justify-center shrink-0">
+                {data.avatar ? (
+                  <img src={data.avatar} alt={data.name} className="w-full h-full object-cover" />
+                ) : (
+                  <FaUserCircle className="text-gray-200" size={48} />
+                )}
+              </div>
+              <div>
+                <h3 className="text-lg font-normal text-black">{title}</h3>
+                <p className="text-xs text-gray-500 mt-0.5">{data.name}</p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-all"
+            >
+              <FaTimes size={18} />
+            </button>
+          </div>
+
+          {/* Body */}
+          <div className="p-6 space-y-6">
+            <div>
+              <p className="text-[11px] text-gray-400 uppercase tracking-widest font-medium mb-1.5">Phone Number</p>
+              <p className="text-sm font-normal text-black">{data.phone || 'Not available'}</p>
+            </div>
+
+            <div>
+              <p className="text-[11px] text-gray-400 uppercase tracking-widest font-medium mb-1.5">Email Address</p>
+              <p className="text-sm font-normal text-black truncate">{data.email || 'Not available'}</p>
+            </div>
+
+            <div>
+              <p className="text-[11px] text-gray-400 uppercase tracking-widest font-medium mb-1.5">Home Address</p>
+              <p className="text-sm font-normal text-black">{data.address || 'Not available'}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-[#faf8f0] px-4 py-6">
       <div className="max-w-7xl mx-auto space-y-6">
-        
+
         {/* Header */}
         <div>
           <div className="flex items-center gap-2 mb-1">
@@ -86,7 +143,7 @@ const AdminOrders = () => {
             <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={14} />
             <input
               type="text"
-              placeholder="Search by Order ID, Buyer, or Farmer..."
+              placeholder="Search by Order ID, Buyer, Farmer, or Carrier..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
@@ -124,6 +181,7 @@ const AdminOrders = () => {
                     <th className="px-6 py-4 font-medium">Date</th>
                     <th className="px-6 py-4 font-medium">Buyer</th>
                     <th className="px-6 py-4 font-medium">Farmer</th>
+                    <th className="px-6 py-4 font-medium">Transporter</th>
                     <th className="px-6 py-4 font-medium text-right">Amount</th>
                     <th className="px-6 py-4 font-medium text-center">Status</th>
                     <th className="px-6 py-4 font-medium text-center">Action</th>
@@ -142,16 +200,71 @@ const AdminOrders = () => {
                         })}
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <FaUser className="text-gray-400" size={12} />
-                          <span className="text-sm text-gray-700">{order.buyer_name}</span>
-                        </div>
+                        <button
+                          onClick={() => setProfileModal({
+                            isOpen: true,
+                            title: 'Verified Buyer',
+                            data: {
+                              name: order.buyer_name,
+                              phone: order.buyer_phone,
+                              email: order.buyer_email,
+                              avatar: order.buyer_avatar,
+                              address: order.buyer_address
+                            }
+                          })}
+                          className="flex items-center gap-3 hover:bg-gray-100 p-1 -m-1 rounded-lg transition-all text-left"
+                        >
+                          <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-100 flex items-center justify-center bg-white shrink-0">
+                            {order.buyer_avatar ? (
+                              <img src={order.buyer_avatar} alt={order.buyer_name} className="w-full h-full object-cover" />
+                            ) : (
+                              <FaUser className="text-gray-300" size={14} />
+                            )}
+                          </div>
+                          <span className="text-sm text-gray-700 hover:underline">{order.buyer_name}</span>
+                        </button>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <FaTractor className="text-gray-400" size={12} />
-                          <span className="text-sm text-gray-700">{order.farmer_name}</span>
-                        </div>
+                        <button
+                          onClick={() => setProfileModal({
+                            isOpen: true,
+                            title: 'Verified Farmer',
+                            data: {
+                              name: order.farmer_name,
+                              phone: order.farmer_phone,
+                              email: order.farmer_email,
+                              avatar: order.farmer_avatar,
+                              address: order.farmer_address
+                            }
+                          })}
+                          className="flex items-center gap-2 hover:bg-gray-100 p-1 -m-1 rounded-lg transition-all text-left"
+                        >
+                          <FaTractor className="text-gray-400 shrink-0" size={12} />
+                          <span className="text-sm text-gray-700 hover:underline">{order.farmer_name}</span>
+                        </button>
+                      </td>
+                      <td className="px-6 py-4">
+                        {order.tracking_info?.transporter_name ? (
+                          <button
+                            onClick={() => setProfileModal({
+                              isOpen: true,
+                              title: 'Verified Transporter',
+                              data: {
+                                name: order.tracking_info.transporter_name,
+                                phone: order.tracking_info.transporter_phone,
+                                email: order.tracking_info.transporter_email,
+                                avatar: order.tracking_info.transporter_avatar,
+                                address: order.tracking_info.transporter_address
+                              }
+                            })}
+                            className="flex items-center gap-2 hover:bg-gray-100 p-1 -m-1 rounded-lg transition-all text-left"
+                          >
+                            <FaTruck className="text-gray-400 shrink-0" size={12} />
+                            <span className="text-sm text-gray-700 hover:underline">{order.tracking_info.transporter_name}</span>
+                          </button>
+                        ) : (
+                          <span className="text-xs text-gray-400 italic">Not Assigned</span>
+                        )}
                       </td>
                       <td className="px-6 py-4 text-right">
                         <span className="text-sm font-medium text-black">
@@ -191,16 +304,16 @@ const AdminOrders = () => {
       {/* Order Details Modal */}
       {selectedOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-[24px] w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+          <div className="bg-white rounded-lg w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             {/* Modal Header */}
-            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+            <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50">
               <div>
-                <h2 className="text-xl font-medium text-black flex items-center gap-3">
-                  Order Details
+                <div className="flex items-center gap-3">
+                  <h2 className="text-xl font-medium text-black">Order Details</h2>
                   <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider ${getStatusColor(selectedOrder.order_status)}`}>
                     {selectedOrder.order_status}
                   </span>
-                </h2>
+                </div>
                 <p className="text-sm text-gray-500 mt-1 font-mono">#{selectedOrder.order_number}</p>
               </div>
               <button
@@ -212,15 +325,34 @@ const AdminOrders = () => {
             </div>
 
             {/* Modal Content */}
-            <div className="p-6 overflow-y-auto">
+            <div className="p-5 overflow-y-auto">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div className="space-y-4">
                   <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Buyer Information</p>
-                    <div className="flex items-center gap-2">
-                      <FaUser className="text-gray-400" />
-                      <p className="text-sm font-medium text-black">{selectedOrder.buyer_name}</p>
-                    </div>
+                    <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Buyer Information</p>
+                    <button
+                      onClick={() => setProfileModal({
+                        isOpen: true,
+                        title: 'Verified Buyer',
+                        data: {
+                          name: selectedOrder.buyer_name,
+                          phone: selectedOrder.buyer_phone,
+                          email: selectedOrder.buyer_email,
+                          avatar: selectedOrder.buyer_avatar,
+                          address: selectedOrder.buyer_address
+                        }
+                      })}
+                      className="flex items-center gap-2 hover:bg-gray-50 p-2 -m-2 rounded-xl transition-all"
+                    >
+                      <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-200 bg-white flex items-center justify-center">
+                        {selectedOrder.buyer_avatar ? (
+                          <img src={selectedOrder.buyer_avatar} alt={selectedOrder.buyer_name} className="w-full h-full object-cover" />
+                        ) : (
+                          <FaUser className="text-gray-400" />
+                        )}
+                      </div>
+                      <p className="text-sm font-medium text-gray-700 hover:underline">{selectedOrder.buyer_name}</p>
+                    </button>
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Delivery Address</p>
@@ -230,15 +362,64 @@ const AdminOrders = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="space-y-4">
                   <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Farmer Information</p>
-                    <div className="flex items-center gap-2">
-                      <FaTractor className="text-gray-400" />
-                      <p className="text-sm font-medium text-black">{selectedOrder.farmer_name}</p>
-                    </div>
+                    <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Farmer Information</p>
+                    <button
+                      onClick={() => setProfileModal({
+                        isOpen: true,
+                        title: 'Verified Farmer',
+                        data: {
+                          name: selectedOrder.farmer_name,
+                          phone: selectedOrder.farmer_phone,
+                          email: selectedOrder.farmer_email,
+                          avatar: selectedOrder.farmer_avatar,
+                          address: selectedOrder.farmer_address
+                        }
+                      })}
+                      className="flex items-center gap-2 hover:bg-gray-50 p-2 -m-2 rounded-xl transition-all"
+                    >
+                      <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-200 bg-white flex items-center justify-center">
+                        {selectedOrder.farmer_avatar ? (
+                          <img src={selectedOrder.farmer_avatar} alt={selectedOrder.farmer_name} className="w-full h-full object-cover" />
+                        ) : (
+                          <FaTractor className="text-gray-400" />
+                        )}
+                      </div>
+                      <p className="text-sm font-medium text-gray-700 hover:underline">{selectedOrder.farmer_name}</p>
+                    </button>
                   </div>
+
+                  {selectedOrder.tracking_info?.transporter_name && (
+                    <div>
+                      <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Carrier Information</p>
+                      <button
+                        onClick={() => setProfileModal({
+                          isOpen: true,
+                          title: 'Verified Transporter',
+                          data: {
+                            name: selectedOrder.tracking_info.transporter_name,
+                            phone: selectedOrder.tracking_info.transporter_phone,
+                            email: selectedOrder.tracking_info.transporter_email,
+                            avatar: selectedOrder.tracking_info.transporter_avatar,
+                            address: selectedOrder.tracking_info.transporter_address
+                          }
+                        })}
+                        className="flex items-center gap-2 hover:bg-gray-50 p-2 -m-2 rounded-xl transition-all"
+                      >
+                        <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-200 bg-white flex items-center justify-center">
+                          {selectedOrder.tracking_info.transporter_avatar ? (
+                            <img src={selectedOrder.tracking_info.transporter_avatar} alt={selectedOrder.tracking_info.transporter_name} className="w-full h-full object-cover" />
+                          ) : (
+                            <FaTruck className="text-gray-400" />
+                          )}
+                        </div>
+                        <p className="text-sm font-medium text-gray-700 hover:underline">{selectedOrder.tracking_info.transporter_name}</p>
+                      </button>
+                    </div>
+                  )}
+
                   <div>
                     <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Order Date & Time</p>
                     <div className="flex items-center gap-2">
@@ -288,11 +469,17 @@ const AdminOrders = () => {
                 </div>
               </div>
             </div>
-            
-
           </div>
         </div>
       )}
+
+      {/* Stakeholder Profile Modal */}
+      <ProfileModal
+        isOpen={profileModal.isOpen}
+        onClose={() => setProfileModal({ ...profileModal, isOpen: false })}
+        data={profileModal.data}
+        title={profileModal.title}
+      />
     </div>
   );
 };

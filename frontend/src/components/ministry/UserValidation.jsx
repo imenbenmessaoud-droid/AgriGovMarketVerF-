@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaCheckCircle, FaTimesCircle, FaEye, FaSearch, FaTimes, FaFilter, FaSpinner } from 'react-icons/fa';
+import { FaCheckCircle, FaTimesCircle, FaEye, FaSearch, FaTimes, FaFilter, FaSpinner, FaUserCircle } from 'react-icons/fa';
 import api from '../../services/api';
 
 const UserValidation = () => {
@@ -23,6 +23,8 @@ const UserValidation = () => {
       const mapped = response.data.map(user => ({
         id: user.id_user,
         name: user.name,
+        avatar: user.avatar,
+        updatedAt: user.updated_at,
         type: user.user_type_display || user.user_type,
         region: user.wilaya || 'Unknown',
         date: new Date(user.created_at).toISOString().split('T')[0],
@@ -228,7 +230,23 @@ const UserValidation = () => {
                 {filteredUsers.map((user) => (
                   <tr key={user.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-5 py-4 text-sm font-normal text-gray-800">{user.id}</td>
-                    <td className="px-5 py-4 text-sm font-normal text-black">{user.name}</td>
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-100 bg-white flex items-center justify-center shrink-0">
+                          {user.avatar ? (
+                            <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <FaUserCircle className="text-gray-200" size={32} />
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-sm font-normal text-black">{user.name}</p>
+                          <p className="text-[10px] text-gray-400 font-normal">
+                            Updated: {new Date(user.updatedAt).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
                     <td className="px-5 py-4">
                       <span className={`inline-flex px-2 py-1 rounded-lg text-xs font-normal ${
                         user.type === 'Farmer' 
@@ -261,35 +279,36 @@ const UserValidation = () => {
                       )}
                     </td>
                     <td className="px-5 py-4">
-                      {user.status === 'Pending' ? (
-                        <div className="flex justify-center gap-2">
-                          <button 
-                            onClick={() => handleViewDocuments(user)}
-                            className="p-1.5 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition"
-                            title="View Documents"
-                          >
-                            <FaEye size={16} />
-                          </button>
-                          <button 
-                            onClick={() => handleAction(user.id, 'approve')}
-                            className="p-1.5 text-gray-400 hover:text-green-600 rounded-lg hover:bg-green-50 transition"
-                            title="Approve"
-                          >
-                            <FaCheckCircle size={16} />
-                          </button>
-                          <button 
-                            onClick={() => handleAction(user.id, 'reject')}
-                            className="p-1.5 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition"
-                            title="Reject"
-                          >
-                            <FaTimesCircle size={16} />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="text-center">
-                          <span className="text-xs text-gray-400 italic">Processed</span>
-                        </div>
-                      )}
+                      <div className="flex justify-center items-center gap-2">
+                        <button 
+                          onClick={() => handleViewDocuments(user)}
+                          className="p-1.5 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition"
+                          title="View Documents"
+                        >
+                          <FaEye size={16} />
+                        </button>
+                        
+                        {user.status === 'Pending' ? (
+                          <>
+                            <button 
+                              onClick={() => handleAction(user.id, 'approve')}
+                              className="p-1.5 text-gray-400 hover:text-green-600 rounded-lg hover:bg-green-50 transition"
+                              title="Approve"
+                            >
+                              <FaCheckCircle size={16} />
+                            </button>
+                            <button 
+                              onClick={() => handleAction(user.id, 'reject')}
+                              className="p-1.5 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition"
+                              title="Reject"
+                            >
+                              <FaTimesCircle size={16} />
+                            </button>
+                          </>
+                        ) : (
+                          <span className="text-[10px] text-gray-400 italic bg-gray-50 px-2 py-0.5 rounded border border-gray-100">Processed</span>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -322,11 +341,20 @@ const UserValidation = () => {
       {/* Document View Modal */}
       {showModal && selectedUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-lg w-full max-w-md">
+          <div className="bg-white rounded-lg w-full max-w-lg">
             <div className="border-b border-gray-200 px-5 py-4 flex justify-between items-center">
-              <div>
-                <h3 className="text-lg font-normal text-black">User Documents</h3>
-                <p className="text-xs text-gray-500 mt-0.5">{selectedUser.name}</p>
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full overflow-hidden border border-gray-100 bg-gray-50 flex items-center justify-center shrink-0">
+                  {selectedUser.avatar ? (
+                    <img src={selectedUser.avatar} alt={selectedUser.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <FaUserCircle className="text-gray-200" size={48} />
+                  )}
+                </div>
+                <div>
+                  <h3 className="text-lg font-normal text-black">User Documents</h3>
+                  <p className="text-xs text-gray-500 mt-0.5">{selectedUser.name}</p>
+                </div>
               </div>
               <button
                 onClick={() => setShowModal(false)}
@@ -356,26 +384,28 @@ const UserValidation = () => {
                 <label className="block text-xs font-normal text-gray-500 mb-1">Registration Date</label>
                 <p className="text-sm text-gray-800">{selectedUser.date}</p>
               </div>
-              <div className="pt-4 border-t border-gray-200 flex gap-3">
-                <button
-                  onClick={() => {
-                    handleAction(selectedUser.id, 'approve');
-                    setShowModal(false);
-                  }}
-                  className="flex-1 bg-green-700 text-white py-2 rounded-lg text-sm font-normal hover:bg-green-800 transition"
-                >
-                  Approve User
-                </button>
-                <button
-                  onClick={() => {
-                    handleAction(selectedUser.id, 'reject');
-                    setShowModal(false);
-                  }}
-                  className="flex-1 bg-red-600 text-white py-2 rounded-lg text-sm font-normal hover:bg-red-700 transition"
-                >
-                  Reject User
-                </button>
-              </div>
+              {selectedUser.status === 'Pending' && (
+                <div className="pt-4 border-t border-gray-200 flex gap-3">
+                  <button
+                    onClick={() => {
+                      handleAction(selectedUser.id, 'approve');
+                      setShowModal(false);
+                    }}
+                    className="flex-1 bg-green-700 text-white py-2 rounded-lg text-sm font-normal hover:bg-green-800 transition"
+                  >
+                    Approve User
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleAction(selectedUser.id, 'reject');
+                      setShowModal(false);
+                    }}
+                    className="flex-1 bg-red-600 text-white py-2 rounded-lg text-sm font-normal hover:bg-red-700 transition"
+                  >
+                    Reject User
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

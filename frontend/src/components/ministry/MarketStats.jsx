@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, Legend, PieChart, Pie, Cell
 } from 'recharts';
 import { useNavigate } from 'react-router-dom';
-import { 
-  FaTractor, FaMoneyBillWave, FaExchangeAlt, FaBoxOpen, 
-  FaDownload, FaCalendarAlt, FaEye, FaArrowRight, FaTimes, FaSpinner
+import {
+  FaTractor, FaMoneyBillWave, FaExchangeAlt, FaBoxOpen,
+  FaDownload, FaCalendarAlt, FaEye, FaArrowRight, FaTimes, FaSpinner,
+  FaArrowUp, FaArrowDown
 } from 'react-icons/fa';
 import api from '../../services/api';
 
@@ -19,19 +20,22 @@ const MarketStats = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [data, setData] = useState(null);
   const [orders, setOrders] = useState([]);
+  const [priceOverview, setPriceOverview] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchMarketData = async () => {
       setLoading(true);
       try {
-        const [overviewRes, ordersRes] = await Promise.all([
-           api.get('orders/orders/market_overview/'),
-           api.get('orders/orders/')
+        const [overviewRes, ordersRes, priceRes] = await Promise.all([
+          api.get('orders/orders/market_overview/'),
+          api.get('orders/orders/'),
+          api.get('products/products/price_overview/')
         ]);
         setData(overviewRes.data);
         const orderData = Array.isArray(ordersRes.data) ? ordersRes.data : (ordersRes.data?.results || []);
         setOrders(orderData);
+        setPriceOverview(priceRes.data);
       } catch (err) {
         console.error('Failed to fetch market data:', err);
       } finally {
@@ -42,23 +46,23 @@ const MarketStats = () => {
   }, []);
 
   const recentActivities = orders.slice(0, 5).map(o => ({
-      id: o.order_number || Math.random(),
-      status: o.order_status || 'pending',
-      user: o.buyer_name || 'Anonymous Buyer',
-      amount: `${parseFloat(o.total_amount || 0).toLocaleString()} DZD`,
-      time: new Date(o.order_date).toLocaleDateString()
+    id: o.order_number || Math.random(),
+    status: o.order_status || 'pending',
+    user: o.buyer_name || 'Anonymous Buyer',
+    amount: `${parseFloat(o.total_amount || 0).toLocaleString()} DZD`,
+    time: new Date(o.order_date).toLocaleDateString()
   }));
 
   const catMap = { Vegetables: 0, Fruits: 0, Grains: 0, Other: 0 };
   orders.forEach(o => {
-      o.items?.forEach(i => {
-         const n = (i.product_name_snapshot || '').toLowerCase();
-         const amt = parseFloat(i.sub_total_item || 0);
-         if (n.match(/tomato|potato|carrot|onion|pepper|lettuce|cucumber/)) catMap.Vegetables += amt;
-         else if (n.match(/apple|orange|fruit|banana|lemon/)) catMap.Fruits += amt;
-         else if (n.match(/wheat|corn|barley|rice/)) catMap.Grains += amt;
-         else catMap.Other += amt;
-      });
+    o.items?.forEach(i => {
+      const n = (i.product_name_snapshot || '').toLowerCase();
+      const amt = parseFloat(i.sub_total_item || 0);
+      if (n.match(/tomato|potato|carrot|onion|pepper|lettuce|cucumber/)) catMap.Vegetables += amt;
+      else if (n.match(/apple|orange|fruit|banana|lemon/)) catMap.Fruits += amt;
+      else if (n.match(/wheat|corn|barley|rice/)) catMap.Grains += amt;
+      else catMap.Other += amt;
+    });
   });
 
   const generateChartData = () => {
@@ -69,7 +73,7 @@ const MarketStats = () => {
     if (timeRange === '7days') { days = 7; format = 'day'; }
     else if (timeRange === '30days') { days = 30; format = 'day'; }
     else { days = 6; format = 'month'; }
-    
+
     for (let i = days - 1; i >= 0; i--) {
       const d = new Date();
       if (format === 'day') {
@@ -107,10 +111,10 @@ const MarketStats = () => {
   const dynamicChartData = generateChartData();
 
   const categoryDistribution = [
-    { name: 'Vegetables', value: catMap.Vegetables || 1, color: '#4b6d3a' },
-    { name: 'Fruits', value: catMap.Fruits || 1, color: '#8B7355' },
-    { name: 'Grains', value: catMap.Grains || 1, color: '#d4a574' },
-    { name: 'Other', value: catMap.Other || 1, color: '#e8e0d5' },
+    { name: 'Vegetables', value: catMap.Vegetables || 1, color: '#059669' },
+    { name: 'Fruits', value: catMap.Fruits || 1, color: '#D97706' },
+    { name: 'Grains', value: catMap.Grains || 1, color: '#F59E0B' },
+    { name: 'Other', value: catMap.Other || 1, color: '#346bafff' },
   ];
 
   const handleExport = () => {
@@ -131,7 +135,7 @@ const MarketStats = () => {
   return (
     <div className="min-h-screen bg-[#faf8f0] px-4 py-6">
       <div className="max-w-7xl mx-auto space-y-6">
-        
+
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
@@ -142,9 +146,9 @@ const MarketStats = () => {
             <h1 className="text-2xl font-normal text-black">National Market Overview</h1>
             <p className="text-gray-500 text-sm mt-0.5">Real-time statistics of the agricultural trade platform</p>
           </div>
-          
+
           <div className="flex gap-3">
-            <select 
+            <select
               className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
               value={timeRange}
               onChange={(e) => setTimeRange(e.target.value)}
@@ -153,7 +157,7 @@ const MarketStats = () => {
               <option value="30days">Last 30 Days</option>
               <option value="6months">Last 6 Months</option>
             </select>
-            <button 
+            <button
               onClick={handleExport}
               disabled={isExporting}
               className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-normal rounded-lg hover:bg-gray-50 transition min-w-[140px] justify-center"
@@ -189,8 +193,8 @@ const MarketStats = () => {
         </div>
 
         {/* Charts Section */}
-        <div className="grid grid-cols-1 gap-6">
-          
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
           {/* Transaction Volume Chart */}
           <div className="bg-white rounded-lg border border-gray-200 p-5">
             <div className="flex justify-between items-center mb-4">
@@ -206,16 +210,12 @@ const MarketStats = () => {
                   <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#6b7280' }} />
                   <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} allowDecimals={false} />
                   <Tooltip contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '12px' }} />
-                  <Bar dataKey="volume" fill="#FFB82E" radius={[4, 4, 0, 0]} name="Orders Count" />
+                  <Bar dataKey="volume" fill="#059669" radius={[4, 4, 0, 0]} name="Orders Count" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
-        </div>
 
-        {/* Additional Stats Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
           {/* Category Distribution */}
           <div className="bg-white rounded-lg border border-gray-200 p-5">
             <div className="flex justify-between items-center mb-4">
@@ -223,7 +223,7 @@ const MarketStats = () => {
                 <h3 className="text-base font-normal text-black">Category Distribution</h3>
                 <p className="text-xs text-gray-500 mt-0.5">Sales by product category</p>
               </div>
-              <button 
+              <button
                 onClick={() => navigate('/ministry/categories')}
                 className="text-xs text-green-700 hover:text-green-800 font-normal hover:underline"
               >
@@ -263,15 +263,19 @@ const MarketStats = () => {
               ))}
             </div>
           </div>
+        </div>
+
+        {/* Additional Stats Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
           {/* Recent Orders */}
-          <div className="lg:col-span-2 bg-white rounded-lg border border-gray-200 p-5">
+          <div className="bg-white rounded-lg border border-gray-200 p-5">
             <div className="flex justify-between items-center mb-4">
               <div>
                 <h3 className="text-base font-normal text-black">Recent Orders</h3>
                 <p className="text-xs text-gray-500 mt-0.5">Latest platform orders</p>
               </div>
-              <button 
+              <button
                 onClick={() => navigate('/ministry/orders')}
                 className="text-xs text-green-700 hover:text-green-800 font-normal hover:underline"
               >
@@ -287,20 +291,18 @@ const MarketStats = () => {
               ) : (
                 recentActivities.map((activity) => (
                   <div key={activity.id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition border border-gray-100 cursor-pointer">
-                    <div className={`w-2 h-2 mt-2 rounded-full ${
-                      activity.status === 'delivered' ? 'bg-blue-500' : 
-                      activity.status === 'confirmed' ? 'bg-green-500' : 
-                      activity.status === 'cancelled' ? 'bg-red-500' : 'bg-yellow-500'
-                    }`}></div>
+                    <div className={`w-2 h-2 mt-2 rounded-full ${activity.status === 'delivered' ? 'bg-blue-500' :
+                      activity.status === 'confirmed' ? 'bg-green-500' :
+                        activity.status === 'cancelled' ? 'bg-red-500' : 'bg-yellow-500'
+                      }`}></div>
                     <div className="flex-1">
                       <div className="flex justify-between items-start mb-1">
                         <p className="text-sm font-normal text-black flex items-center gap-2">
                           Order #{activity.id.toString().substring(0, 8)}
-                          <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                            activity.status === 'delivered' ? 'bg-blue-100 text-blue-700' : 
-                            activity.status === 'confirmed' ? 'bg-green-100 text-green-700' : 
-                            activity.status === 'cancelled' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
-                          }`}>
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider ${activity.status === 'delivered' ? 'bg-blue-100 text-blue-700' :
+                            activity.status === 'confirmed' ? 'bg-green-100 text-green-700' :
+                              activity.status === 'cancelled' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
+                            }`}>
                             {activity.status}
                           </span>
                         </p>
@@ -316,44 +318,104 @@ const MarketStats = () => {
               )}
             </div>
           </div>
+
+          {/* Market Price Overview Widget */}
+          <div className="bg-white rounded-lg border border-gray-200 p-5">
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h3 className="text-base font-normal text-black">Market Price Overview</h3>
+                <p className="text-xs text-gray-500 mt-0.5">Top trending products (7d change)</p>
+              </div>
+              <button
+                onClick={() => navigate('/ministry/prices')}
+                className="text-xs text-green-700 hover:text-green-800 font-normal hover:underline"
+              >
+                View All →
+              </button>
+            </div>
+            <div className="space-y-4">
+              {loading ? (
+                <div className="py-20 text-center">
+                  <FaSpinner className="animate-spin text-green-700 mx-auto" size={24} />
+                  <p className="text-xs text-gray-500 mt-2">Fetching price trends...</p>
+                </div>
+              ) : priceOverview.length === 0 ? (
+                <div className="py-10 text-center text-gray-400 text-xs italic">No price data available for trending analysis.</div>
+              ) : (
+                priceOverview.map((item) => (
+                  <div key={item.product_id} className="flex items-center justify-between group p-1.5 hover:bg-gray-50 rounded-xl transition-all border border-transparent hover:border-gray-100">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-100 bg-gray-50 flex items-center justify-center">
+                        {item.image ? (
+                          <img
+                            src={`${api.defaults.baseURL.replace('/api/', '')}${item.image}`}
+                            alt={item.product_name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="bg-green-50 w-full h-full flex items-center justify-center text-green-600 font-bold text-xs">
+                            {item.product_name[0]}
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-sm font-normal text-black">{item.product_name}</p>
+                        <p className="text-[10px] text-gray-400 uppercase tracking-wide">Current Average</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium text-black">{item.average_price} <span className="text-[10px] text-gray-400 font-normal">DZD/kg</span></p>
+                      <div className={`flex items-center justify-end gap-1 text-[11px] font-semibold ${item.price_change_percentage > 0 ? 'text-green-600' :
+                        item.price_change_percentage < 0 ? 'text-red-600' : 'text-gray-400'
+                        }`}>
+                        {item.price_change_percentage > 0 ? <FaArrowUp size={8} /> :
+                          item.price_change_percentage < 0 ? <FaArrowDown size={8} /> : null}
+                        {item.price_change_percentage !== 0 ? `${Math.abs(item.price_change_percentage)}%` : 'Stable'}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Detail Modal */}
         {selectedDetail && (
-           <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-              <div className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl relative animate-zoomIn">
-                 <button 
-                    onClick={() => setSelectedDetail(null)}
-                    className="absolute top-6 right-6 text-gray-400 hover:text-gray-600"
-                 >
-                    <FaTimes size={20} />
-                 </button>
-                 <h2 className="text-xl  font-normal text-black mb-4">{selectedDetail}</h2>
-                 <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
-                    <p className="text-sm text-gray-500 mb-4">Detailed analytical breakdown for the selected metric. This data corresponds to the live market sync.</p>
-                    <div className="space-y-4">
-                       <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                          <span className="text-sm text-gray-600">Verification Rate</span>
-                           <span className="text-sm font-normal text-green-700">99.8%</span>
-                       </div>
-                       <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                          <span className="text-sm text-gray-600">Sync Frequency</span>
-                          <span className="text-sm font-normal text-blue-700">5 min</span>
-                       </div>
-                       <div className="flex justify-between items-center py-2">
-                          <span className="text-sm text-gray-600">Status</span>
-                          <span className="text-sm font-normal text-black uppercase tracking-tighter">operational</span>
-                       </div>
-                    </div>
-                 </div>
-                 <button 
-                    onClick={() => setSelectedDetail(null)}
-                    className="w-full bg-green-700 text-white mt-8 py-3 rounded-xl font-normal hover:bg-green-800 transition shadow-lg"
-                 >
-                    Close Analysis
-                 </button>
+          <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+            <div className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl relative animate-zoomIn">
+              <button
+                onClick={() => setSelectedDetail(null)}
+                className="absolute top-6 right-6 text-gray-400 hover:text-gray-600"
+              >
+                <FaTimes size={20} />
+              </button>
+              <h2 className="text-xl  font-normal text-black mb-4">{selectedDetail}</h2>
+              <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
+                <p className="text-sm text-gray-500 mb-4">Detailed analytical breakdown for the selected metric. This data corresponds to the live market sync.</p>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span className="text-sm text-gray-600">Verification Rate</span>
+                    <span className="text-sm font-normal text-green-700">99.8%</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span className="text-sm text-gray-600">Sync Frequency</span>
+                    <span className="text-sm font-normal text-blue-700">5 min</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2">
+                    <span className="text-sm text-gray-600">Status</span>
+                    <span className="text-sm font-normal text-black uppercase tracking-tighter">operational</span>
+                  </div>
+                </div>
               </div>
-           </div>
+              <button
+                onClick={() => setSelectedDetail(null)}
+                className="w-full bg-green-700 text-white mt-8 py-3 rounded-xl font-normal hover:bg-green-800 transition shadow-lg"
+              >
+                Close Analysis
+              </button>
+            </div>
+          </div>
         )}
 
         {/* Footer */}

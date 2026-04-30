@@ -1,10 +1,10 @@
 import React from 'react';
 import OrderList from '../orders/OrderList';
 
-const OrderHistory = () => {
+const OrderHistory = ({ initialFilter = 'all' }) => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full font-sans">
-      <OrderList userRole="buyer" />
+      <OrderList userRole="buyer" initialFilter={initialFilter} />
       
       {/* Footer Support Message matching platform theme */}
       <div className="mt-12 text-center pb-8">

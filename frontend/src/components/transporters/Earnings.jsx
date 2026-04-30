@@ -439,54 +439,6 @@ const Earnings = () => {
           </div>
         </div>
 
-        {/* Recent Transactions - Table Style */}
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="p-5 border-b border-gray-100 flex justify-between items-center">
-            <h3 className="text-base font-normal text-gray-800">Recent Transactions</h3>
-            <div className="flex gap-2 items-center">
-              <FaFilter className="text-gray-400 text-sm" />
-              <span className="text-xs text-gray-500">{filterPeriod === 'week' ? 'Last 7 days' : filterPeriod === 'month' ? 'Last 30 days' : 'Last year'}</span>
-            </div>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-100">
-                <tr>
-                  <th className="text-left px-5 py-3 text-xs font-normal text-gray-500 uppercase tracking-wider">Job ID</th>
-                  <th className="text-left px-5 py-3 text-xs font-normal text-gray-500 uppercase tracking-wider">Location</th>
-                  <th className="text-left px-5 py-3 text-xs font-normal text-gray-500 uppercase tracking-wider">Date</th>
-                  <th className="text-right px-5 py-3 text-xs font-normal text-gray-500 uppercase tracking-wider">Amount</th>
-                  <th className="text-center px-5 py-3 text-xs font-normal text-gray-500 uppercase tracking-wider">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {getFilteredTransactions().slice(0, 5).map((tx) => (
-                  <tr key={tx.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-5 py-3 text-sm font-normal text-gray-800">{tx.type}</td>
-                    <td className="px-5 py-3 text-sm text-gray-600">{tx.location}</td>
-                    <td className="px-5 py-3 text-sm text-gray-500">
-                      {new Date(tx.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </td>
-                    <td className="px-5 py-3 text-sm font-normal text-green-600 text-right">+{tx.amount.toLocaleString()} DZD</td>
-                    <td className="px-5 py-3 text-center">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-normal bg-green-100 text-green-700">
-                        {tx.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-                {getFilteredTransactions().length === 0 && (
-                  <tr>
-                    <td colSpan="5" className="px-5 py-8 text-center text-gray-400">
-                      <p className="text-sm">No transactions found for this period</p>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
 
       </div>
 

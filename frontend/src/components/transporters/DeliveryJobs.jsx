@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import {
   FaBoxOpen, FaRoute, FaHistory, FaCheckCircle, FaTruck,
   FaClock, FaMoneyBillWave, FaWeightHanging, FaCalendarAlt,
-  FaUserTie, FaPhone, FaWhatsapp, FaSearch, FaTimes,
+  FaUserTie, FaPhone, FaWhatsapp, FaSearch, FaTimes, FaUser,
   FaStar, FaMapMarkerAlt, FaTimesCircle, FaInfoCircle,
   FaArrowRight, FaDownload, FaPrint, FaEye, FaSpinner, FaPlus, FaEnvelope, FaIdCard
 } from 'react-icons/fa';
@@ -55,7 +55,7 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
     try {
       let endpoint = '';
       if (activeTab === 'requests') endpoint = 'deliveries/missions/available/';
-      else if (activeTab === 'active') endpoint = 'deliveries/missions/my_missions/?status=in_transit';
+      else if (activeTab === 'active') endpoint = 'deliveries/missions/my_missions/?status=assigned,in_transit,picked_up,out_for_delivery';
       else if (activeTab === 'history') endpoint = 'deliveries/missions/my_missions/?status=delivered';
 
       const res = await api.get(endpoint);
@@ -147,7 +147,7 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
         id: job.mission_number,
         type: job.load_type || 'Transport',
         origin: job.farmer_address || `${job.farmer_name} Farm`,
-        destination: job.delivery_location || 'Not specified',
+        destination: job.order_address || job.delivery_location || 'Not specified',
         distance: 'TBD',
         cargo: job.load_type || 'N/A',
         orderValue: parseFloat(job.order_total_amount) || 0
@@ -218,7 +218,7 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
             <div class="section">
               <div class="section-title">ROUTE DETAILS</div>
               <div class="row"><div class="label">From:</div><div class="value">${job.farmer_address || job.farmer_name + ' Farm'}</div></div>
-              <div class="row"><div class="label">To:</div><div class="value">${job.delivery_location || 'Not specified'}</div></div>
+              <div class="row"><div class="label">To:</div><div class="value">${job.order_address || job.delivery_location || 'Not specified'}</div></div>
               <div class="row"><div class="label">Distance:</div><div class="value">TBD</div></div>
               <div class="row"><div class="label">Cargo:</div><div class="value">${job.load_type || 'N/A'}</div></div>
             </div>
@@ -260,6 +260,8 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
 
   const StatusBadge = ({ status }) => {
     const config = {
+      'open': { bg: 'bg-emerald-50', text: 'text-emerald-600', icon: FaBoxOpen },
+      'assigned': { bg: 'bg-indigo-50', text: 'text-indigo-600', icon: FaUserTie },
       'pending': { bg: 'bg-amber-50', text: 'text-amber-600', icon: FaClock },
       'in_transit': { bg: 'bg-blue-50', text: 'text-blue-600', icon: FaTruck },
       'delivered': { bg: 'bg-green-50', text: 'text-green-600', icon: FaCheckCircle },
@@ -276,10 +278,10 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
   const DetailModal = ({ job, onClose }) => (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[100] p-4 pt-20" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl max-w-md w-full max-h-[75vh] overflow-y-auto shadow-2xl animate-modalEntry mt-10"
+        className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-modalEntry mt-10"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 bg-white border-b border-gray-100 p-5 flex justify-between items-center">
+        <div className="sticky top-0 bg-white border-b border-gray-100 p-5 flex justify-between items-center z-20">
           <div>
             <h2 className="text-xl font-normal text-gray-800">Job Details</h2>
             <p className="text-sm text-gray-500 mt-1">#MSN-{job.mission_number}</p>
@@ -289,100 +291,147 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
           </button>
         </div>
 
-        <div className="p-5 space-y-5">
-          <div className="flex justify-between items-center p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl">
-            <div>
-              <p className="text-xs text-gray-500 uppercase">Status</p>
-              <StatusBadge status={job.delivery_status} />
-            </div>
-            <div className="text-right">
-              <p className="text-[10px] text-gray-400 uppercase">Order Value</p>
-              <p className="text-2xl font-normal text-green-600">{(parseFloat(job.order_total_amount) || 0).toLocaleString()} DZD</p>
-            </div>
-          </div>
-
-          <div className="border border-gray-100 rounded-xl p-4">
-            <h3 className="text-sm font-normal text-gray-700 mb-4 flex items-center gap-2">
-              <FaRoute size={14} className="text-green-600" /> Route
-            </h3>
-            <div className="space-y-4">
-              <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-400 uppercase">Pickup</p>
-                  <p className="font-normal text-gray-800">{job.farmer_address || `${job.farmer_name} Farm`}</p>
-                  <p className="text-sm text-gray-500">{new Date(job.delivery_date).toLocaleDateString()}</p>
-                </div>
-              </div>
-              <div className="flex justify-center">
-                <FaArrowRight className="text-gray-300" />
-              </div>
-              <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-                  <FaMapMarkerAlt size={12} className="text-gray-500" />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-400 uppercase">Delivery Address</p>
-                  <p className="font-normal text-gray-800">{job.delivery_location || 'Not specified'}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="border border-gray-100 rounded-xl p-4">
-            <h3 className="text-sm font-normal text-gray-700 mb-3 flex items-center gap-2">
-              <FaWeightHanging size={14} className="text-green-600" /> Logistics Info
-            </h3>
-            <div className="grid grid-cols-2 gap-3">
-              <div><p className="text-xs text-gray-400">Order Ref</p><p className="text-sm font-normal">#ORD-{job.order_number}</p></div>
-              <div><p className="text-xs text-gray-400">Scheduled Date</p><p className="text-sm font-normal">{job.delivery_date ? new Date(job.delivery_date).toLocaleDateString() : 'TBD'}</p></div>
-            </div>
-          </div>
-
-          <div className="border border-gray-100 rounded-xl p-4">
-            <h3 className="text-sm font-normal text-gray-700 mb-3 flex items-center gap-2">
-              <FaUserTie size={14} className="text-green-600" /> Farmer
-            </h3>
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-                <FaUserTie size={20} className="text-green-600" />
+        <div className="p-5 space-y-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-5 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-green-600">
+                <FaBoxOpen size={24} />
               </div>
               <div>
-                <p className="font-normal text-gray-800">{job.farmer_name}</p>
-                <div className="flex items-center gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <FaStar key={i} size={10} className={'text-amber-400'} />
-                  ))}
+                <p className="text-[10px] text-gray-400 uppercase font-normal">Mission Status</p>
+                <StatusBadge status={job.delivery_status} />
+              </div>
+            </div>
+            <div className="text-left md:text-right w-full md:w-auto">
+              <p className="text-[10px] text-gray-400 uppercase font-normal">Authorized Order Value</p>
+              <p className="text-3xl font-normal text-green-600">{(parseFloat(job.order_total_amount) || 0).toLocaleString()} <span className="text-sm font-normal opacity-70">DZD</span></p>
+            </div>
+          </div>
+
+          <div className="border border-gray-100 rounded-2xl p-5 shadow-sm">
+            <h3 className="text-sm font-normal text-gray-700 mb-5 flex items-center gap-2">
+              <FaRoute size={14} className="text-green-600" /> Route & Destinations
+            </h3>
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 md:gap-10 relative">
+              <div className="flex gap-4 flex-1">
+                <div className="w-12 h-12 rounded-2xl bg-green-100 flex items-center justify-center shrink-0 shadow-sm">
+                  <div className="w-3 h-3 bg-green-600 rounded-full"></div>
                 </div>
-                <div className="flex flex-col gap-1 mt-2">
-                  <a href={`tel:${job.farmer_phone}`} className="text-xs text-gray-500 hover:text-green-600 flex items-center gap-2"><FaPhone size={10} /> {job.farmer_phone || 'N/A'}</a>
-                  <a href={`mailto:${job.farmer_email}`} className="text-xs text-gray-500 hover:text-green-600 flex items-center gap-2"><FaEnvelope size={10} /> {job.farmer_email || 'N/A'}</a>
+                <div>
+                  <p className="text-[10px] text-gray-400 uppercase font-normal">Origin (Pickup)</p>
+                  <p className="font-normal text-gray-800 text-base leading-snug">{job.farmer_address || `${job.farmer_name} Farm`}</p>
+                  <p className="text-[10px] text-gray-400 mt-1">{new Date(job.delivery_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                </div>
+              </div>
+
+              <div className="hidden md:flex flex-1 items-center justify-center">
+                <div className="h-[2px] flex-1 bg-gray-100 relative">
+                  <FaArrowRight className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-gray-300" size={14} />
+                </div>
+              </div>
+
+              <div className="flex gap-4 flex-1">
+                <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center shrink-0 shadow-sm">
+                  <FaMapMarkerAlt size={18} className="text-blue-500" />
+                </div>
+                <div>
+                  <p className="text-[10px] text-gray-400 uppercase font-normal">Destination (Delivery)</p>
+                  <p className="font-normal text-gray-800 text-base leading-snug">{job.order_address || job.delivery_location || 'Not specified'}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="border border-gray-100 rounded-xl p-4">
-            <h3 className="text-sm font-normal text-gray-700 mb-3 flex items-center gap-2">
-              <FaTruck size={14} className="text-green-600" /> Vehicle Information
+          <div className="border border-gray-100 rounded-2xl p-5 shadow-sm">
+            <h3 className="text-sm font-normal text-gray-700 mb-5 flex items-center gap-2">
+              <FaUserTie size={14} className="text-green-600" /> Key Stakeholders
             </h3>
-            <div className="p-3 bg-gray-50 rounded-lg flex justify-between items-center border border-gray-100">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
-                  <FaIdCard size={16} className="text-gray-500" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Farmer Section */}
+              <div className="flex items-center gap-5 p-4 bg-gray-50 rounded-2xl border border-gray-100/50">
+                <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center overflow-hidden border-2 border-white shadow-md shrink-0">
+                  {job.farmer_image ? (
+                    <img src={job.farmer_image} className="w-full h-full object-cover" />
+                  ) : (
+                    <FaUserTie size={32} className="text-green-600" />
+                  )}
                 </div>
-                <div>
-                  <p className="text-[10px] text-gray-400 uppercase font-normal">Assigned Vehicle</p>
-                  <p className="text-sm font-normal text-gray-800">
-                    {job.vehicle_license_snapshot || transporterProfile?.license_number || 'Pending Assignment'}
-                  </p>
+                <div className="flex-1">
+                  <p className="text-[10px] text-gray-400 uppercase font-normal tracking-wider">Farmer (Pickup)</p>
+                  <p className="font-normal text-gray-900 text-base">{job.farmer_name}</p>
+                  <div className="flex flex-col gap-1 mt-2">
+                    <a href={`tel:${job.farmer_phone}`} className="text-xs text-gray-500 hover:text-green-600 flex items-center gap-2 transition-colors">
+                      <FaPhone size={10} /> {job.farmer_phone || 'N/A'}
+                    </a>
+                    <a href={`mailto:${job.farmer_email}`} className="text-xs text-gray-500 hover:text-green-600 flex items-center gap-2 transition-colors">
+                      <FaEnvelope size={10} /> {job.farmer_email || 'N/A'}
+                    </a>
+                  </div>
                 </div>
               </div>
-              <div className="text-right">
-                <p className="text-[10px] text-gray-400 uppercase font-normal">Type</p>
-                <p className="text-xs font-normal text-gray-600">{job.load_type || transporterProfile?.vehicle_type || 'N/A'}</p>
+
+              {/* Buyer Section */}
+              <div className="flex items-center gap-5 p-4 bg-gray-50 rounded-2xl border border-gray-100/50">
+                <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center overflow-hidden border-2 border-white shadow-md shrink-0">
+                  {job.buyer_image ? (
+                    <img src={job.buyer_image} className="w-full h-full object-cover" />
+                  ) : (
+                    <FaUser size={32} className="text-blue-600" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <p className="text-[10px] text-gray-400 uppercase font-normal tracking-wider">Buyer (Delivery)</p>
+                  <p className="font-normal text-gray-900 text-base">{job.buyer_name}</p>
+                  <div className="flex flex-col gap-1 mt-2">
+                    <a href={`tel:${job.buyer_phone}`} className="text-xs text-gray-500 hover:text-blue-600 flex items-center gap-2 transition-colors">
+                      <FaPhone size={10} /> {job.buyer_phone || 'N/A'}
+                    </a>
+                    <a href={`mailto:${job.buyer_email}`} className="text-xs text-gray-500 hover:text-blue-600 flex items-center gap-2 transition-colors">
+                      <FaEnvelope size={10} /> {job.buyer_email || 'N/A'}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="border border-gray-100 rounded-2xl p-5 shadow-sm">
+              <h3 className="text-sm font-normal text-gray-700 mb-4 flex items-center gap-2">
+                <FaWeightHanging size={14} className="text-green-600" /> Logistics Info
+              </h3>
+              <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100/50">
+                <div>
+                  <p className="text-[10px] text-gray-400 uppercase font-normal">Order Ref</p>
+                  <p className="text-sm font-normal text-gray-900 mt-1">#ORD-{job.order_number}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-gray-400 uppercase font-normal">Scheduled Date</p>
+                  <p className="text-sm font-normal text-gray-900 mt-1">{job.delivery_date ? new Date(job.delivery_date).toLocaleDateString() : 'TBD'}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="border border-gray-100 rounded-2xl p-5 shadow-sm">
+              <h3 className="text-sm font-normal text-gray-700 mb-4 flex items-center gap-2">
+                <FaTruck size={14} className="text-green-600" /> Vehicle Information
+              </h3>
+              <div className="p-4 bg-gray-50 rounded-xl flex justify-between items-center border border-gray-100/50">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center shadow-sm">
+                    <FaIdCard size={18} className="text-gray-400" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-gray-400 uppercase font-normal">Assigned Plate</p>
+                    <p className="text-sm font-normal text-gray-900 mt-0.5">
+                      {job.vehicle_license_snapshot || transporterProfile?.license_number || 'Pending'}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] text-gray-400 uppercase font-normal">Capacity Type</p>
+                  <p className="text-xs font-normal text-gray-600 mt-0.5">{job.load_type || transporterProfile?.vehicle_type || 'N/A'}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -426,15 +475,24 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
       </div>
 
       <div className="p-4 border-b border-gray-50">
-        <div className="flex items-start gap-3">
-          <div className="flex flex-col items-center">
+        <div className="space-y-4">
+          <div className="flex items-start gap-3">
+            <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
+              <FaTruck size={10} className="text-blue-600" />
+            </div>
+            <div className="flex-1">
+              <p className="text-[10px] text-gray-400 uppercase tracking-wider">Pickup (Origin)</p>
+              <p className="text-sm font-normal text-gray-800">{job.farmer_address || `${job.farmer_name} Farm`}</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-3">
             <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
               <FaMapMarkerAlt size={10} className="text-green-600" />
             </div>
-          </div>
-          <div className="flex-1">
-            <p className="text-[10px] text-gray-400 uppercase tracking-wider">Destination</p>
-            <p className="text-sm font-normal text-gray-800">{job.delivery_location || 'AgriGov Distribution Point'}</p>
+            <div className="flex-1">
+              <p className="text-[10px] text-gray-400 uppercase tracking-wider">Destination</p>
+              <p className="text-sm font-normal text-gray-800">{job.order_address || job.delivery_location || 'AgriGov Distribution Point'}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -442,11 +500,11 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
       <div className="p-4 bg-gray-50 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm">
-            <FaTruck size={14} className="text-green-600" />
+            <FaBoxOpen size={14} className="text-green-600" />
           </div>
           <div>
-            <p className="text-[10px] text-gray-400 uppercase">Load Type</p>
-            <p className="text-xs font-normal text-gray-800">{job.load_type || 'Standard Agricultural Produce'}</p>
+            <p className="text-[10px] text-gray-400 uppercase">Items Ordered</p>
+            <p className="text-xs font-normal text-gray-800 line-clamp-1">{job.load_type || 'Standard Agricultural Produce'}</p>
           </div>
         </div>
 
@@ -495,12 +553,15 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
             <div className="flex gap-3">
               <button
                 onClick={() => handleAccept(job.mission_number)}
-                className={`flex-1 py-2.5 text-white text-sm font-normal rounded-lg flex items-center justify-center gap-2 transition-all bg-green-600 hover:bg-green-700`}
+                className="flex-1 py-2.5 text-white text-sm font-normal rounded-lg flex items-center justify-center gap-2 transition-all bg-green-600 hover:bg-green-700 shadow-sm"
               >
-                <FaCheckCircle size={14} /> Accept Mission
+                <FaCheckCircle size={14} /> Accept
               </button>
-              <button onClick={() => setShowDeclineConfirm(job.mission_number)} className="px-3 py-2.5 bg-red-50 text-red-600 text-sm font-normal rounded-lg hover:bg-red-100 flex items-center justify-center gap-2">
-                <FaTimes size={14} />
+              <button 
+                onClick={() => setShowDeclineConfirm(job.mission_number)} 
+                className="flex-1 py-2.5 bg-red-50 text-red-600 text-sm font-normal rounded-lg hover:bg-red-100 flex items-center justify-center gap-2 transition-all"
+              >
+                <FaTimesCircle size={14} /> Decline
               </button>
             </div>
           </div>
@@ -510,7 +571,7 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
             Confirm Delivery
           </button>
         )}
-        <button onClick={() => setSelectedJob(job)} className="w-full py-2.5 border border-gray-200 text-gray-600 text-sm font-normal rounded-lg hover:border-green-300 hover:text-green-600 flex items-center justify-center gap-2 transition-all">
+        <button onClick={() => setSelectedJob(job)} className="w-full py-2.5 border border-gray-200 text-gray-600 text-sm font-normal rounded-lg hover:border-green-300 hover:text-green-600 flex items-center justify-center gap-2 transition-all mt-3">
           <FaEye size={14} /> View Manifest
         </button>
       </div>

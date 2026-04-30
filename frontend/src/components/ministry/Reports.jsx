@@ -1,26 +1,47 @@
-import React, { useState } from 'react';
-import { FaFilePdf, FaFileExcel, FaDownload, FaFilter, FaSearch, FaTimes, FaCalendarAlt, FaChartBar } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaFilePdf, FaFileExcel, FaDownload, FaFilter, FaSearch, FaTimes, FaCalendarAlt, FaChartBar, FaSpinner } from 'react-icons/fa';
+import api from '../../services/api';
 
-const mockReports = [
-  { id: 1, name: 'National Agricultural Yield Q1 2026', type: 'PDF', date: '2026-03-25', size: '2.4 MB', category: 'Yield', downloads: 145 },
-  { id: 2, name: 'Price Fluctuation Analysis - Tomatoes', type: 'Excel', date: '2026-03-20', size: '1.1 MB', category: 'Pricing', downloads: 89 },
-  { id: 3, name: 'Monthly Registered Logistics Capacity', type: 'PDF', date: '2026-03-15', size: '3.8 MB', category: 'Logistics', downloads: 234 },
-  { id: 4, name: 'Regional Crop Distribution Report', type: 'Excel', date: '2026-03-10', size: '4.5 MB', category: 'Distribution', downloads: 67 },
-  { id: 5, name: 'Annual Farmer Revenue Estimations 2025', type: 'PDF', date: '2026-01-30', size: '8.2 MB', category: 'Revenue', downloads: 312 },
-  { id: 6, name: 'Market Demand Forecast Q2 2026', type: 'Excel', date: '2026-03-28', size: '1.8 MB', category: 'Forecast', downloads: 56 },
-  { id: 7, name: 'Transporter Performance Report', type: 'PDF', date: '2026-03-22', size: '2.1 MB', category: 'Logistics', downloads: 78 },
-];
 const Reports = () => {
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState('All');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [showFilters, setShowFilters] = useState(false);
   const [downloadingId, setDownloadingId] = useState(null);
 
+  useEffect(() => {
+    fetchReports();
+  }, []);
+
+  const fetchReports = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('reports/');
+      // Map backend fields to frontend expectations if necessary
+      const mapped = response.data.map(r => ({
+        id: r.id,
+        name: r.name,
+        type: r.report_type,
+        date: new Date(r.created_at).toISOString().split('T')[0],
+        size: r.size || 'N/A',
+        category: r.category,
+        downloads: r.downloads,
+        file_url: r.file
+      }));
+      setReports(mapped);
+    } catch (error) {
+      console.error('Error fetching reports:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const types = ['All', 'PDF', 'Excel'];
   const categories = ['All', 'Yield', 'Pricing', 'Logistics', 'Distribution', 'Revenue', 'Forecast'];
 
-  const filteredReports = mockReports.filter(report => {
+  const filteredReports = reports.filter(report => {
     const matchesSearch = report.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesType = typeFilter === 'All' || report.type === typeFilter;
     const matchesCategory = categoryFilter === 'All' || report.category === categoryFilter;
@@ -28,24 +49,46 @@ const Reports = () => {
   });
 
   const stats = {
-    total: mockReports.length,
-    pdfCount: mockReports.filter(r => r.type === 'PDF').length,
-    excelCount: mockReports.filter(r => r.type === 'Excel').length,
-    totalDownloads: mockReports.reduce((sum, r) => sum + r.downloads, 0)
+    total: reports.length,
+    pdfCount: reports.filter(r => r.type === 'PDF').length,
+    excelCount: reports.filter(r => r.type === 'Excel').length,
+    totalDownloads: reports.reduce((sum, r) => sum + r.downloads, 0)
   };
 
-  const handleDownload = (report) => {
-    setDownloadingId(report.id);
-    setTimeout(() => {
+  const handleDownload = async (report) => {
+    try {
+      setDownloadingId(report.id);
+      // Call the download endpoint to increment the counter
+      const response = await api.get(`reports/${report.id}/download/`);
+
+      // Trigger the actual file download
+      window.open(response.data.file_url, '_blank');
+
+      // Refresh list to show updated download count
+      fetchReports();
+    } catch (error) {
+      console.error('Error downloading report:', error);
+      alert('Failed to initiate download. Please try again.');
+    } finally {
       setDownloadingId(null);
-      alert(`Successfully downloaded: ${report.name}`);
-    }, 1500);
+    }
   };
+
+  if (loading && reports.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#faf8f0]">
+        <div className="text-center space-y-4">
+          <FaSpinner className="animate-spin text-green-700 mx-auto" size={40} />
+          <p className="text-gray-500 text-sm">Accessing Ministry Archives...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#faf8f0] px-4 py-6">
       <div className="max-w-6xl mx-auto space-y-6">
-        
+
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
@@ -56,8 +99,8 @@ const Reports = () => {
             <h1 className="text-2xl font-normal text-black">Platform Reports</h1>
             <p className="text-gray-500 text-sm mt-0.5">Download aggregated data and analytics on agricultural trade</p>
           </div>
-          
-          <button 
+
+          <button
             onClick={() => setShowFilters(!showFilters)}
             className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-normal rounded-lg hover:bg-gray-50 transition"
           >
@@ -113,7 +156,7 @@ const Reports = () => {
             <div className="flex flex-wrap gap-4 pt-3 border-t border-gray-100">
               <div>
                 <label className="block text-xs text-gray-500 mb-1">File Type</label>
-                <select 
+                <select
                   className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
                   value={typeFilter}
                   onChange={(e) => setTypeFilter(e.target.value)}
@@ -125,7 +168,7 @@ const Reports = () => {
               </div>
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Category</label>
-                <select 
+                <select
                   className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
@@ -135,7 +178,7 @@ const Reports = () => {
                   ))}
                 </select>
               </div>
-              <button 
+              <button
                 onClick={() => {
                   setTypeFilter('All');
                   setCategoryFilter('All');
@@ -155,12 +198,12 @@ const Reports = () => {
             Available Reports ({filteredReports.length})
           </h2>
           <p className="text-xs text-gray-400">
-            Showing {filteredReports.length} of {mockReports.length} reports
+            Showing {filteredReports.length} of {reports.length} reports
           </p>
         </div>
 
         {/* Reports List */}
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
           {filteredReports.length > 0 ? (
             <ul className="divide-y divide-gray-100">
               {filteredReports.map((report) => (
@@ -168,14 +211,13 @@ const Reports = () => {
                   <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div className="flex items-center gap-4">
                       {/* Icon */}
-                      <div className={`p-3 rounded-lg ${
-                        report.type === 'PDF' 
-                          ? 'bg-red-100 text-red-600' 
-                          : 'bg-green-100 text-green-700'
-                      }`}>
+                      <div className={`p-3 rounded-lg ${report.type === 'PDF'
+                        ? 'bg-red-100 text-red-600'
+                        : 'bg-green-100 text-green-700'
+                        }`}>
                         {report.type === 'PDF' ? <FaFilePdf size={22} /> : <FaFileExcel size={22} />}
                       </div>
-                      
+
                       {/* Info */}
                       <div>
                         <h3 className="font-normal text-black hover:text-green-700 transition-colors cursor-pointer">
@@ -189,11 +231,10 @@ const Reports = () => {
                           <span>•</span>
                           <span>{report.size}</span>
                           <span>•</span>
-                          <span className={`inline-flex px-1.5 py-0.5 rounded text-xs font-normal ${
-                            report.type === 'PDF' 
-                              ? 'bg-red-50 text-red-600' 
-                              : 'bg-green-50 text-green-700'
-                          }`}>
+                          <span className={`inline-flex px-1.5 py-0.5 rounded text-xs font-normal ${report.type === 'PDF'
+                            ? 'bg-red-50 text-red-600'
+                            : 'bg-green-50 text-green-700'
+                            }`}>
                             {report.type}
                           </span>
                           <span>•</span>
@@ -203,19 +244,19 @@ const Reports = () => {
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* Download Button */}
-                    <button 
+                    <button
                       onClick={() => handleDownload(report)}
                       disabled={downloadingId === report.id}
-                      className="flex items-center gap-2 px-4 py-2 bg-green-700 text-white text-sm font-normal rounded-lg hover:bg-green-800 transition min-w-[120px] justify-center"
+                      className="flex items-center gap-2 px-4 py-2 bg-green-700 text-white text-sm font-normal rounded-lg hover:bg-green-800 transition min-w-[120px] justify-center shadow-sm"
                     >
                       {downloadingId === report.id ? (
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <FaSpinner className="animate-spin" size={14} />
                       ) : (
                         <FaDownload size={14} />
                       )}
-                      {downloadingId === report.id ? 'Wait...' : 'Download'}
+                      {downloadingId === report.id ? 'Loading...' : 'Download'}
                     </button>
                   </div>
                 </li>
@@ -235,7 +276,7 @@ const Reports = () => {
         {/* Footer Note */}
         <div className="pt-4 border-t border-gray-200 text-center">
           <p className="text-xs text-gray-400">
-            Reports are generated monthly • Last updated: {new Date().toLocaleDateString()}
+            Ministry Reports Portal • Last updated: {new Date().toLocaleDateString()}
           </p>
         </div>
       </div>
