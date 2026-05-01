@@ -58,7 +58,16 @@ class ProductItemSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='id_product.id_category.category_name', read_only=True)
     farmer_name = serializers.CharField(source='id_farmer.user.name', read_only=True)
     farmer_id = serializers.IntegerField(source='id_farmer.user.id_user', read_only=True)
+    farmer_phone = serializers.CharField(source='id_farmer.user.phone', read_only=True)
+    farmer_email = serializers.CharField(source='id_farmer.user.email', read_only=True)
+    farmer_address = serializers.CharField(source='id_farmer.user.address', read_only=True)
+    farmer_avatar = serializers.CharField(source='id_farmer.user.avatar', read_only=True)
+    
     farm_name = serializers.CharField(source='id_farm.FarmName', read_only=True)
+    farm_address = serializers.CharField(source='id_farm.address', read_only=True)
+    farm_phone = serializers.CharField(source='id_farm.phone', read_only=True)
+    farm_email = serializers.CharField(source='id_farm.email', read_only=True)
+    farm_size = serializers.FloatField(source='id_farm.Size', read_only=True)
 
     class Meta:
         model = ProductItem
@@ -68,6 +77,7 @@ class ProductItemSerializer(serializers.ModelSerializer):
             'id_product', 'product_name', 'product_quality',
             'product_description', 'category_name',
             'id_farmer', 'farmer_name', 'farmer_id',
-            'id_farm', 'farm_name'
+            'farmer_phone', 'farmer_email', 'farmer_address', 'farmer_avatar',
+            'id_farm', 'farm_name', 'farm_address', 'farm_phone', 'farm_email', 'farm_size'
         ]
         read_only_fields = ['item_date', 'id_order_item', 'id_farmer']

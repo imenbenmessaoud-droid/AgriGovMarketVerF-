@@ -330,9 +330,9 @@ const FarmList = () => {
           style={{ backgroundColor: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)' }}
           onClick={(e) => { if (e.target === e.currentTarget) closeFarmModal(false); }}
         >
-          <div className="bg-[#faf8f0] rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-scaleUp">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-scaleUp scrollbar-hide">
             {/* Modal Header */}
-            <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-200">
+            <div className="flex items-center justify-between px-6 pt-6 pb-2">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 bg-green-100 rounded-xl flex items-center justify-center">
                   <FaTractor size={16} className="text-green-700" />
@@ -365,6 +365,8 @@ const FarmList = () => {
       <style>{`
         @keyframes scaleUp { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
         .animate-scaleUp { animation: scaleUp 0.2s ease-out; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
     </div>
   );

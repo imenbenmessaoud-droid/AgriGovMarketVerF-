@@ -81,8 +81,8 @@ const FarmForm = ({ onClose, editingFarm: editingFarmProp }) => {
   const labelClass = "block text-xs font-normal text-gray-700 mb-1.5";
 
   const formContent = (
-    <div className="bg-white rounded-xl overflow-hidden">
-      <form onSubmit={handleSubmit} className="p-6 space-y-5">
+    <div className="bg-white rounded-xl overflow-hidden shadow-sm">
+      <form onSubmit={handleSubmit} className="p-6 pt-4 space-y-5">
 
         {/* Farm Name */}
         <div>
@@ -296,7 +296,7 @@ const FarmForm = ({ onClose, editingFarm: editingFarmProp }) => {
   // Standalone page mode (route navigation)
   if (!isModal) {
     return (
-      <div className="w-full min-h-screen" style={{ backgroundColor: '#faf8f0' }}>
+      <div className="w-full min-h-screen bg-white">
         <div className="max-w-3xl mx-auto px-4 py-8">
           <div className="mb-6">
             <button

@@ -180,19 +180,63 @@ class OrderViewSet(viewsets.ModelViewSet):
         """Get global platform statistics (Ministry/Admin)"""
         from django.db.models import Count, Sum
         from apps.users.models import Farmer, User
+        from django.utils import timezone
 
         all_orders = Order.objects.all()
         total_rev = all_orders.filter(order_status='confirmed').aggregate(total=Sum('total_amount'))['total'] or 0
-        real_farmers_count = Farmer.objects.count()
-        real_users_count = User.objects.count()
+        
+        # User Counts breakdown
+        def get_user_stats(u_type):
+            base_qs = User.objects.filter(user_type=u_type)
+            return {
+                'total': base_qs.count(),
+                'active': base_qs.filter(is_validated=True, is_active=True).count(),
+                'pending': base_qs.filter(is_validated=False, is_active=True).count(),
+                'rejected': base_qs.filter(is_active=False).count()
+            }
+
+        farmer_stats = get_user_stats('farmer')
+        transporter_stats = get_user_stats('transporter')
+        buyer_stats = get_user_stats('buyer')
+        
+        total_users = User.objects.count()
+        new_today = User.objects.filter(created_at__date=timezone.now().date()).count()
 
         stats = {
             'total_orders': all_orders.count(),
             'total_revenue': total_rev,
             'active_deliveries': all_orders.filter(order_status='confirmed').count(),
-            'registered_farmers': real_farmers_count,
+            'registered_farmers': farmer_stats['total'],
         }
         
+        # Top Regions breakdown with fallback detection
+        raw_regions = all_orders.values('id_buyer__user__wilaya', 'delivery_address')\
+            .annotate(count=Count('order_number'))
+        
+        region_counts = {}
+        major_cities = ['Algiers', 'Oran', 'Constantine', 'Annaba', 'Batna', 'Blida', 'Sétif', 'Biskra', 'Medea']
+        
+        for item in raw_regions:
+            city = item['id_buyer__user__wilaya']
+            if not city:
+                # Try fallback from delivery address
+                addr = item['delivery_address'] or ''
+                found = False
+                for mc in major_cities:
+                    if mc.lower() in addr.lower():
+                        city = mc
+                        found = True
+                        break
+                if not found:
+                    city = 'Other'
+            
+            region_counts[city] = region_counts.get(city, 0) + item['count']
+
+        top_regions_data = [
+            {'city': city, 'count': count}
+            for city, count in sorted(region_counts.items(), key=lambda x: x[1], reverse=True)[:5]
+        ]
+
         # Aggregations for charts
         from django.db.models.functions import TruncMonth
         
@@ -213,9 +257,12 @@ class OrderViewSet(viewsets.ModelViewSet):
         return Response({
             'stats': stats,
             'monthly_data': monthly_data,
+            'top_regions': top_regions_data,
             'counts': {
-                'farmers': real_farmers_count,
-                'products': 0, # Cannot calculate easily here without importing ProductItem, but not breaking
-                'users': real_users_count
+                'farmers': farmer_stats,
+                'transporters': transporter_stats,
+                'buyers': buyer_stats,
+                'users': total_users,
+                'new_today': new_today
             }
         })

@@ -133,10 +133,10 @@ const CategoryManager = () => {
   const handleFarmerClick = (product) => {
     setSelectedFarmer({
       name: product.farmer_name,
-      phone: product.farmer_phone || '07 77 76 75 74',
-      email: product.farmer_email || 'FarmerUser1@gmail.com',
-      address: product.farmer_address || 'city saleh bey num:102',
-      avatar: product.farmer_avatar || product.avatar
+      phone: product.farmer_phone || 'Not provided',
+      email: product.farmer_email || 'Not provided',
+      address: product.farmer_address || 'Not provided',
+      avatar: product.farmer_avatar
     });
     setShowFarmerModal(true);
   };
@@ -144,7 +144,7 @@ const CategoryManager = () => {
   const handleFarmClick = (product) => {
     setSelectedFarm({
       name: product.farm_name,
-      address: product.farm_address || 'No assigned address',
+      address: product.farm_address || product.farmer_address || 'No assigned address',
       phone: product.farm_phone || 'No assigned phone',
       email: product.farm_email || 'No assigned email',
       size: product.farm_size || '0'
