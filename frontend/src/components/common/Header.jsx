@@ -133,7 +133,7 @@ const Header = () => {
     { name: 'Dashboard', path: '/farmer/dashboard' },
     { name: 'Products', path: '/farmer/products' },
     { name: 'Orders', path: '/farmer/orders' },
-    { name: 'Sales', path: '/farmer/sales' },
+    { name: 'Statistics', path: '/farmer/sales' },
     { name: 'Farms', path: '/farmer/farms' },
   ];
 

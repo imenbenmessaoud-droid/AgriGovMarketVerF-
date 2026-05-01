@@ -78,12 +78,12 @@ const FarmerOrders = () => {
 
   const filteredOrders = orders.filter(order => {
     const searchStr = searchQuery?.toLowerCase() || '';
-    const matchesSearch = 
+    const matchesSearch =
       String(order.order_number).includes(searchStr) ||
       order.buyer_name?.toLowerCase().includes(searchStr);
-    
+
     const matchesStatus = statusFilter === 'All Status' || order.order_status === statusFilter.toLowerCase();
-    
+
     return matchesSearch && matchesStatus;
   });
 
@@ -129,59 +129,45 @@ const FarmerOrders = () => {
 
     return (
       <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fadeIn">
-        <div className="bg-white rounded-[1.5rem] shadow-2xl max-w-[420px] w-full overflow-hidden animate-scaleUp border border-gray-100 relative">
-        <button 
-          onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-all z-10"
-        >
-          <FaTimes size={14} />
-        </button>
-          <div className="p-6 text-center border-b border-gray-50 bg-gray-50/50">
-            <div className="relative inline-block mb-3">
-              <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-sm mx-auto bg-white flex items-center justify-center">
+        <div className="bg-white rounded-[1rem] shadow-2xl max-w-[500px] w-full overflow-hidden animate-scaleUp border border-gray-100 relative">
+          {/* Header */}
+          <div className="p-6 flex items-center justify-between border-b border-gray-100">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-gray-50 bg-gray-50 flex items-center justify-center shrink-0">
                 {data.avatar ? (
                   <img src={data.avatar} alt={data.name} className="w-full h-full object-cover" />
                 ) : (
                   <FaUserCircle className="text-gray-200 w-full h-full" />
                 )}
               </div>
-              <div className="absolute bottom-0 right-0 w-5 h-5 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
-                <FaCheckCircle className="text-white text-[8px]" />
+              <div>
+                <h3 className="text-xl font-normal text-gray-900">{title}</h3>
+                <p className="text-sm text-gray-400 font-normal">{data.name}</p>
               </div>
             </div>
-            <h3 className="text-lg font-normal text-gray-900">{data.name}</h3>
-            <p className="text-[9px] text-gray-400 uppercase tracking-widest mt-0.5">{title}</p>
+            <button
+              onClick={onClose}
+              className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-50 transition-all"
+            >
+              <FaTimes size={18} />
+            </button>
           </div>
-          
-          <div className="p-5 space-y-4 text-left">
-            <div className="flex items-center gap-3 group">
-              <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                <FaPhoneAlt size={12} />
-              </div>
-              <div>
-                <p className="text-[9px] text-gray-400 uppercase font-normal tracking-wider">Phone</p>
-                <p className="text-sm font-normal text-gray-800">{data.phone || 'Not available'}</p>
-              </div>
+
+          {/* Details */}
+          <div className="p-8 space-y-8">
+            <div className="space-y-1">
+              <p className="text-[10px] text-gray-400 uppercase font-normal tracking-widest">Phone Number</p>
+              <p className="text-lg font-normal text-gray-900">{data.phone || 'Not available'}</p>
             </div>
 
-            <div className="flex items-center gap-3 group">
-              <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-all">
-                <FaUserCircle size={12} />
-              </div>
-              <div>
-                <p className="text-[9px] text-gray-400 uppercase font-normal tracking-wider">Email</p>
-                <p className="text-sm font-normal text-gray-800 truncate">{data.email || 'Not available'}</p>
-              </div>
+            <div className="space-y-1">
+              <p className="text-[10px] text-gray-400 uppercase font-normal tracking-widest">Email Address</p>
+              <p className="text-lg font-normal text-gray-900">{data.email || 'Not available'}</p>
             </div>
 
-            <div className="flex items-center gap-3 group">
-              <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center text-green-600 group-hover:bg-green-600 group-hover:text-white transition-all">
-                <FaMapMarkerAlt size={12} />
-              </div>
-              <div>
-                <p className="text-[9px] text-gray-400 uppercase font-normal tracking-wider">Location</p>
-                <p className="text-sm font-normal text-gray-800 line-clamp-1">{data.address || 'Not available'}</p>
-              </div>
+            <div className="space-y-1">
+              <p className="text-[10px] text-gray-400 uppercase font-normal tracking-widest">Home Address</p>
+              <p className="text-lg font-normal text-gray-900 leading-relaxed">{data.address || 'Not available'}</p>
             </div>
           </div>
         </div>
@@ -192,35 +178,59 @@ const FarmerOrders = () => {
   return (
     <div className="w-full min-h-screen" style={{ backgroundColor: '#faf8f0' }}>
       <div className="max-w-7xl mx-auto px-4 py-8">
-        
+
         {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
             <h1 className="text-2xl font-normal text-gray-900">Order Management</h1>
             <p className="text-gray-500 text-sm mt-1 font-normal">Monitor and fulfill your agricultural deployments</p>
           </div>
-          
-          <div className="flex gap-3">
-            <button 
+
+          <div className="flex flex-wrap gap-2 items-center">
+            <button
               onClick={() => setStatusFilter('All Status')}
-              className={`px-5 py-2 rounded-lg text-sm font-normal transition-all ${
-                statusFilter === 'All Status' 
-                  ? 'bg-green-700 text-white shadow-md' 
-                  : 'bg-white border border-gray-200 text-gray-600 hover:border-green-200'
-              }`}
+              className={`px-5 py-2 rounded-lg text-sm font-normal transition-all ${statusFilter === 'All Status'
+                ? 'bg-green-700 text-white shadow-md'
+                : 'bg-white border border-gray-100 text-gray-600 hover:border-green-200'
+                }`}
             >
               All Orders
             </button>
-            <button 
+            <button
               onClick={() => setStatusFilter('Pending')}
-              className={`px-5 py-2 rounded-lg text-sm font-normal transition-all ${
-                statusFilter === 'Pending' 
-                  ? 'bg-amber-600 text-white shadow-md' 
-                  : 'bg-white border border-gray-200 text-gray-600 hover:border-green-200'
-              }`}
+              className={`px-5 py-2 rounded-lg text-sm font-normal transition-all ${statusFilter === 'Pending'
+                ? 'bg-green-700 text-white shadow-md'
+                : 'bg-white border border-gray-100 text-gray-600 hover:border-green-200'
+                }`}
             >
               Pending
             </button>
+
+            {/* Status Dropdown Filter */}
+            <div className="relative group">
+              <div className={`flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-sm cursor-pointer hover:border-green-300 transition-all ${['Confirmed', 'Cancelled'].includes(statusFilter) ? 'border-green-600 ring-1 ring-green-600' : ''}`}>
+                <FaFilter className={['Confirmed', 'Cancelled'].includes(statusFilter) ? 'text-green-600' : 'text-gray-400'} size={12} />
+                <span className={`text-sm font-normal ${['Confirmed', 'Cancelled'].includes(statusFilter) ? 'text-green-700' : 'text-gray-600'}`}>
+                  {statusFilter === 'Confirmed' ? 'Accepted' : statusFilter === 'Cancelled' ? 'Rejected' : 'More Filters'}
+                </span>
+                <FaChevronDown className="text-gray-400 ml-1 group-hover:rotate-180 transition-transform" size={10} />
+              </div>
+
+              <div className="absolute top-full right-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-2xl z-50 overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 origin-top-right">
+                <button
+                  onClick={() => setStatusFilter('Confirmed')}
+                  className="w-full text-left px-4 py-3 text-sm text-gray-600 hover:bg-emerald-50 hover:text-emerald-700 transition-all font-normal border-b border-gray-50"
+                >
+                  Accepted Orders
+                </button>
+                <button
+                  onClick={() => setStatusFilter('Cancelled')}
+                  className="w-full text-left px-4 py-3 text-sm text-gray-600 hover:bg-red-50 hover:text-red-700 transition-all font-normal"
+                >
+                  Rejected Orders
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -252,8 +262,8 @@ const FarmerOrders = () => {
             </div>
           ) : filteredOrders.length > 0 ? (
             filteredOrders.slice((currentPage - 1) * ordersPerPage, currentPage * ordersPerPage).map((order) => (
-              <div 
-                key={order.order_number} 
+              <div
+                key={order.order_number}
                 className="bg-white rounded-xl border border-gray-200 p-6 flex flex-col lg:flex-row gap-6 items-start lg:items-center hover:shadow-md transition-all duration-300 group"
               >
                 {/* Left Side: Product Icon */}
@@ -281,7 +291,7 @@ const FarmerOrders = () => {
 
                   <div className="pt-1">
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                      <div 
+                      <div
                         onClick={() => setProfileModal({
                           isOpen: true,
                           title: 'Verified Buyer',
@@ -304,7 +314,7 @@ const FarmerOrders = () => {
                       </div>
 
                       {order.tracking_info?.transporter_name && (
-                        <div 
+                        <div
                           onClick={() => setProfileModal({
                             isOpen: true,
                             title: 'Verified Transporter',
@@ -328,8 +338,8 @@ const FarmerOrders = () => {
                       )}
                     </div>
                     <p className="text-xs text-gray-500 font-normal">
-                       <FaMapMarkerAlt className="inline mr-1 text-green-600" size={10} />
-                       {order.delivery_address || order.notes || 'Pick up at farm'}
+                      <FaMapMarkerAlt className="inline mr-1 text-green-600" size={10} />
+                      {order.delivery_address || order.notes || 'Pick up at farm'}
                     </p>
                   </div>
                 </div>
@@ -343,14 +353,14 @@ const FarmerOrders = () => {
 
                   {order.order_status === 'pending' && (
                     <div className="flex gap-2 w-full lg:w-auto">
-                      <button 
+                      <button
                         onClick={() => handleAccept(order.order_number)}
                         disabled={loadingId === order.order_number}
                         className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-normal hover:bg-green-700 transition-colors shadow-sm flex items-center justify-center min-w-[100px]"
                       >
                         {loadingId === order.order_number ? <FaSpinner className="animate-spin" /> : 'Accept'}
                       </button>
-                      <button 
+                      <button
                         onClick={() => handleRefuse(order.order_number)}
                         disabled={loadingId === order.order_number}
                         className="flex-1 bg-white border border-red-200 text-red-600 px-4 py-2 rounded-lg text-sm font-normal hover:bg-red-50 transition-colors flex items-center justify-center min-w-[100px]"
@@ -382,7 +392,7 @@ const FarmerOrders = () => {
         {/* Pagination */}
         {filteredOrders.length > ordersPerPage && (
           <div className="mt-8 flex justify-center items-center gap-3">
-            <button 
+            <button
               disabled={currentPage === 1}
               onClick={() => setCurrentPage(p => p - 1)}
               className="w-10 h-10 bg-white border border-gray-200 rounded-lg text-gray-400 hover:text-green-700 hover:border-green-200 transition-all disabled:opacity-30 disabled:pointer-events-none"
@@ -394,17 +404,16 @@ const FarmerOrders = () => {
                 <button
                   key={i}
                   onClick={() => setCurrentPage(i + 1)}
-                  className={`w-10 h-10 rounded-lg text-sm font-normal transition-all ${
-                    currentPage === i + 1 
-                      ? 'bg-green-700 text-white shadow-md' 
-                      : 'bg-white border border-gray-200 text-gray-500 hover:border-green-200'
-                  }`}
+                  className={`w-10 h-10 rounded-lg text-sm font-normal transition-all ${currentPage === i + 1
+                    ? 'bg-green-700 text-white shadow-md'
+                    : 'bg-white border border-gray-200 text-gray-500 hover:border-green-200'
+                    }`}
                 >
                   {i + 1}
                 </button>
               ))}
             </div>
-            <button 
+            <button
               disabled={currentPage === Math.ceil(filteredOrders.length / ordersPerPage)}
               onClick={() => setCurrentPage(p => p + 1)}
               className="w-10 h-10 bg-white border border-gray-200 rounded-lg text-gray-400 hover:text-green-700 hover:border-green-200 transition-all disabled:opacity-30 disabled:pointer-events-none"
@@ -414,8 +423,8 @@ const FarmerOrders = () => {
           </div>
         )}
       </div>
-      
-      <ProfileModal 
+
+      <ProfileModal
         isOpen={profileModal.isOpen}
         onClose={() => setProfileModal({ ...profileModal, isOpen: false })}
         data={profileModal.data}

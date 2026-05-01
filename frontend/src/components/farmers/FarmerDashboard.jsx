@@ -30,7 +30,7 @@ const RECENT_ACTIVITIES = [
 const QUICK_ACTIONS = [
   { title: 'Add Product', description: 'List your harvest for sale', buttonText: 'Add', icon: FaBox, path: '/farmer/products' },
   { title: 'Manage Orders', description: 'Orders waiting for confirmation', buttonText: 'View', icon: FaShoppingCart, path: '/farmer/orders' },
-  { title: 'View Analytics', description: 'Check sales performance', buttonText: 'Stats', icon: FaChartLine, path: '/farmer/sales' }
+  { title: 'View Statistics', description: 'Check harvest performance', buttonText: 'Stats', icon: FaChartLine, path: '/farmer/sales' }
 ];
 
 // ============================================

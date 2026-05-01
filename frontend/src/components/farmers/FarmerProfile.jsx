@@ -8,7 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 const FarmerProfile = () => {
     const { user, updateUser } = useAuth();
     const [isEditing, setIsEditing] = useState(false);
-    
+
     const [profile, setProfile] = useState({
         fullName: user?.name || 'Intissar Zermane',
         email: user?.email || 'intissarze1@gmail.com',
@@ -63,7 +63,7 @@ const FarmerProfile = () => {
                 address: tempProfile.address,
                 avatar: photoPreview
             });
-            
+
             if (result.success) {
                 setProfile(tempProfile);
                 setIsEditing(false);
@@ -80,7 +80,7 @@ const FarmerProfile = () => {
     return (
         <div className="w-full min-h-screen" style={{ backgroundColor: '#faf8f0' }}>
             <div className="max-w-5xl mx-auto px-4 py-8">
-                
+
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                     <div>
@@ -103,18 +103,18 @@ const FarmerProfile = () => {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    
+
                     {/* Profile Card Sidebar */}
                     <div className="lg:col-span-1">
                         <div className="bg-white rounded-xl p-6 border border-gray-200">
-                            
+
                             {/* Photo Section */}
                             <div className="flex flex-col items-center mb-6">
                                 <div className="relative mb-4">
                                     {photoPreview ? (
-                                        <img 
-                                            src={photoPreview} 
-                                            alt="Profile" 
+                                        <img
+                                            src={photoPreview}
+                                            alt="Profile"
                                             className="w-32 h-32 rounded-full object-cover border-4 border-green-100"
                                         />
                                     ) : (
@@ -160,7 +160,7 @@ const FarmerProfile = () => {
                             </h3>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                
+
                                 {/* Full Name */}
                                 <div>
                                     <label className="block text-xs font-normal text-gray-600 mb-1">

@@ -81,7 +81,7 @@ const FarmForm = ({ onClose, editingFarm: editingFarmProp }) => {
   const labelClass = "block text-xs font-normal text-gray-700 mb-1.5";
 
   const formContent = (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <div className="bg-white rounded-xl overflow-hidden">
       <form onSubmit={handleSubmit} className="p-6 space-y-5">
 
         {/* Farm Name */}
@@ -93,7 +93,7 @@ const FarmForm = ({ onClose, editingFarm: editingFarmProp }) => {
             placeholder="e.g., Blida Citrus Orchards"
             className={inputClass}
             value={formData.FarmName}
-            onChange={(e) => setFormData({...formData, FarmName: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, FarmName: e.target.value })}
           />
         </div>
 
@@ -106,7 +106,7 @@ const FarmForm = ({ onClose, editingFarm: editingFarmProp }) => {
             placeholder="e.g., 123 Rue de la Liberté, Blida"
             className={inputClass}
             value={formData.address}
-            onChange={(e) => setFormData({...formData, address: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
           />
         </div>
 
@@ -120,7 +120,7 @@ const FarmForm = ({ onClose, editingFarm: editingFarmProp }) => {
             <select
               className={inputClass}
               value={formData.LocationFarm}
-              onChange={(e) => setFormData({...formData, LocationFarm: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, LocationFarm: e.target.value })}
               required
             >
               {regions.map(region => (
@@ -141,7 +141,7 @@ const FarmForm = ({ onClose, editingFarm: editingFarmProp }) => {
               placeholder="0.00"
               className={inputClass}
               value={formData.Size}
-              onChange={(e) => setFormData({...formData, Size: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, Size: e.target.value })}
             />
           </div>
         </div>
@@ -158,7 +158,7 @@ const FarmForm = ({ onClose, editingFarm: editingFarmProp }) => {
               placeholder="+213 555 123 456"
               className={inputClass}
               value={formData.phone}
-              onChange={(e) => setFormData({...formData, phone: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
             />
           </div>
           <div>
@@ -171,7 +171,7 @@ const FarmForm = ({ onClose, editingFarm: editingFarmProp }) => {
               placeholder="farm@example.com"
               className={inputClass}
               value={formData.email}
-              onChange={(e) => setFormData({...formData, email: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             />
           </div>
         </div>
@@ -222,7 +222,7 @@ const FarmForm = ({ onClose, editingFarm: editingFarmProp }) => {
             placeholder="Describe your farm: farming methods, certifications, irrigation systems, etc."
             className={`${inputClass} resize-none`}
             value={formData.description}
-            onChange={(e) => setFormData({...formData, description: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           />
         </div>
 
@@ -235,7 +235,7 @@ const FarmForm = ({ onClose, editingFarm: editingFarmProp }) => {
                 type="radio"
                 value="Active"
                 checked={formData.status === 'Active'}
-                onChange={(e) => setFormData({...formData, status: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                 className="w-4 h-4 text-green-700 focus:ring-green-500"
               />
               <span className="text-sm text-gray-700">Active</span>
@@ -245,7 +245,7 @@ const FarmForm = ({ onClose, editingFarm: editingFarmProp }) => {
                 type="radio"
                 value="Inactive"
                 checked={formData.status === 'Inactive'}
-                onChange={(e) => setFormData({...formData, status: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                 className="w-4 h-4 text-gray-400 focus:ring-gray-500"
               />
               <span className="text-sm text-gray-700">Inactive</span>
@@ -272,7 +272,7 @@ const FarmForm = ({ onClose, editingFarm: editingFarmProp }) => {
         </div>
 
         {/* Buttons */}
-        <div className="pt-4 border-t border-gray-200 flex gap-3">
+        <div className="pt-4 flex gap-3">
           <button
             type="button"
             onClick={() => handleClose(false)}
