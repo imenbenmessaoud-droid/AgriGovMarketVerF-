@@ -7,11 +7,15 @@ import {
   FaStar, FaMapMarkerAlt, FaTimesCircle, FaInfoCircle,
   FaArrowRight, FaDownload, FaPrint, FaEye, FaSpinner, FaPlus, FaEnvelope, FaIdCard
 } from 'react-icons/fa';
+import { useLocation } from 'react-router-dom';
 import api from '../../services/api';
 
 
 const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavigate }) => {
-  const [activeTab, setActiveTab] = useState('requests');
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const initialTab = queryParams.get('tab') || 'requests';
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [internalSearchQuery, setInternalSearchQuery] = useState('');
@@ -90,7 +94,7 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
     try {
       const vehicleId = selectedVehicles[id];
       const job = jobs.find(j => j.mission_number === id);
-      
+
       // Frontend validation for Service Area
       const validateArea = (serviceArea, dest) => {
         if (!serviceArea || !dest) return true;
@@ -276,118 +280,118 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
   };
 
   const DetailModal = ({ job, onClose }) => (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[100] p-4 pt-20" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-start justify-center z-[100] pt-24 pb-6 px-4" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-modalEntry mt-10"
+        className="bg-white rounded-2xl max-w-3xl w-full max-h-[calc(100vh-8rem)] overflow-y-auto hide-scrollbar shadow-2xl animate-modalEntry"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 bg-white border-b border-gray-100 p-5 flex justify-between items-center z-20">
+        <div className="sticky top-0 bg-white border-b border-gray-100 p-4 flex justify-between items-center z-20">
           <div>
-            <h2 className="text-xl font-normal text-gray-800">Job Details</h2>
-            <p className="text-sm text-gray-500 mt-1">#MSN-{job.mission_number}</p>
+            <h2 className="text-lg font-medium text-gray-800">Job Details</h2>
+            <p className="text-xs text-gray-500 mt-0.5">#MSN-{job.mission_number}</p>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200">
-            <FaTimes size={14} className="text-gray-500" />
+          <button onClick={onClose} className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200">
+            <FaTimes size={12} className="text-gray-500" />
           </button>
         </div>
 
-        <div className="p-5 space-y-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-5 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-green-600">
-                <FaBoxOpen size={24} />
+        <div className="p-4 space-y-4">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-3.5 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-white rounded-lg shadow-sm flex items-center justify-center text-green-600">
+                <FaBoxOpen size={18} />
               </div>
               <div>
-                <p className="text-[10px] text-gray-400 uppercase font-normal">Mission Status</p>
+                <p className="text-[9px] text-gray-400 uppercase font-medium">Mission Status</p>
                 <StatusBadge status={job.delivery_status} />
               </div>
             </div>
-            <div className="text-left md:text-right w-full md:w-auto">
-              <p className="text-[10px] text-gray-400 uppercase font-normal">Authorized Order Value</p>
-              <p className="text-3xl font-normal text-green-600">{(parseFloat(job.order_total_amount) || 0).toLocaleString()} <span className="text-sm font-normal opacity-70">DZD</span></p>
+            <div className="text-left md:text-right w-full md:w-auto mt-1 md:mt-0">
+              <p className="text-[9px] text-gray-400 uppercase font-medium">Authorized Order Value</p>
+              <p className="text-2xl font-medium text-green-600">{(parseFloat(job.order_total_amount) || 0).toLocaleString()} <span className="text-xs font-medium opacity-70">DZD</span></p>
             </div>
           </div>
 
-          <div className="border border-gray-100 rounded-2xl p-5 shadow-sm">
-            <h3 className="text-sm font-normal text-gray-700 mb-5 flex items-center gap-2">
-              <FaRoute size={14} className="text-green-600" /> Route & Destinations
+          <div className="border border-gray-100 rounded-xl p-4 shadow-sm">
+            <h3 className="text-xs font-medium text-gray-700 mb-3 flex items-center gap-1.5">
+              <FaRoute size={12} className="text-green-600" /> Route & Destinations
             </h3>
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 md:gap-10 relative">
-              <div className="flex gap-4 flex-1">
-                <div className="w-12 h-12 rounded-2xl bg-green-100 flex items-center justify-center shrink-0 shadow-sm">
-                  <div className="w-3 h-3 bg-green-600 rounded-full"></div>
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-6 relative">
+              <div className="flex gap-3 flex-1">
+                <div className="w-9 h-9 rounded-xl bg-green-100 flex items-center justify-center shrink-0 shadow-sm">
+                  <div className="w-2.5 h-2.5 bg-green-600 rounded-full"></div>
                 </div>
                 <div>
-                  <p className="text-[10px] text-gray-400 uppercase font-normal">Origin (Pickup)</p>
-                  <p className="font-normal text-gray-800 text-base leading-snug">{job.farmer_address || `${job.farmer_name} Farm`}</p>
-                  <p className="text-[10px] text-gray-400 mt-1">{new Date(job.delivery_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                  <p className="text-[9px] text-gray-400 uppercase font-medium">Origin (Pickup)</p>
+                  <p className="font-medium text-gray-800 text-sm leading-snug">{job.farmer_address || `${job.farmer_name} Farm`}</p>
+                  <p className="text-[9px] text-gray-400 mt-0.5">{new Date(job.delivery_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                 </div>
               </div>
 
               <div className="hidden md:flex flex-1 items-center justify-center">
-                <div className="h-[2px] flex-1 bg-gray-100 relative">
-                  <FaArrowRight className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-gray-300" size={14} />
+                <div className="h-[2px] w-16 bg-gray-100 relative">
+                  <FaArrowRight className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-gray-300" size={10} />
                 </div>
               </div>
 
-              <div className="flex gap-4 flex-1">
-                <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center shrink-0 shadow-sm">
-                  <FaMapMarkerAlt size={18} className="text-blue-500" />
+              <div className="flex gap-3 flex-1">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center shrink-0 shadow-sm">
+                  <FaMapMarkerAlt size={14} className="text-blue-500" />
                 </div>
                 <div>
-                  <p className="text-[10px] text-gray-400 uppercase font-normal">Destination (Delivery)</p>
-                  <p className="font-normal text-gray-800 text-base leading-snug">{job.order_address || job.delivery_location || 'Not specified'}</p>
+                  <p className="text-[9px] text-gray-400 uppercase font-medium">Destination (Delivery)</p>
+                  <p className="font-medium text-gray-800 text-sm leading-snug">{job.order_address || job.delivery_location || 'Not specified'}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="border border-gray-100 rounded-2xl p-5 shadow-sm">
-            <h3 className="text-sm font-normal text-gray-700 mb-5 flex items-center gap-2">
-              <FaUserTie size={14} className="text-green-600" /> Key Stakeholders
+          <div className="border border-gray-100 rounded-xl p-4 shadow-sm">
+            <h3 className="text-xs font-medium text-gray-700 mb-3 flex items-center gap-1.5">
+              <FaUserTie size={12} className="text-green-600" /> Key Stakeholders
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Farmer Section */}
-              <div className="flex items-center gap-5 p-4 bg-gray-50 rounded-2xl border border-gray-100/50">
-                <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center overflow-hidden border-2 border-white shadow-md shrink-0">
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100/50">
+                <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center overflow-hidden border-2 border-white shadow-sm shrink-0">
                   {job.farmer_image ? (
                     <img src={job.farmer_image} className="w-full h-full object-cover" />
                   ) : (
-                    <FaUserTie size={32} className="text-green-600" />
+                    <FaUserTie size={20} className="text-green-600" />
                   )}
                 </div>
                 <div className="flex-1">
-                  <p className="text-[10px] text-gray-400 uppercase font-normal tracking-wider">Farmer (Pickup)</p>
-                  <p className="font-normal text-gray-900 text-base">{job.farmer_name}</p>
-                  <div className="flex flex-col gap-1 mt-2">
-                    <a href={`tel:${job.farmer_phone}`} className="text-xs text-gray-500 hover:text-green-600 flex items-center gap-2 transition-colors">
-                      <FaPhone size={10} /> {job.farmer_phone || 'N/A'}
+                  <p className="text-[9px] text-gray-400 uppercase font-medium tracking-wider">Farmer (Pickup)</p>
+                  <p className="font-medium text-gray-900 text-sm">{job.farmer_name}</p>
+                  <div className="flex flex-col mt-1">
+                    <a href={`tel:${job.farmer_phone}`} className="text-[10px] text-gray-500 hover:text-green-600 flex items-center gap-1.5 transition-colors">
+                      <FaPhone size={8} /> {job.farmer_phone || 'N/A'}
                     </a>
-                    <a href={`mailto:${job.farmer_email}`} className="text-xs text-gray-500 hover:text-green-600 flex items-center gap-2 transition-colors">
-                      <FaEnvelope size={10} /> {job.farmer_email || 'N/A'}
+                    <a href={`mailto:${job.farmer_email}`} className="text-[10px] text-gray-500 hover:text-green-600 flex items-center gap-1.5 transition-colors mt-0.5">
+                      <FaEnvelope size={8} /> {job.farmer_email || 'N/A'}
                     </a>
                   </div>
                 </div>
               </div>
 
               {/* Buyer Section */}
-              <div className="flex items-center gap-5 p-4 bg-gray-50 rounded-2xl border border-gray-100/50">
-                <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center overflow-hidden border-2 border-white shadow-md shrink-0">
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100/50">
+                <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center overflow-hidden border-2 border-white shadow-sm shrink-0">
                   {job.buyer_image ? (
                     <img src={job.buyer_image} className="w-full h-full object-cover" />
                   ) : (
-                    <FaUser size={32} className="text-blue-600" />
+                    <FaUser size={20} className="text-blue-600" />
                   )}
                 </div>
                 <div className="flex-1">
-                  <p className="text-[10px] text-gray-400 uppercase font-normal tracking-wider">Buyer (Delivery)</p>
-                  <p className="font-normal text-gray-900 text-base">{job.buyer_name}</p>
-                  <div className="flex flex-col gap-1 mt-2">
-                    <a href={`tel:${job.buyer_phone}`} className="text-xs text-gray-500 hover:text-blue-600 flex items-center gap-2 transition-colors">
-                      <FaPhone size={10} /> {job.buyer_phone || 'N/A'}
+                  <p className="text-[9px] text-gray-400 uppercase font-medium tracking-wider">Buyer (Delivery)</p>
+                  <p className="font-medium text-gray-900 text-sm">{job.buyer_name}</p>
+                  <div className="flex flex-col mt-1">
+                    <a href={`tel:${job.buyer_phone}`} className="text-[10px] text-gray-500 hover:text-blue-600 flex items-center gap-1.5 transition-colors">
+                      <FaPhone size={8} /> {job.buyer_phone || 'N/A'}
                     </a>
-                    <a href={`mailto:${job.buyer_email}`} className="text-xs text-gray-500 hover:text-blue-600 flex items-center gap-2 transition-colors">
-                      <FaEnvelope size={10} /> {job.buyer_email || 'N/A'}
+                    <a href={`mailto:${job.buyer_email}`} className="text-[10px] text-gray-500 hover:text-blue-600 flex items-center gap-1.5 transition-colors mt-0.5">
+                      <FaEnvelope size={8} /> {job.buyer_email || 'N/A'}
                     </a>
                   </div>
                 </div>
@@ -395,42 +399,42 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="border border-gray-100 rounded-2xl p-5 shadow-sm">
-              <h3 className="text-sm font-normal text-gray-700 mb-4 flex items-center gap-2">
-                <FaWeightHanging size={14} className="text-green-600" /> Logistics Info
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="border border-gray-100 rounded-xl p-4 shadow-sm">
+              <h3 className="text-xs font-medium text-gray-700 mb-3 flex items-center gap-1.5">
+                <FaWeightHanging size={12} className="text-green-600" /> Logistics Info
               </h3>
-              <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100/50">
+              <div className="grid grid-cols-2 gap-3 bg-gray-50 p-3 rounded-lg border border-gray-100/50">
                 <div>
-                  <p className="text-[10px] text-gray-400 uppercase font-normal">Order Ref</p>
-                  <p className="text-sm font-normal text-gray-900 mt-1">#ORD-{job.order_number}</p>
+                  <p className="text-[9px] text-gray-400 uppercase font-medium">Order Ref</p>
+                  <p className="text-xs font-medium text-gray-900 mt-0.5">#ORD-{job.order_number}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] text-gray-400 uppercase font-normal">Scheduled Date</p>
-                  <p className="text-sm font-normal text-gray-900 mt-1">{job.delivery_date ? new Date(job.delivery_date).toLocaleDateString() : 'TBD'}</p>
+                  <p className="text-[9px] text-gray-400 uppercase font-medium">Scheduled Date</p>
+                  <p className="text-xs font-medium text-gray-900 mt-0.5">{job.delivery_date ? new Date(job.delivery_date).toLocaleDateString() : 'TBD'}</p>
                 </div>
               </div>
             </div>
 
-            <div className="border border-gray-100 rounded-2xl p-5 shadow-sm">
-              <h3 className="text-sm font-normal text-gray-700 mb-4 flex items-center gap-2">
-                <FaTruck size={14} className="text-green-600" /> Vehicle Information
+            <div className="border border-gray-100 rounded-xl p-4 shadow-sm">
+              <h3 className="text-xs font-medium text-gray-700 mb-3 flex items-center gap-1.5">
+                <FaTruck size={12} className="text-green-600" /> Vehicle Information
               </h3>
-              <div className="p-4 bg-gray-50 rounded-xl flex justify-between items-center border border-gray-100/50">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center shadow-sm">
-                    <FaIdCard size={18} className="text-gray-400" />
+              <div className="p-3 bg-gray-50 rounded-lg flex justify-between items-center border border-gray-100/50">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-md bg-white flex items-center justify-center shadow-sm">
+                    <FaIdCard size={14} className="text-gray-400" />
                   </div>
                   <div>
-                    <p className="text-[10px] text-gray-400 uppercase font-normal">Assigned Plate</p>
-                    <p className="text-sm font-normal text-gray-900 mt-0.5">
+                    <p className="text-[9px] text-gray-400 uppercase font-medium">Assigned Plate</p>
+                    <p className="text-xs font-medium text-gray-900">
                       {job.vehicle_license_snapshot || transporterProfile?.license_number || 'Pending'}
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-[10px] text-gray-400 uppercase font-normal">Capacity Type</p>
-                  <p className="text-xs font-normal text-gray-600 mt-0.5">{job.load_type || transporterProfile?.vehicle_type || 'N/A'}</p>
+                  <p className="text-[9px] text-gray-400 uppercase font-medium">Capacity Type</p>
+                  <p className="text-[11px] font-medium text-gray-600 mt-0.5">{job.load_type || transporterProfile?.vehicle_type || 'N/A'}</p>
                 </div>
               </div>
             </div>
@@ -557,8 +561,8 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
               >
                 <FaCheckCircle size={14} /> Accept
               </button>
-              <button 
-                onClick={() => setShowDeclineConfirm(job.mission_number)} 
+              <button
+                onClick={() => setShowDeclineConfirm(job.mission_number)}
                 className="flex-1 py-2.5 bg-red-50 text-red-600 text-sm font-normal rounded-lg hover:bg-red-100 flex items-center justify-center gap-2 transition-all"
               >
                 <FaTimesCircle size={14} /> Decline
@@ -693,6 +697,13 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
         }
         .animate-modalEntry { animation: modalEntry 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .animate-slide-up { animation: slide-up 0.3s ease-out; }
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
       `}</style>
     </div>
   );

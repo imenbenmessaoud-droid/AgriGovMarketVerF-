@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaTruck, FaPlus, FaTrashAlt, FaCheck, FaTimes, FaMapMarkerAlt, FaWeightHanging, FaIdCard, FaSpinner } from 'react-icons/fa';
+import { FaTruck, FaPlus, FaTrashAlt, FaEdit, FaCheck, FaTimes, FaMapMarkerAlt, FaWeightHanging, FaIdCard, FaSpinner } from 'react-icons/fa';
 import api from '../../services/api';
 
 const wilayasList = [
@@ -14,6 +14,7 @@ const VehicleManager = ({ onNavigate }) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [userId, setUserId] = useState(null);
+  const [topCity, setTopCity] = useState(null);
 
   const [formData, setFormData] = useState({
     plates: '',
@@ -28,8 +29,25 @@ const VehicleManager = ({ onNavigate }) => {
     try {
       const res = await api.get('users/vehicles/');
       setFleet(res.data || []);
+      
+      const deliveriesRes = await api.get('/deliveries/missions/my_missions/?status=delivered');
+      const deliveries = deliveriesRes.data || [];
+      if (deliveries.length > 0) {
+        const cityCounts = {};
+        deliveries.forEach(d => {
+          const loc = d.delivery_location || 'Unknown';
+          const city = loc.split(',').pop().trim();
+          if (city && city !== 'Unknown') {
+            cityCounts[city] = (cityCounts[city] || 0) + 1;
+          }
+        });
+        const sortedCities = Object.entries(cityCounts).sort((a, b) => b[1] - a[1]);
+        if (sortedCities.length > 0) {
+          setTopCity(sortedCities[0]);
+        }
+      }
     } catch (err) {
-      console.error('Failed to fetch fleet', err);
+      console.error('Failed to fetch data', err);
     } finally {
       setLoading(false);
     }
@@ -54,12 +72,25 @@ const VehicleManager = ({ onNavigate }) => {
 
   const resetForm = () => {
     setFormData({
+      id: null,
       plates: '',
       model: '',
       type: 'REFRIGERATED',
       capacity: '',
       wilayas: []
     });
+  };
+
+  const handleUpdate = (vehicle) => {
+    setFormData({
+      id: vehicle.id,
+      plates: vehicle.license_number,
+      model: vehicle.model || '',
+      type: vehicle.vehicle_type || 'REFRIGERATED',
+      capacity: vehicle.capacity || '',
+      wilayas: vehicle.area_service && vehicle.area_service !== 'National' ? vehicle.area_service.split(',').map(s => s.trim()) : []
+    });
+    setIsFormOpen(true);
   };
 
   const handleAddVehicle = async (e) => {
@@ -70,13 +101,19 @@ const VehicleManager = ({ onNavigate }) => {
     try {
       const areas = formData.wilayas.length === 0 ? 'National' : formData.wilayas.join(', ');
 
-      await api.post('users/vehicles/', {
+      const payload = {
         license_number: formData.plates,
         capacity: parseFloat(formData.capacity),
         vehicle_type: formData.type,
         model: formData.model,
         area_service: areas
-      });
+      };
+
+      if (formData.id) {
+        await api.patch(`users/vehicles/${formData.id}/`, payload);
+      } else {
+        await api.post('users/vehicles/', payload);
+      }
 
       await fetchFleet();
       resetForm();
@@ -108,6 +145,27 @@ const VehicleManager = ({ onNavigate }) => {
     total: fleet.length,
     active: fleet.filter(v => v.is_active).length,
     totalCapacity: fleet.reduce((sum, v) => sum + parseFloat(v.capacity || 0), 0)
+  };
+
+  const getDisplayRegions = () => {
+    if (fleet.length === 0) return 'None';
+    const allAreas = new Set();
+    let hasNational = false;
+    
+    fleet.forEach(v => {
+      if (!v.area_service || v.area_service === 'National') {
+        hasNational = true;
+      } else {
+        v.area_service.split(',').forEach(area => allAreas.add(area.trim()));
+      }
+    });
+    
+    if (hasNational) return 'National';
+    
+    const uniqueAreas = Array.from(allAreas);
+    if (uniqueAreas.length === 0) return 'None';
+    
+    return uniqueAreas.join(', ');
   };
 
   if (loading) {
@@ -157,9 +215,20 @@ const VehicleManager = ({ onNavigate }) => {
             <p className="text-xs text-gray-400 uppercase">Registered Vehicles</p>
             <p className="text-2xl font-normal text-gray-800">{stats.total}</p>
           </div>
-          <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-            <p className="text-xs text-gray-400 uppercase">Coverage Region</p>
-            <p className="text-sm font-normal text-green-700 mt-2">{fleet.length > 0 ? fleet[0].areas : 'None'}</p>
+          <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm relative">
+            <p className="text-xs text-gray-400 uppercase">Top Delivery Region</p>
+            <p className="text-sm font-medium text-green-700 mt-2">
+              {topCity ? topCity[0] : getDisplayRegions()}
+            </p>
+            {topCity ? (
+              <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">
+                Total Deliveries: <span className="font-medium text-gray-700">{topCity[1]}</span>
+              </p>
+            ) : (
+              <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-wider">
+                <span className="italic">Awaiting first delivery</span>
+              </p>
+            )}
           </div>
           <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
             <p className="text-xs text-gray-400 uppercase">Total Capacity</p>
@@ -171,7 +240,7 @@ const VehicleManager = ({ onNavigate }) => {
         {isFormOpen && (
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm mb-8 overflow-hidden">
             <div className="p-5 border-b border-gray-100">
-              <h2 className="text-base font-normal text-gray-800">Vehicle Registration</h2>
+              <h2 className="text-base font-normal text-gray-800">{formData.id ? 'Update Vehicle' : 'Vehicle Registration'}</h2>
             </div>
 
             <form onSubmit={handleAddVehicle} className="p-5">
@@ -268,7 +337,7 @@ const VehicleManager = ({ onNavigate }) => {
                   className="px-6 py-2.5 bg-green-700 text-white text-sm font-normal rounded-lg hover:bg-green-800 transition-colors flex items-center gap-2"
                 >
                   {saving && <FaSpinner className="animate-spin" />}
-                  Save Vehicle
+                  {formData.id ? 'Update Vehicle' : 'Save Vehicle'}
                 </button>
               </div>
             </form>
@@ -311,11 +380,14 @@ const VehicleManager = ({ onNavigate }) => {
                   {fleet.map(vehicle => (
                     <tr key={vehicle.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-5 py-4">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded bg-gray-50 flex items-center justify-center">
-                            <FaIdCard className="text-gray-400 text-xs" />
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded bg-gray-50 flex items-center justify-center shrink-0 border border-gray-100">
+                            <FaIdCard className="text-gray-400 text-lg" />
                           </div>
-                          <span className="text-sm font-normal text-gray-800">{vehicle.license_number}</span>
+                          <div className="flex flex-col">
+                            <span className="text-sm font-medium text-gray-800">{vehicle.license_number}</span>
+                            <span className="text-[10px] text-gray-400 tracking-wider">REG: {vehicle.created_at ? new Date(vehicle.created_at).toLocaleDateString('en-GB') : new Date().toLocaleDateString('en-GB')}</span>
+                          </div>
                         </div>
                       </td>
                       <td className="px-5 py-4">
@@ -325,21 +397,31 @@ const VehicleManager = ({ onNavigate }) => {
                         </div>
                       </td>
                       <td className="px-5 py-4">
-                        <div className="flex items-center gap-1">
-                          <FaWeightHanging className="text-gray-300 text-[10px]" />
-                          <span className="text-sm text-gray-700 font-normal">{vehicle.capacity} Tons</span>
+                        <div className="flex items-center gap-1.5">
+                          <FaWeightHanging className="text-gray-400 text-[10px]" />
+                          <span className="text-sm text-gray-700 font-medium">{vehicle.capacity} Tons</span>
                         </div>
                       </td>
                       <td className="px-5 py-4 hidden lg:table-cell">
-                        <span className="text-xs text-gray-500">{vehicle.area_service || 'National'}</span>
+                        <span className="text-xs text-gray-600 font-normal bg-gray-50 px-2 py-1 rounded-md border border-gray-100">{vehicle.area_service || 'National'}</span>
                       </td>
                       <td className="px-5 py-4 text-right">
-                        <button
-                          onClick={() => handleDelete(vehicle.id)}
-                          className="p-2 text-gray-400 hover:text-red-500 transition-colors"
-                        >
-                          <FaTrashAlt size={14} />
-                        </button>
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={() => handleUpdate(vehicle)}
+                            className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="Edit Vehicle"
+                          >
+                            <FaEdit size={14} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(vehicle.id)}
+                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Delete Vehicle"
+                          >
+                            <FaTrashAlt size={14} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
