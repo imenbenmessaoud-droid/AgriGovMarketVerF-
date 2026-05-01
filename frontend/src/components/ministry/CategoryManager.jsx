@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   FaPlus, FaEdit, FaTrash, FaLeaf, FaAppleAlt, FaCarrot, 
   FaSeedling, FaSearch, FaTimes, FaBoxes, FaChartLine,
-  FaSave, FaTimesCircle, FaUser
+  FaSave, FaTimesCircle, FaUser, FaWarehouse
 } from 'react-icons/fa';
 import api from '../../services/api';
 
@@ -33,6 +33,10 @@ const CategoryManager = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [categoryProducts, setCategoryProducts] = useState([]);
   const [productSearchQuery, setProductSearchQuery] = useState('');
+  const [selectedFarmer, setSelectedFarmer] = useState(null);
+  const [showFarmerModal, setShowFarmerModal] = useState(false);
+  const [selectedFarm, setSelectedFarm] = useState(null);
+  const [showFarmModal, setShowFarmModal] = useState(false);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -124,6 +128,28 @@ const CategoryManager = () => {
     } catch (err) {
       console.error("Failed to fetch products", err);
     }
+  };
+
+  const handleFarmerClick = (product) => {
+    setSelectedFarmer({
+      name: product.farmer_name,
+      phone: product.farmer_phone || '07 77 76 75 74',
+      email: product.farmer_email || 'FarmerUser1@gmail.com',
+      address: product.farmer_address || 'city saleh bey num:102',
+      avatar: product.farmer_avatar || product.avatar
+    });
+    setShowFarmerModal(true);
+  };
+
+  const handleFarmClick = (product) => {
+    setSelectedFarm({
+      name: product.farm_name,
+      address: product.farm_address || 'No assigned address',
+      phone: product.farm_phone || 'No assigned phone',
+      email: product.farm_email || 'No assigned email',
+      size: product.farm_size || '0'
+    });
+    setShowFarmModal(true);
   };
 
   const resetForm = () => {
@@ -272,9 +298,6 @@ const CategoryManager = () => {
               >
                 <div className="p-5">
                   <div className="flex justify-between items-start mb-4">
-                    <div className={`p-3 rounded-lg ${getColorClass(cat.color)}`}>
-                      {getIconComponent(cat.icon)}
-                    </div>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button 
                         onClick={(e) => { e.stopPropagation(); handleEdit(cat); }} 
@@ -344,20 +367,30 @@ const CategoryManager = () => {
                     <div key={product.id} className="p-5 hover:bg-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors">
                       <div>
                         <h3 className="text-lg font-normal text-black mb-1">{product.product_name}</h3>
-                        <div className="flex items-center gap-4 mt-1 mb-2">
-                          <span className="text-sm text-gray-600 flex items-center gap-1.5">
-                            <FaUser size={12} className="text-gray-400"/> {product.farmer_name}
-                          </span>
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-1 mb-2">
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); handleFarmerClick(product); }}
+                            className="text-sm text-gray-600 hover:text-green-700 flex items-center gap-1.5 transition-colors group/farmer"
+                          >
+                            <FaUser size={12} className="text-gray-400 group-hover/farmer:text-green-700"/> 
+                            <span className="border-b border-transparent group-hover/farmer:border-green-700">{product.farmer_name}</span>
+                          </button>
+                          
                           <span className="text-sm text-gray-600 flex items-center gap-1.5">
                             <FaBoxes size={12} className="text-gray-400"/> {product.quantity} Kg
                           </span>
+
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); handleFarmClick(product); }}
+                            className="text-sm text-gray-600 hover:text-green-700 flex items-center gap-1.5 transition-colors group/farm"
+                          >
+                            <FaWarehouse size={12} className="text-gray-400 group-hover/farm:text-green-700"/> 
+                            <span className="border-b border-transparent group-hover/farm:border-green-700">{product.farm_name}</span>
+                          </button>
                         </div>
                         <p className="text-sm text-gray-500">{product.product_description || 'No description available.'}</p>
                       </div>
                       <div className="flex flex-col items-start md:items-end gap-2">
-                        <span className="text-xs font-mono text-gray-500 bg-gray-100 px-2 py-1 rounded border border-gray-200">
-                          {product.product_quality} quality
-                        </span>
                         <div className="text-sm text-gray-700 flex flex-col md:items-end mt-1">
                           <span className="text-xs text-gray-500">Price:</span>
                           <span className="text-lg font-medium text-green-700">{parseFloat(product.product_price).toLocaleString()} DZD</span>
@@ -383,51 +416,51 @@ const CategoryManager = () => {
       {/* Add/Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
-          <div className="bg-white rounded-[24px] w-full max-w-[480px] p-8 shadow-xl">
-            <h2 className="text-[22px] text-gray-900 mb-8">
+          <div className="bg-white rounded-[20px] w-full max-w-[380px] p-6 shadow-xl">
+            <h2 className="text-[18px] font-normal text-gray-900 mb-6">
               {isEditing ? 'Edit category' : 'Add a category'}
             </h2>
 
             <form onSubmit={isEditing ? handleUpdate : handleAdd}>
-              <div className="space-y-6">
+              <div className="space-y-5">
                 <div>
-                  <label className="block text-gray-500 mb-2 text-[15px]">
+                  <label className="block text-gray-500 mb-1.5 text-xs">
                     Category name
                   </label>
                   <input
                     required
                     type="text"
                     placeholder="e.g. Vegetables"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none text-[15px] placeholder-gray-400"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none text-sm placeholder-gray-400"
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-gray-500 mb-2 text-[15px]">
+                  <label className="block text-gray-500 mb-1.5 text-xs">
                     Description
                   </label>
                   <textarea
                     placeholder="Short description..."
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none text-[15px] placeholder-gray-400 min-h-[140px]"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none text-sm placeholder-gray-400 min-h-[80px]"
                     value={formData.description || ''}
                     onChange={(e) => setFormData({...formData, description: e.target.value})}
                   ></textarea>
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 mt-10">
+              <div className="flex justify-end gap-3 mt-8">
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="px-6 py-2.5 rounded-xl border border-gray-200 text-black font-normal hover:bg-gray-50 bg-white transition"
+                  className="px-5 py-2 rounded-xl border border-gray-200 text-black text-sm font-normal hover:bg-gray-50 bg-white transition"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-green-700 text-white font-normal hover:bg-[#d63f44] transition"
+                  className="px-5 py-2 rounded-xl bg-green-700 text-white text-sm font-normal hover:bg-green-800 transition"
                 >
                   Save
                 </button>
@@ -436,6 +469,110 @@ const CategoryManager = () => {
           </div>
         </div>
       )}
+      {/* Farmer Details Modal */}
+      {showFarmerModal && selectedFarmer && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50">
+          <div className="bg-white rounded-[16px] w-full max-w-[320px] overflow-hidden shadow-2xl animate-zoomIn">
+            <div className="p-4 flex justify-between items-center border-b border-gray-50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full border border-gray-100 overflow-hidden bg-gray-50">
+                  {selectedFarmer.avatar ? (
+                    <img src={selectedFarmer.avatar} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-green-50 text-green-700 font-bold text-base">
+                      {selectedFarmer.name.charAt(0)}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <h3 className="text-[14px] font-normal text-gray-900 leading-tight">Verified Farmer</h3>
+                  <p className="text-[13px] text-gray-400">{selectedFarmer.name}</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowFarmerModal(false)}
+                className="p-1.5 text-gray-300 hover:text-gray-500 transition-colors"
+              >
+                <FaTimes size={16} />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-5">
+              <div className="space-y-0.5">
+                <p className="text-[9px] font-normal text-gray-400 uppercase tracking-widest">PHONE NUMBER</p>
+                <p className="text-[14px] text-gray-800 font-normal">{selectedFarmer.phone}</p>
+              </div>
+
+              <div className="space-y-0.5">
+                <p className="text-[9px] font-normal text-gray-400 uppercase tracking-widest">EMAIL ADDRESS</p>
+                <p className="text-[14px] text-gray-800 font-normal">{selectedFarmer.email}</p>
+              </div>
+
+              <div className="space-y-0.5">
+                <p className="text-[9px] font-normal text-gray-400 uppercase tracking-widest">HOME ADDRESS</p>
+                <p className="text-[14px] text-gray-800 font-normal">{selectedFarmer.address}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Farm Details Modal */}
+      {showFarmModal && selectedFarm && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50">
+          <div className="bg-white rounded-[16px] w-full max-w-[320px] overflow-hidden shadow-2xl animate-zoomIn">
+            <div className="p-4 flex justify-between items-center border-b border-gray-50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full border border-gray-100 overflow-hidden bg-gray-50 flex items-center justify-center">
+                  <FaWarehouse className="text-green-600" size={18} />
+                </div>
+                <div>
+                  <h3 className="text-[14px] font-normal text-gray-900 leading-tight">Farm Profile</h3>
+                  <p className="text-[13px] text-gray-400">{selectedFarm.name}</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowFarmModal(false)}
+                className="p-1.5 text-gray-300 hover:text-gray-500 transition-colors"
+              >
+                <FaTimes size={16} />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-5">
+              <div className="space-y-0.5">
+                <p className="text-[9px] font-normal text-gray-400 uppercase tracking-widest">FARM ADDRESS</p>
+                <p className="text-[14px] text-gray-800 font-normal">{selectedFarm.address}</p>
+              </div>
+
+              <div className="space-y-0.5">
+                <p className="text-[9px] font-normal text-gray-400 uppercase tracking-widest">PHONE NUMBER</p>
+                <p className="text-[14px] text-gray-800 font-normal">{selectedFarm.phone}</p>
+              </div>
+
+              <div className="space-y-0.5">
+                <p className="text-[9px] font-normal text-gray-400 uppercase tracking-widest">EMAIL ADDRESS</p>
+                <p className="text-[14px] text-gray-800 font-normal">{selectedFarm.email}</p>
+              </div>
+
+              <div className="space-y-0.5">
+                <p className="text-[9px] font-normal text-gray-400 uppercase tracking-widest">FARM AREA</p>
+                <p className="text-[14px] text-gray-800 font-normal">{selectedFarm.size} Hectares</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style jsx>{`
+        @keyframes zoomIn {
+          from { opacity: 0; transform: scale(0.95) translateY(10px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-zoomIn {
+          animation: zoomIn 0.25s ease-out;
+        }
+      `}</style>
     </div>
   );
 };

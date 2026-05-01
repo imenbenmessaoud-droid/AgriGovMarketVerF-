@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { FaCheckCircle, FaTimesCircle, FaEye, FaSearch, FaTimes, FaFilter, FaSpinner, FaUserCircle } from 'react-icons/fa';
 import api from '../../services/api';
 
 const UserValidation = () => {
+  const [searchParams] = useSearchParams();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -14,7 +16,21 @@ const UserValidation = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+    
+    // Read type from query params
+    const type = searchParams.get('type');
+    if (type) {
+      const typeMap = {
+        'farmers': 'Farmer',
+        'transporters': 'Transporter',
+        'buyers': 'Buyer'
+      };
+      if (typeMap[type]) {
+        setTypeFilter(typeMap[type]);
+        setShowFilters(true);
+      }
+    }
+  }, [searchParams]);
 
   const fetchUsers = async () => {
     try {
