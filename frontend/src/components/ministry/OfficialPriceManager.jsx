@@ -13,11 +13,16 @@ const OfficialPriceManager = () => {
   const [detailsForm, setDetailsForm] = useState({ product_name: '', id_category: '' });
   const [loading, setLoading] = useState(true);
   
-  // Add new Product state
   const [showAddForm, setShowAddForm] = useState(false);
   const [newProduct, setNewProduct] = useState({
     product_name: '', product_description: '', product_quality: 'standard', id_category: ''
   });
+
+  // History State
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [historyProduct, setHistoryProduct] = useState(null);
+  const [priceHistory, setPriceHistory] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -82,6 +87,20 @@ const OfficialPriceManager = () => {
     } catch (err) {
       console.error("Failed to update product details:", err);
       alert("Failed to update product details.");
+    }
+  };
+
+  const handleViewHistory = async (product) => {
+    setHistoryProduct(product);
+    setIsHistoryModalOpen(true);
+    setHistoryLoading(true);
+    try {
+      const res = await api.get(`products/products/${product.id_product}/price_history/`);
+      setPriceHistory(res.data);
+    } catch (err) {
+      console.error('Failed to fetch price history:', err);
+    } finally {
+      setHistoryLoading(false);
     }
   };
 
@@ -329,6 +348,13 @@ const OfficialPriceManager = () => {
                             Update
                           </button>
                           <button 
+                            onClick={() => handleViewHistory(item)} 
+                            className="px-3 py-2 border border-gray-200 text-gray-600 text-xs font-normal uppercase rounded hover:bg-gray-100 hover:text-green-700 hover:border-green-300 transition"
+                            title="View Price History"
+                          >
+                            <FaHistory />
+                          </button>
+                          <button 
                             onClick={() => handleEdit(item)} 
                             className="px-3 py-2 border border-gray-200 text-gray-600 text-xs font-normal uppercase rounded hover:bg-gray-100 hover:text-green-700 hover:border-green-300 transition"
                           >
@@ -351,6 +377,81 @@ const OfficialPriceManager = () => {
           )}
         </div>
       </div>
+
+      {/* Price History Modal */}
+      {isHistoryModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm animate-fadeIn" onClick={() => setIsHistoryModalOpen(false)} />
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl relative z-[101] overflow-hidden animate-zoomIn flex flex-col max-h-[90vh]">
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-[#fcfdfd]">
+              <div>
+                <h3 className="text-lg font-normal text-gray-900">Price History</h3>
+                <p className="text-xs text-green-700 font-normal">{historyProduct?.product_name} • Official Thresholds</p>
+              </div>
+              <button 
+                onClick={() => setIsHistoryModalOpen(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors"
+              >
+                <FaTimes size={16} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+              {historyLoading ? (
+                <div className="py-20 text-center flex flex-col items-center">
+                  <FaSpinner className="animate-spin text-green-700 mb-4" size={32} />
+                  <p className="text-sm text-gray-500">Retrieving historical records...</p>
+                </div>
+              ) : priceHistory.length > 0 ? (
+                <div className="space-y-4">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-gray-100">
+                        <th className="text-left py-3 text-[10px] font-normal text-gray-400 uppercase tracking-widest">Effective Date</th>
+                        <th className="text-left py-3 text-[10px] font-normal text-gray-400 uppercase tracking-widest">Price Range</th>
+                        <th className="text-right py-3 text-[10px] font-normal text-gray-400 uppercase tracking-widest">Authorized By</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
+                      {priceHistory.map((history, idx) => (
+                        <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
+                          <td className="py-4">
+                            <div className="flex flex-col">
+                              <span className="text-sm text-gray-800 font-normal">
+                                {new Date(history.date_set).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                              </span>
+                              {idx === 0 && <span className="text-[9px] text-green-600 font-normal uppercase tracking-tighter">Current Official</span>}
+                            </div>
+                          </td>
+                          <td className="py-4">
+                            <span className="text-sm font-normal text-gray-700 px-2.5 py-1 bg-gray-100 rounded">
+                              {history.min_price} - {history.max_price} <span className="text-[10px] text-gray-400">DZD/kg</span>
+                            </span>
+                          </td>
+                          <td className="py-4 text-right">
+                            <span className="text-xs text-gray-500 font-normal italic">
+                              {history.admin_name || 'System Admin'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="py-20 text-center">
+                  <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <FaHistory className="text-gray-200" size={24} />
+                  </div>
+                  <p className="text-gray-500 text-sm">No historical price changes found for this product.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

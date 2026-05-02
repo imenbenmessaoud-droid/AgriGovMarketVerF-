@@ -7,9 +7,9 @@ const Reports = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState('All');
-  const [categoryFilter, setCategoryFilter] = useState('All');
   const [showFilters, setShowFilters] = useState(false);
   const [downloadingId, setDownloadingId] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     fetchReports();
@@ -19,7 +19,6 @@ const Reports = () => {
     try {
       setLoading(true);
       const response = await api.get('reports/');
-      // Map backend fields to frontend expectations if necessary
       const mapped = response.data.map(r => ({
         id: r.id,
         name: r.name,
@@ -39,13 +38,11 @@ const Reports = () => {
   };
 
   const types = ['All', 'PDF', 'Excel'];
-  const categories = ['All', 'Yield', 'Pricing', 'Logistics', 'Distribution', 'Revenue', 'Forecast'];
 
   const filteredReports = reports.filter(report => {
     const matchesSearch = report.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesType = typeFilter === 'All' || report.type === typeFilter;
-    const matchesCategory = categoryFilter === 'All' || report.category === categoryFilter;
-    return matchesSearch && matchesType && matchesCategory;
+    return matchesSearch && matchesType;
   });
 
   const stats = {
@@ -58,19 +55,34 @@ const Reports = () => {
   const handleDownload = async (report) => {
     try {
       setDownloadingId(report.id);
-      // Call the download endpoint to increment the counter
       const response = await api.get(`reports/${report.id}/download/`);
-
-      // Trigger the actual file download
-      window.open(response.data.file_url, '_blank');
-
-      // Refresh list to show updated download count
+      const downloadUrl = response.data.file_url.startsWith('http') 
+        ? response.data.file_url 
+        : `http://localhost:8000${response.data.file_url}`;
+      window.open(downloadUrl, '_blank');
       fetchReports();
     } catch (error) {
       console.error('Error downloading report:', error);
       alert('Failed to initiate download. Please try again.');
     } finally {
       setDownloadingId(null);
+    }
+  };
+
+  const handleGenerateReport = async (format) => {
+    try {
+      setIsGenerating(true);
+      await api.post('reports/generate_custom_report/', { format });
+      setSearchQuery('');
+      setTypeFilter('All');
+      await fetchReports();
+      alert(`${format} report generated successfully!`);
+    } catch (error) {
+      console.error('Error generating report:', error);
+      const errorMsg = error.response?.data?.error || error.message || 'Failed to generate report.';
+      alert(errorMsg);
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -100,13 +112,33 @@ const Reports = () => {
             <p className="text-gray-500 text-[13px] mt-0.5">Download aggregated data and analytics on agricultural trade</p>
           </div>
 
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-normal rounded-lg hover:bg-gray-50 transition"
-          >
-            <FaFilter size={14} />
-            {showFilters ? 'Hide Filters' : 'Show Filters'}
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-normal rounded-lg hover:bg-gray-50 transition"
+            >
+              <FaFilter size={14} />
+              {showFilters ? 'Hide Filters' : 'Show Filters'}
+            </button>
+
+            <button
+              onClick={() => handleGenerateReport('PDF')}
+              disabled={isGenerating}
+              className="flex items-center gap-2 px-4 py-2 bg-green-700 text-white text-sm font-normal rounded-lg hover:bg-green-800 transition shadow-sm disabled:opacity-50"
+            >
+              {isGenerating ? <FaSpinner className="animate-spin" size={14} /> : <FaFilePdf size={14} />}
+              {isGenerating ? 'Generating...' : 'Generate PDF'}
+            </button>
+
+            <button
+              onClick={() => handleGenerateReport('Excel')}
+              disabled={isGenerating}
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-green-700 text-green-700 text-sm font-normal rounded-lg hover:bg-green-50 transition shadow-sm disabled:opacity-50"
+            >
+              {isGenerating ? <FaSpinner className="animate-spin" size={14} /> : <FaFileExcel size={14} />}
+              {isGenerating ? 'Generating...' : 'Generate Excel'}
+            </button>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -166,22 +198,9 @@ const Reports = () => {
                   ))}
                 </select>
               </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Category</label>
-                <select
-                  className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
-                  value={categoryFilter}
-                  onChange={(e) => setCategoryFilter(e.target.value)}
-                >
-                  {categories.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-              </div>
               <button
                 onClick={() => {
                   setTypeFilter('All');
-                  setCategoryFilter('All');
                   setSearchQuery('');
                 }}
                 className="self-end px-3 py-1.5 text-sm text-gray-500 hover:text-gray-700"
@@ -237,8 +256,6 @@ const Reports = () => {
                             }`}>
                             {report.type}
                           </span>
-                          <span>•</span>
-                          <span>{report.category}</span>
                           <span>•</span>
                           <span>{report.downloads} downloads</span>
                         </div>

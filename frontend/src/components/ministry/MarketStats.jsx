@@ -17,7 +17,6 @@ const MarketStats = ({ searchQuery = '' }) => {
   const navigate = useNavigate();
   const [timeRange, setTimeRange] = useState('7days');
   const [selectedDetail, setSelectedDetail] = useState(null);
-  const [isExporting, setIsExporting] = useState(false);
   const [data, setData] = useState(null);
   const [orders, setOrders] = useState([]);
   const [priceOverview, setPriceOverview] = useState([]);
@@ -126,13 +125,6 @@ const MarketStats = ({ searchQuery = '' }) => {
     { name: 'Other', value: catMap.Other || 1, color: '#346bafff' },
   ];
 
-  const handleExport = () => {
-    setIsExporting(true);
-    setTimeout(() => {
-      setIsExporting(false);
-      alert('Report exported successfully (PDF)');
-    }, 1500);
-  };
 
   const stats = [
     { label: 'Platform Users', value: data?.counts?.users?.toLocaleString() || '0', change: '+12%', icon: FaUsers, color: 'green' },
@@ -200,18 +192,6 @@ const MarketStats = ({ searchQuery = '' }) => {
               <option value="30days">Last 30 Days</option>
               <option value="6months">Last 6 Months</option>
             </select>
-            <button
-              onClick={handleExport}
-              disabled={isExporting}
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-normal rounded-lg hover:bg-gray-50 transition min-w-[140px] justify-center"
-            >
-              {isExporting ? (
-                <div className="w-4 h-4 border-2 border-green-700 border-t-transparent rounded-full animate-spin"></div>
-              ) : (
-                <FaDownload size={14} />
-              )}
-              {isExporting ? 'Exporting...' : 'Export Report'}
-            </button>
           </div>
         </div>
 

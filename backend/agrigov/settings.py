@@ -1,3 +1,4 @@
+# apps/agrigov/settings.py - Server Heartbeat for Correct Venv Refresh
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
