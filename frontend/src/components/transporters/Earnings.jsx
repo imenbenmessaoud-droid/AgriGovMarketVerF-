@@ -292,7 +292,7 @@ const Earnings = ({ onNavigate }) => {
 
   return (
     <div className="min-h-screen bg-[#fdfcf5]">
-      <div className="max-w-7xl mx-auto px-4 pt-0 pb-8">
+      <div className="max-w-7xl mx-auto px-8 pt-8 pb-12">
 
         {/* Toast Notification */}
         {showToast && (
@@ -308,19 +308,19 @@ const Earnings = ({ onNavigate }) => {
         )}
 
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-12">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-lg font-normal text-gray-800 mb-0.5">Logistics Overview</h1>
-              <p className="text-[11px] text-gray-400 font-normal">Real-time overview of your logistics operations and performance</p>
+              <h1 className="text-3xl font-normal text-gray-800 mb-1.5">Logistics Overview</h1>
+              <p className="text-sm text-gray-400 font-normal">Real-time overview of your logistics operations and performance</p>
             </div>
 
             <div className="flex gap-3">
               <button
                 onClick={handleExportData}
-                className="px-3 py-1.5 bg-white border border-gray-100 text-gray-600 text-[11px] font-normal rounded-lg hover:bg-gray-50 transition-all flex items-center gap-2 shadow-sm"
+                className="px-5 py-2.5 bg-white border border-gray-100 text-gray-600 text-sm font-normal rounded-xl hover:bg-gray-50 transition-all flex items-center gap-2.5 shadow-md"
               >
-                <FaDownload size={11} />
+                <FaDownload size={14} />
                 Export Data
               </button>
             </div>
@@ -328,7 +328,7 @@ const Earnings = ({ onNavigate }) => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             return (
@@ -336,28 +336,28 @@ const Earnings = ({ onNavigate }) => {
                 key={index}
                 className={`${stat.isSpecial
                     ? 'bg-gradient-to-br from-[#008456] to-[#10b981] text-white shadow-[0_8px_20px_rgba(16,185,129,0.2)]'
-                    : 'bg-white border border-gray-100 shadow-sm'
-                  } rounded-xl p-3.5 transition-all hover:-translate-y-1 hover:shadow-md group`}
+                    : 'bg-white border border-gray-100 shadow-md'
+                  } rounded-2xl p-5 transition-all hover:-translate-y-1 hover:shadow-lg group`}
               >
                 <div className="flex justify-between items-start mb-2">
-                  <span className={`text-[10px] font-normal uppercase tracking-wider ${stat.isSpecial ? 'text-white/70' : 'text-gray-400'}`}>
+                  <span className={`text-xs font-normal uppercase tracking-wider ${stat.isSpecial ? 'text-white/70' : 'text-gray-400'}`}>
                     {stat.label}
                   </span>
-                  <div className={`p-1.5 rounded-lg ${stat.isSpecial ? 'bg-white/20 text-white' : getColorClasses(stat.color)}`}>
-                    <Icon size={14} />
+                  <div className={`p-2 rounded-lg ${stat.isSpecial ? 'bg-white/20 text-white' : getColorClasses(stat.color)}`}>
+                    <Icon size={18} />
                   </div>
                 </div>
-                <div className="flex items-baseline gap-1 mb-1">
-                  <span className={`text-xl font-normal ${stat.isSpecial ? 'text-white' : 'text-gray-800'}`}>
+                <div className="flex items-baseline gap-1.5 mb-1.5">
+                  <span className={`text-3xl font-normal ${stat.isSpecial ? 'text-white' : 'text-gray-800'}`}>
                     {stat.value}
                   </span>
                   {stat.unit && (
-                    <span className={`text-[10px] ${stat.isSpecial ? 'text-white/60' : 'text-gray-400'}`}>
+                    <span className={`text-xs ${stat.isSpecial ? 'text-white/60' : 'text-gray-400'}`}>
                       {stat.unit}
                     </span>
                   )}
                 </div>
-                <p className={`text-[10px] font-normal ${stat.isSpecial ? 'text-white/50' : 'text-gray-400'}`}>
+                <p className={`text-xs font-normal ${stat.isSpecial ? 'text-white/50' : 'text-gray-400'}`}>
                   {stat.sub}
                 </p>
               </div>
@@ -367,8 +367,8 @@ const Earnings = ({ onNavigate }) => {
 
 
         {/* Chart Section with Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden h-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-12">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-md overflow-hidden h-full">
             <div className="p-5 border-b border-gray-100 flex justify-between items-center">
               <div>
                 <h3 className="text-base font-normal text-gray-800">Weekly Performance</h3>
@@ -445,7 +445,7 @@ const Earnings = ({ onNavigate }) => {
           </div>
 
           {/* Delivered Missions by Region Donut Chart */}
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden h-full flex flex-col">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-md overflow-hidden h-full flex flex-col">
             <div className="p-5 border-b border-gray-100 flex justify-between items-center">
               <h3 className="text-base font-normal text-gray-800">Delivered Missions by Region</h3>
               <button
@@ -519,7 +519,7 @@ const Earnings = ({ onNavigate }) => {
 
 
         {/* Current Deliveries Table Widget - Full Width */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col mb-12">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-md overflow-hidden flex flex-col mb-16">
           <div className="p-6 border-b border-gray-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h3 className="text-lg font-normal text-gray-800">Current Deliveries</h3>
 

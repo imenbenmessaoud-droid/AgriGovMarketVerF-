@@ -64,16 +64,15 @@ const FarmerSidebar = ({ isVisible }) => {
         </div>
 
         {/* Primary Navigation */}
-        <nav className="flex-1 px-3 py-2 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-3 py-2 space-y-1 overflow-y-auto custom-scrollbar">
           {menuItems.map((item) => (
             <button
               key={item.id}
               onClick={() => navigate(item.path)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-300 group relative ${
-                isActive(item.path)
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-300 group relative ${isActive(item.path)
                   ? 'bg-white/10 backdrop-blur-md border border-white/20 text-white'
                   : 'text-white/70 hover:text-white hover:bg-white/5'
-              }`}
+                }`}
             >
               <span className={`${isActive(item.path) ? 'text-white' : 'text-white/60 group-hover:text-white'}`}>
                 {item.icon}
@@ -81,20 +80,18 @@ const FarmerSidebar = ({ isVisible }) => {
               <span className="font-normal text-[13px] whitespace-nowrap">{item.name}</span>
             </button>
           ))}
+        </nav>
 
-          {/* Divider */}
-          <div className="my-4 border-t border-white/10 mx-2" />
-
-          {/* Bottom Items */}
+        {/* Secondary Actions - Fixed Bottom */}
+        <div className="mt-auto px-3 py-4 space-y-1 border-t border-white/10">
           {bottomItems.map((item) => (
             <button
               key={item.id}
               onClick={() => navigate(item.path)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-300 group relative ${
-                isActive(item.path)
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-300 group relative ${isActive(item.path)
                   ? 'bg-white/10 backdrop-blur-md border border-white/20 text-white'
                   : 'text-white/70 hover:text-white hover:bg-white/5'
-              }`}
+                }`}
             >
               <span className={`${isActive(item.path) ? 'text-white' : 'text-white/60 group-hover:text-white'}`}>
                 {item.icon}
@@ -105,12 +102,12 @@ const FarmerSidebar = ({ isVisible }) => {
 
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/70 hover:text-red-400 hover:bg-red-500/10 transition-all duration-300 mt-1"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/70 hover:text-red-400 hover:bg-red-500/10 transition-all duration-300"
           >
-            <MdLogout size={18} />
+            <MdLogout size={18} className="text-white/60 group-hover:text-red-400" />
             <span className="font-normal text-[13px] whitespace-nowrap">Logout</span>
           </button>
-        </nav>
+        </div>
 
         {/* Footer Branding */}
         <div className="p-6 pt-2 border-t border-white/5 text-center">
