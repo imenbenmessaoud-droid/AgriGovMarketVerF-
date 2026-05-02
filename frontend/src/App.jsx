@@ -12,11 +12,11 @@ function App() {
    return (
       <div className="flex flex-col min-h-screen">
          <Toaster position="top-center" reverseOrder={false} />
-         {!isAuthPage && <Header />}
+         {!isAuthPage && !location.pathname.startsWith('/transporter') && !location.pathname.startsWith('/farmer') && !location.pathname.startsWith('/ministry') && <Header />}
       <main className="flex-grow">
         <AppRoutes />
       </main>
-      {!isAuthPage && <Footer />}
+      {!isAuthPage && !location.pathname.startsWith('/transporter') && !location.pathname.startsWith('/farmer') && !location.pathname.startsWith('/ministry') && <Footer />}
     </div>
   );
 }

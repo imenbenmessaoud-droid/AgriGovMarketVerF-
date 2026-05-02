@@ -177,20 +177,20 @@ const VehicleManager = ({ onNavigate }) => {
   }
 
   return (
-    <div className="min-h-screen bg-[#faf8f0]">
-      <div className="max-w-7xl mx-auto px-4 pt-2 pb-8">
+    <div className="min-h-screen bg-[#fdfcf5]">
+      <div className="max-w-7xl mx-auto px-4 pt-0 pb-8">
 
         {/* Header */}
         <div className="mb-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                  <FaTruck className="text-green-600 text-lg" />
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                  <FaTruck className="text-green-600 text-sm" />
                 </div>
-                <h1 className="text-2xl font-normal text-gray-800">Vehicle Fleet</h1>
+                <h1 className="text-lg font-normal text-gray-800">Vehicle Fleet</h1>
               </div>
-              <p className="text-sm text-gray-500">Manage your delivery vehicle (One primary vehicle per profile)</p>
+              <p className="text-[11px] text-gray-500">Manage your delivery vehicle (One primary vehicle per profile)</p>
             </div>
 
             <button
@@ -210,29 +210,29 @@ const VehicleManager = ({ onNavigate }) => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-            <p className="text-xs text-gray-400 uppercase">Registered Vehicles</p>
-            <p className="text-2xl font-normal text-gray-800">{stats.total}</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+          <div className="bg-white rounded-xl p-3 border border-gray-100 shadow-sm">
+            <p className="text-[10px] text-gray-400 uppercase">Registered Vehicles</p>
+            <p className="text-lg font-normal text-gray-800">{stats.total}</p>
           </div>
-          <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm relative">
-            <p className="text-xs text-gray-400 uppercase">Top Delivery Region</p>
-            <p className="text-sm font-medium text-green-700 mt-2">
+          <div className="bg-white rounded-xl p-3 border border-gray-100 shadow-sm relative">
+            <p className="text-[10px] text-gray-400 uppercase">Top Delivery Region</p>
+            <p className="text-xs font-medium text-green-700 mt-1">
               {topCity ? topCity[0] : getDisplayRegions()}
             </p>
             {topCity ? (
-              <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">
+              <p className="text-[9px] text-gray-500 mt-0.5 uppercase tracking-wider">
                 Total Deliveries: <span className="font-medium text-gray-700">{topCity[1]}</span>
               </p>
             ) : (
-              <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-wider">
+              <p className="text-[9px] text-gray-400 mt-0.5 uppercase tracking-wider">
                 <span className="italic">Awaiting first delivery</span>
               </p>
             )}
           </div>
-          <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-            <p className="text-xs text-gray-400 uppercase">Total Capacity</p>
-            <p className="text-2xl font-normal text-green-700">{stats.totalCapacity} Tons</p>
+          <div className="bg-white rounded-xl p-3 border border-gray-100 shadow-sm">
+            <p className="text-[10px] text-gray-400 uppercase">Total Capacity</p>
+            <p className="text-lg font-normal text-green-700">{stats.totalCapacity} Tons</p>
           </div>
         </div>
 

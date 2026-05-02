@@ -119,7 +119,7 @@ const OfficialPriceManager = () => {
   });
 
   return (
-    <div className="min-h-screen bg-[#faf8f0] px-4 py-6">
+    <div className="min-h-screen bg-[#faf8f0] px-4 pt-0 pb-6">
       <div className="max-w-7xl mx-auto space-y-6">
         
         {/* Header */}
@@ -129,8 +129,8 @@ const OfficialPriceManager = () => {
               <FaChartLine className="text-green-700" size={16} />
               <span className="text-xs font-normal text-gray-500 uppercase tracking-wide">Market Catalogs</span>
             </div>
-            <h1 className="text-2xl font-normal text-black">Master Products Base</h1>
-            <p className="text-gray-500 text-sm mt-0.5">Define platform catalogues and regulate market margins</p>
+            <h1 className="text-xl font-normal text-black">Master Products Base</h1>
+            <p className="text-gray-500 text-[13px] mt-0.5">Define platform catalogues and regulate market margins</p>
           </div>
           
           <button 
@@ -221,16 +221,16 @@ const OfficialPriceManager = () => {
             <table className="w-full">
               <thead className="bg-[#fcfdfd] border-b border-gray-100">
                 <tr>
-                  <th className="px-5 py-4 text-left text-[10px] font-normal text-gray-500 uppercase tracking-widest">Product Reference</th>
-                  <th className="px-5 py-4 text-left text-[10px] font-normal text-gray-500 uppercase tracking-widest">Pricing Thresholds</th>
-                  <th className="px-5 py-4 text-left text-[10px] font-normal text-green-700 uppercase tracking-widest">Target Margin</th>
-                  <th className="px-5 py-4 text-right text-[10px] font-normal text-gray-500 uppercase tracking-widest">Control</th>
+                  <th className="px-5 py-3 text-left text-[10px] font-normal text-gray-500 uppercase tracking-widest">Product Reference</th>
+                  <th className="px-5 py-3 text-left text-[10px] font-normal text-gray-500 uppercase tracking-widest">Pricing Thresholds</th>
+                  <th className="px-5 py-3 text-left text-[10px] font-normal text-green-700 uppercase tracking-widest">Target Margin</th>
+                  <th className="px-5 py-3 text-right text-[10px] font-normal text-gray-500 uppercase tracking-widest">Control</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {filteredPrices.map((item) => (
                   <tr key={item.id_product} className="hover:bg-gray-50 transition-colors group">
-                    <td className="px-5 py-4">
+                    <td className="px-5 py-3">
                       {editingDetailsId === item.id_product ? (
                         <div className="space-y-2">
                           <input 
@@ -303,7 +303,7 @@ const OfficialPriceManager = () => {
                       )}
                      </td>
                     
-                    <td className="px-5 py-4 text-right align-middle">
+                    <td className="px-5 py-3 text-right align-middle">
                       {editingId === item.id_product ? (
                         <div className="flex justify-end gap-2">
                            <button onClick={() => setEditingId(null)} className="px-3 py-2 bg-gray-100 text-gray-600 text-xs font-normal uppercase rounded hover:bg-gray-200 transition">Cancel</button>

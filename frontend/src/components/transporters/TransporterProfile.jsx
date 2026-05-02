@@ -103,18 +103,18 @@ const TransporterProfile = () => {
   };
 
   return (
-    <div className="animate-fadeIn w-full bg-[#faf8f0] pb-16 min-h-screen pt-12">
+    <div className="animate-fadeIn w-full bg-[#fdfcf5] pb-16 min-h-screen pt-12">
 
       <div className="max-w-5xl mx-auto px-4">
-        
+
         {/* Action Bar */}
         <div className="flex justify-between items-end mb-8">
           <div>
-            <div className="text-[10px] font-normal text-gray-500 tracking-widest uppercase flex items-center mb-2">
-              <FaBuilding className="mr-1.5 text-green-700 w-3 h-3" /> TRANSPORTER PROFILE
+            <div className="text-[9px] font-normal text-gray-500 tracking-widest uppercase flex items-center mb-1">
+              <FaBuilding className="mr-1.5 text-green-700 w-2.5 h-2.5" /> TRANSPORTER PROFILE
             </div>
-            <h2 className="text-3xl font-normal text-gray-900 mb-1">My Profile</h2>
-            <p className="text-sm text-gray-500 font-normal">Manage your company information</p>
+            <h2 className="text-lg font-normal text-gray-900 mb-0.5">My Profile</h2>
+            <p className="text-[10px] text-gray-500 font-normal">Manage your company information</p>
           </div>
           {!isEditMode && (
             <button
@@ -130,7 +130,7 @@ const TransporterProfile = () => {
         <div className="flex flex-col lg:flex-row gap-6 max-w-5xl mx-auto items-start">
 
           {/* Left Sidebar Card */}
-          <div className="w-full lg:w-1/3 bg-white rounded-xl shadow-sm border border-gray-100 p-8 flex flex-col items-center">
+          <div className="w-full lg:w-1/3 bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col items-center">
 
             <div className="relative mb-4 group">
               <div className="w-32 h-32 rounded-full bg-green-100 flex items-center justify-center overflow-hidden">
@@ -157,7 +157,7 @@ const TransporterProfile = () => {
               )}
             </div>
 
-            <h2 className="text-xl font-normal text-gray-900 mb-2 truncate max-w-full">{isEditMode ? tempProfile.fullName || profile.fullName : profile.fullName}</h2>
+            <h2 className="text-lg font-normal text-gray-900 mb-1 truncate max-w-full">{isEditMode ? tempProfile.fullName || profile.fullName : profile.fullName}</h2>
 
             <div className="inline-flex items-center px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-normal mb-6">
               <FaCheckCircle className="mr-1.5" /> Verified Partner
@@ -176,7 +176,7 @@ const TransporterProfile = () => {
           </div>
 
           {/* Main Form Area */}
-          <div className="w-full lg:w-2/3 bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+          <div className="w-full lg:w-2/3 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <h3 className="text-lg font-normal text-gray-900 mb-6 pb-4 border-b border-gray-100">
               Personal Information
             </h3>
@@ -195,7 +195,7 @@ const TransporterProfile = () => {
                     className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-900 focus:ring-1 focus:ring-green-600 focus:border-green-600 outline-none transition-all"
                   />
                 ) : (
-                  <p className="text-base font-normal text-gray-900">{profile.fullName}</p>
+                  <p className="text-sm font-normal text-gray-900">{profile.fullName}</p>
                 )}
               </div>
 
@@ -212,7 +212,7 @@ const TransporterProfile = () => {
                     className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-900 focus:ring-1 focus:ring-green-600 focus:border-green-600 outline-none transition-all"
                   />
                 ) : (
-                  <p className="text-base font-normal text-gray-900">{profile.email}</p>
+                  <p className="text-sm font-normal text-gray-900">{profile.email}</p>
                 )}
               </div>
 
@@ -229,7 +229,7 @@ const TransporterProfile = () => {
                     className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-900 focus:ring-1 focus:ring-green-600 focus:border-green-600 outline-none transition-all"
                   />
                 ) : (
-                  <p className="text-base font-normal text-gray-900">{profile.phone}</p>
+                  <p className="text-sm font-normal text-gray-900">{profile.phone}</p>
                 )}
               </div>
 
@@ -253,7 +253,7 @@ const TransporterProfile = () => {
                     <option value="Tizi Ouzou">Tizi Ouzou</option>
                   </select>
                 ) : (
-                  <p className="text-base font-normal text-gray-900">{profile.wilaya}</p>
+                  <p className="text-sm font-normal text-gray-900">{profile.wilaya}</p>
                 )}
               </div>
 
@@ -270,7 +270,7 @@ const TransporterProfile = () => {
                     className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-900 focus:ring-1 focus:ring-green-600 focus:border-green-600 outline-none transition-all"
                   />
                 ) : (
-                  <p className="text-base font-normal text-gray-900">{profile.address}</p>
+                  <p className="text-sm font-normal text-gray-900">{profile.address}</p>
                 )}
               </div>
 
@@ -287,7 +287,7 @@ const TransporterProfile = () => {
                     className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-900 focus:ring-1 focus:ring-green-600 focus:border-green-600 outline-none transition-all"
                   />
                 ) : (
-                  <p className="text-base font-normal text-gray-900">{new Date(profile.birthDate).toLocaleDateString('fr-DZ')}</p>
+                  <p className="text-sm font-normal text-gray-900">{new Date(profile.birthDate).toLocaleDateString('fr-DZ')}</p>
                 )}
               </div>
             </div>

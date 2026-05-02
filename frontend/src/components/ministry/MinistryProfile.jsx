@@ -113,7 +113,7 @@ const MinistryProfile = () => {
   };
 
   return (
-    <div className="animate-fadeIn w-full bg-[#faf8f0] pb-16 min-h-screen pt-12">
+    <div className="animate-fadeIn w-full bg-[#faf8f0] pb-16 min-h-screen pt-0">
       <div className="max-w-5xl mx-auto px-4">
         
         {/* Action Bar */}
@@ -136,13 +136,13 @@ const MinistryProfile = () => {
         </div>
 
         {/* Profile Container */}
-        <div className="flex flex-col lg:flex-row gap-6 max-w-5xl mx-auto items-start">
+        <div className="flex flex-col lg:flex-row gap-5 max-w-5xl mx-auto items-start">
 
           {/* Left Sidebar Card */}
-          <div className="w-full lg:w-1/3 bg-white rounded-xl shadow-sm border border-gray-100 p-8 flex flex-col items-center">
+          <div className="w-full lg:w-1/3 bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex flex-col items-center">
 
-            <div className="relative mb-4 group">
-              <div className="w-32 h-32 rounded-full bg-green-100 flex items-center justify-center overflow-hidden">
+            <div className="relative mb-3 group">
+              <div className="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center overflow-hidden">
                 {(isEditMode ? tempImagePreview : imagePreview) ? (
                   <img
                     src={isEditMode ? tempImagePreview : imagePreview}
@@ -150,12 +150,12 @@ const MinistryProfile = () => {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span className="text-4xl font-normal text-green-800">{getInitials()}</span>
+                  <span className="text-3xl font-normal text-green-800">{getInitials()}</span>
                 )}
               </div>
               {isEditMode && (
-                <label className="absolute bottom-0 right-0 w-8 h-8 bg-green-700 rounded-full flex items-center justify-center cursor-pointer shadow-md hover:bg-green-800 transition-colors border-2 border-white">
-                  <FaCamera size={12} className="text-white" />
+                <label className="absolute bottom-0 right-0 w-7 h-7 bg-green-700 rounded-full flex items-center justify-center cursor-pointer shadow-md hover:bg-green-800 transition-colors border-2 border-white">
+                  <FaCamera size={10} className="text-white" />
                   <input
                     type="file"
                     accept="image/*"
@@ -166,27 +166,27 @@ const MinistryProfile = () => {
               )}
             </div>
 
-            <h2 className="text-xl font-normal text-gray-900 mb-2 truncate max-w-full">{isEditMode ? tempProfile.fullName || profile.fullName : profile.fullName}</h2>
+            <h2 className="text-lg font-normal text-gray-900 mb-1.5 truncate max-w-full">{isEditMode ? tempProfile.fullName || profile.fullName : profile.fullName}</h2>
 
-            <div className="inline-flex items-center px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-normal mb-6">
-              <FaCheckCircle className="mr-1.5" /> Official Account
+            <div className="inline-flex items-center px-2.5 py-0.5 bg-green-50 text-green-700 rounded-full text-[11px] font-normal mb-4">
+              <FaCheckCircle className="mr-1" /> Official Account
             </div>
 
-            <div className="w-full space-y-4 pt-6 border-t border-gray-100">
-              <div className="flex items-center text-sm font-normal text-gray-700">
-                <FaCalendarAlt className="mr-3 text-green-600 w-4 h-4" />
+            <div className="w-full space-y-3 pt-4 border-t border-gray-100">
+              <div className="flex items-center text-[13px] font-normal text-gray-700">
+                <FaCalendarAlt className="mr-2.5 text-green-600 w-3.5 h-3.5" />
                 <span>Joined {new Date(profile.joinedDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
               </div>
-              <div className="flex items-center text-sm font-normal text-gray-700">
-                <FaMapMarkerAlt className="mr-3 text-green-600 w-4 h-4" />
+              <div className="flex items-center text-[13px] font-normal text-gray-700">
+                <FaMapMarkerAlt className="mr-2.5 text-green-600 w-3.5 h-3.5" />
                 <span>{profile.wilaya}</span>
               </div>
             </div>
           </div>
 
           {/* Main Form Area */}
-          <div className="w-full lg:w-2/3 bg-white rounded-xl shadow-sm border border-gray-100 p-8">
-            <h3 className="text-lg font-normal text-gray-900 mb-6 pb-4 border-b border-gray-100">
+          <div className="w-full lg:w-2/3 bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+            <h3 className="text-base font-normal text-gray-900 mb-4 pb-3 border-b border-gray-100">
               Personal Information
             </h3>
 

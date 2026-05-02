@@ -5,17 +5,17 @@ import Earnings from './Earnings';
 import TransporterProfile from './TransporterProfile';
 import VehicleManager from './VehicleManager';
 import DeliveryJobs from './DeliveryJobs';
-import TransporterHero from './TransporterHero';
-
-const ordersBg = 'https://i.pinimg.com/736x/34/be/ad/34beadbeaf117b0414dad08c204b8d1d.jpg';
+import TransporterSidebar from './TransporterSidebar';
+import TransporterTopbar from './TransporterTopbar';
 
 const TransporterDashboard = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  // Sync tab with URL
+  // Sync tab with URL if needed, but here we use state
   useEffect(() => {
     if (location.pathname.includes('/hub')) setActiveTab('hub');
     else if (location.pathname.includes('/fleet')) setActiveTab('fleet');
@@ -23,37 +23,54 @@ const TransporterDashboard = () => {
     else setActiveTab('overview');
   }, [location.pathname]);
 
-  const dashTabs = [
-    { id: 'overview', name: 'Dashboard Overview' },
-    { id: 'hub', name: 'Deliveries Hub' },
-    { id: 'fleet', name: 'Fleet Management' },
-    { id: 'profile', name: 'Profile Settings' }
-  ];
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+  };
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
 
   return (
-    <div className="flex flex-col min-h-[calc(100vh-84px)] overflow-hidden bg-[#f4f5f0] font-sans antialiased text-[#224233]">
-
-      {/* Modern Logistics Hero Section with Search bar */}
-      <TransporterHero
-        title={activeTab === 'overview' ? 'Logistics Portal' : activeTab === 'hub' ? 'Deliveries Hub' : activeTab === 'fleet' ? 'Fleet Management' : 'Fleet Profile'}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-      />
-
+    <div className="flex min-h-screen bg-[#fdfcf5] font-sans antialiased text-[#224233]">
+      {/* Left Sidebar - Fixed via sticky h-screen */}
+      <div
+        className="h-screen sticky top-0 transition-all duration-300 ease-in-out flex-shrink-0 z-40"
+        style={{ marginLeft: isSidebarOpen ? '0' : '-14rem', width: '14rem' }}
+      >
+        <TransporterSidebar activeTab={activeTab} onTabChange={handleTabChange} />
+      </div>
 
       {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto custom-scrollbar bg-[#faf8f0] relative z-10">
-        <div className="max-w-5xl mx-auto px-4 lg:px-5 py-16 min-h-[38vh]">
-          {activeTab === 'overview' && <Earnings onNavigate={setActiveTab} />}
-          {activeTab === 'hub' && <DeliveryJobs searchQuery={searchQuery} onSearchChange={setSearchQuery} onNavigate={setActiveTab} />}
-          {activeTab === 'fleet' && <VehicleManager onNavigate={setActiveTab} />}
-          {activeTab === 'profile' && <TransporterProfile />}
+      <div className="flex-1 flex flex-col min-w-0 transition-all duration-300 bg-[#fdfcf5]">
+        {/* Top Bar - Also sticky to keep layout clean */}
+        <div className="sticky top-0 z-30">
+          <TransporterTopbar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            activeTab={activeTab}
+            onToggleSidebar={toggleSidebar}
+          />
         </div>
-      </main>
+
+        {/* Content Container - Uses window scroll to restore the "line" (scrollbar) */}
+        <main className="flex-1" style={{ zoom: '0.95' }}>
+          <div className="pt-0 px-6 pb-8 max-w-[1200px] mx-auto">
+            {activeTab === 'overview' && <Earnings onNavigate={handleTabChange} />}
+            {activeTab === 'hub' && (
+              <DeliveryJobs
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                onNavigate={handleTabChange}
+              />
+            )}
+            {activeTab === 'fleet' && <VehicleManager onNavigate={handleTabChange} />}
+            {activeTab === 'profile' && <TransporterProfile />}
+          </div>
+        </main>
+      </div>
     </div>
   );
-
-
 };
 
 export default TransporterDashboard;

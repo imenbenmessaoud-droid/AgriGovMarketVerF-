@@ -232,22 +232,22 @@ const FarmerProducts = () => {
 
                 {/* Stats Summary */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                    <div className="bg-white rounded-xl border border-gray-200 p-4">
-                        <p className="text-xs text-gray-500 mb-1">Total Products</p>
+                    <div className="bg-white rounded-2xl border border-gray-200 p-8 min-h-[120px] flex flex-col justify-center hover:shadow-md transition-all">
+                        <p className="text-[11px] text-gray-400 uppercase tracking-widest mb-3 font-normal">Total Products</p>
                         <p className="text-2xl font-normal text-gray-900">{products.length}</p>
                     </div>
-                    <div className="bg-white rounded-xl border border-gray-200 p-4">
-                        <p className="text-xs text-gray-500 mb-1">Active Products</p>
+                    <div className="bg-white rounded-2xl border border-gray-200 p-8 min-h-[120px] flex flex-col justify-center hover:shadow-md transition-all">
+                        <p className="text-[11px] text-gray-400 uppercase tracking-widest mb-3 font-normal">Active Products</p>
                         <p className="text-2xl font-normal text-green-700">{products.filter(p => p.is_available).length}</p>
                     </div>
-                    <div className="bg-white rounded-xl border border-gray-200 p-4">
-                        <p className="text-xs text-gray-500 mb-1">Low Stock</p>
+                    <div className="bg-white rounded-2xl border border-gray-200 p-8 min-h-[120px] flex flex-col justify-center hover:shadow-md transition-all">
+                        <p className="text-[11px] text-gray-400 uppercase tracking-widest mb-3 font-normal">Low Stock</p>
                         <p className="text-2xl font-normal text-orange-600">{products.filter(p => (parseFloat(p.quantity) < 50)).length}</p>
                     </div>
-                    <div className="bg-white rounded-xl border border-gray-200 p-4">
-                        <p className="text-xs text-gray-500 mb-1">Total Value</p>
+                    <div className="bg-white rounded-2xl border border-gray-200 p-8 min-h-[120px] flex flex-col justify-center hover:shadow-md transition-all">
+                        <p className="text-[11px] text-gray-400 uppercase tracking-widest mb-3 font-normal">Total Value</p>
                         <p className="text-2xl font-normal text-gray-900">
-                            {products.reduce((sum, p) => sum + (parseFloat(p.product_price || 0) * parseFloat(p.quantity || 0)), 0).toLocaleString()} DZD
+                            {products.reduce((sum, p) => sum + (parseFloat(p.product_price || 0) * parseFloat(p.quantity || 0)), 0).toLocaleString()} <span className="text-sm font-normal text-gray-500 ml-1">DZD</span>
                         </p>
                     </div>
                 </div>
@@ -402,7 +402,13 @@ const FarmerProducts = () => {
                 {/* Add/Edit Modal */}
                 {showAddModal && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-                        <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                        <div 
+                            className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+                            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                        >
+                            <style dangerouslySetInnerHTML={{ __html: `
+                                .bg-white::-webkit-scrollbar { display: none; }
+                            `}} />
                             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
                                 <div>
                                     <h3 className="text-lg font-normal text-gray-900">
@@ -570,7 +576,13 @@ const FarmerProducts = () => {
                 {/* Product Details Modal */}
                 {showDetailsModal && selectedProduct && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-                        <div className="bg-white rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto scrollbar-hide">
+                        <div 
+                            className="bg-white rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+                            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                        >
+                            <style dangerouslySetInnerHTML={{ __html: `
+                                .bg-white::-webkit-scrollbar { display: none; }
+                            `}} />
                             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
                                 <h3 className="text-lg font-normal text-gray-900">Product Details</h3>
                                 <button

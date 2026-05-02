@@ -14,7 +14,6 @@ import FarmerProducts from '../components/farmers/FarmerProducts';
 import SalesStats from '../components/farmers/SalesStats';
 import FarmList from '../components/farmers/FarmList';
 import FarmForm from '../components/farmers/FarmForm';
-import FarmerSettings from '../components/farmers/FarmerSettings';
 import FarmerOrders from '../components/farmers/FarmerOrders';
 import FarmerProfile from '../components/farmers/FarmerProfile';
 
@@ -54,7 +53,6 @@ const AppRoutes = () => {
         <Route path="farms/new" element={<FarmForm />} />
         <Route path="orders" element={<FarmerOrders />} />
         <Route path="sales" element={<SalesStats />} />
-        <Route path="settings" element={<FarmerSettings />} />
         <Route path="profile" element={<FarmerProfile />} />
       </Route>
       {/* Buyer Flow */}

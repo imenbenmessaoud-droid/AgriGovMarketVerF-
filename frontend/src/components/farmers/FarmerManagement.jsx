@@ -170,10 +170,10 @@ const FarmerManagement = () => {
 
                   {/* SUMMARY STATISTICS DASHBOARD */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-2">
-                     <div className="bg-[#f0f7e6] p-6 rounded-sm border border-[#e2edd1] shadow-sm flex flex-col space-y-3 hover:scale-[1.01] active:scale-[0.98] cursor-pointer transition-all duration-300">
+                     <div className="bg-[#f0f7e6] p-8 min-h-[140px] rounded-2xl border border-[#e2edd1] shadow-sm flex flex-col justify-center space-y-4 hover:scale-[1.01] active:scale-[0.98] cursor-pointer transition-all duration-300">
                         <div className="flex justify-between items-start">
                            <span className="text-[13px] font-normal text-slate-600 lowercase">🌾 total sales</span>
-                           <div className="p-2 bg-emerald-50 rounded-sm text-[#0b7a5a] text-center"><FaMoneyBillWave size={15} /></div>
+                           <div className="p-2 bg-emerald-50 rounded-lg text-[#0b7a5a] text-center"><FaMoneyBillWave size={15} /></div>
                         </div>
                         <div className="flex items-baseline space-x-3">
                            <span className="text-[28px] font-normal text-slate-800 tracking-tighter">{dynamicStats.totalSales}</span>
@@ -182,10 +182,10 @@ const FarmerManagement = () => {
                         <p className="text-[13px] text-slate-600 font-normal">verified seasonal output</p>
                      </div>
 
-                     <div className="bg-[#f0f7e6] p-6 rounded-sm border border-[#e2edd1] shadow-sm flex flex-col space-y-3 hover:scale-[1.01] active:scale-[0.98] cursor-pointer transition-all duration-300">
+                     <div className="bg-[#f0f7e6] p-8 min-h-[140px] rounded-2xl border border-[#e2edd1] shadow-sm flex flex-col justify-center space-y-4 hover:scale-[1.01] active:scale-[0.98] cursor-pointer transition-all duration-300">
                         <div className="flex justify-between items-start">
                            <span className="text-[13px] font-normal text-slate-600 lowercase">💰 total revenue</span>
-                           <div className="p-2 bg-blue-50 rounded-sm text-blue-600"><FaChartLine size={15} /></div>
+                           <div className="p-2 bg-blue-50 rounded-lg text-blue-600"><FaChartLine size={15} /></div>
                         </div>
                         <div className="flex items-baseline space-x-3">
                            <span className="text-[28px] font-normal text-slate-800 tracking-tighter">
@@ -199,10 +199,10 @@ const FarmerManagement = () => {
                         <p className="text-[13px] text-slate-600 font-normal">official financial valuation</p>
                      </div>
 
-                     <div className="bg-[#f0f7e6] p-6 rounded-sm border border-[#e2edd1] shadow-sm flex flex-col space-y-3 hover:scale-[1.01] active:scale-[0.98] cursor-pointer transition-all duration-300">
+                     <div className="bg-[#f0f7e6] p-8 min-h-[140px] rounded-2xl border border-[#e2edd1] shadow-sm flex flex-col justify-center space-y-4 hover:scale-[1.01] active:scale-[0.98] cursor-pointer transition-all duration-300">
                         <div className="flex justify-between items-start">
                            <span className="text-[13px] font-normal text-slate-600 lowercase">📦 active orders</span>
-                           <div className="p-2 bg-purple-50 rounded-sm text-purple-600"><FaShoppingCart size={15} /></div>
+                           <div className="p-2 bg-purple-50 rounded-lg text-purple-600"><FaShoppingCart size={15} /></div>
                         </div>
                         <div className="flex items-baseline space-x-3">
                            <span className="text-[28px] font-normal text-slate-800 tracking-tighter">{dynamicStats.activeOrders}</span>
@@ -211,10 +211,10 @@ const FarmerManagement = () => {
                         <p className="text-[13px] text-slate-600 font-normal">pending logistical dispatch</p>
                      </div>
 
-                     <div className="bg-[#f0f7e6] p-6 rounded-sm border border-[#e2edd1] shadow-sm flex flex-col space-y-3 hover:scale-[1.01] active:scale-[0.98] cursor-pointer transition-all duration-300">
+                     <div className="bg-[#f0f7e6] p-8 min-h-[140px] rounded-2xl border border-[#e2edd1] shadow-sm flex flex-col justify-center space-y-4 hover:scale-[1.01] active:scale-[0.98] cursor-pointer transition-all duration-300">
                         <div className="flex justify-between items-start">
                            <span className="text-[13px] font-normal text-slate-600 lowercase">⭐ products listed</span>
-                           <div className="p-2 bg-orange-50 rounded-sm text-orange-600"><FaBoxOpen size={15} /></div>
+                           <div className="p-2 bg-orange-50 rounded-lg text-orange-600"><FaBoxOpen size={15} /></div>
                         </div>
                         <div className="flex items-baseline space-x-3">
                            <span className="text-[28px] font-normal text-slate-800 tracking-tighter">{dynamicStats.productsListed}</span>

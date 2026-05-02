@@ -461,7 +461,7 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
   );
   const JobCard = ({ job }) => (
     <div className="bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
-      <div className="p-4 border-b border-gray-50">
+      <div className="p-3 border-b border-gray-50">
         <div className="flex justify-between items-start">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -478,7 +478,7 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
         </div>
       </div>
 
-      <div className="p-4 border-b border-gray-50">
+      <div className="p-3 border-b border-gray-50">
         <div className="space-y-4">
           <div className="flex items-start gap-3">
             <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
@@ -520,7 +520,7 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
         )}
       </div>
 
-      <div className="p-4">
+      <div className="p-3">
         {activeTab === 'requests' && (
           <div className="space-y-3">
             {/* Fleet Selection Area */}
@@ -601,8 +601,8 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
   );
 
   return (
-    <div className="min-h-screen bg-[#faf8f0]">
-      <div className="max-w-7xl mx-auto px-4 pt-2 pb-8">
+    <div className="min-h-screen bg-[#fdfcf5]">
+      <div className="max-w-7xl mx-auto px-4 pt-0 pb-8">
         {toast && (
           <div className="fixed top-20 right-6 z-50 animate-slide-up">
             <div className={`px-5 py-3 rounded-lg shadow-lg flex items-center gap-3 ${toast.type === 'success' ? 'bg-green-600 text-white' : 'bg-blue-600 text-white'
@@ -617,8 +617,8 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
           <div className="mb-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
-                <h1 className="text-2xl font-normal text-gray-800">Delivery Jobs</h1>
-                <p className="text-sm text-gray-500 mt-1">Manage your deliveries</p>
+                <h1 className="text-lg font-normal text-gray-800">Delivery Jobs</h1>
+                <p className="text-[11px] text-gray-500 mt-0.5">Manage your deliveries</p>
               </div>
               <div className="relative w-full md:w-64">
                 <FaSearch size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -628,8 +628,8 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
           </div>
         )}
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-          <div className="bg-white p-3 rounded-lg border border-gray-100">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+          <div className="bg-white p-2 rounded-lg border border-gray-100">
             <p className="text-[10px] text-gray-400 uppercase">Earnings</p>
             <p className="text-lg font-normal text-green-600">{stats.earnings.toLocaleString()} DZD</p>
           </div>

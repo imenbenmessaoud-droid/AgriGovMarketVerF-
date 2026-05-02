@@ -43,17 +43,17 @@ const StatCard = ({ stat, onClick }) => {
   return (
     <div
       onClick={onClick}
-      className="bg-white p-5 rounded-xl border border-gray-200 hover:shadow-md transition-all cursor-pointer"
+      className="bg-white p-4 rounded-xl border border-gray-200 hover:shadow-lg transition-all cursor-pointer transform hover:-translate-y-1 group"
     >
       <div className="flex items-center justify-between mb-3">
-        <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+        <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
           <Icon size={18} className="text-green-700" />
         </div>
       </div>
       <div>
-        <p className="text-2xl font-normal text-gray-900">{stat.value}</p>
-        <p className="text-xs text-gray-500 mt-0.5">{stat.unit}</p>
-        <p className="text-sm font-normal text-gray-700 mt-1">{stat.label}</p>
+        <p className="text-xl font-normal text-gray-900 mb-0.5">{stat.value}</p>
+        <p className="text-[10px] text-gray-400 font-normal uppercase tracking-[0.1em]">{stat.unit}</p>
+        <p className="text-sm font-normal text-gray-800 mt-1.5">{stat.label}</p>
       </div>
     </div>
   );
@@ -254,13 +254,13 @@ const FarmerDashboard = () => {
           </div>
 
           {/* Right Column - Recent Activity */}
-          <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <div className="bg-white rounded-xl border border-gray-200 p-5 h-fit">
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-normal text-gray-900">Recent Activity</h3>
               <FaCalendarAlt size={14} className="text-gray-400" />
             </div>
 
-            <div className="space-y-2 max-h-[400px] overflow-y-auto">
+            <div className="space-y-2 max-h-[400px] overflow-y-auto no-scrollbar">
               {loading ? (
                 <div className="text-center py-8">
                   <p className="text-gray-400 text-sm animate-pulse">Loading activity...</p>

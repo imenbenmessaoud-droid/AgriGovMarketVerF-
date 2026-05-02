@@ -291,8 +291,8 @@ const Earnings = ({ onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#faf8f0]">
-      <div className="max-w-7xl mx-auto px-4 pt-2 pb-8">
+    <div className="min-h-screen bg-[#fdfcf5]">
+      <div className="max-w-7xl mx-auto px-4 pt-0 pb-8">
 
         {/* Toast Notification */}
         {showToast && (
@@ -308,24 +308,19 @@ const Earnings = ({ onNavigate }) => {
         )}
 
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                  <FaChartLine className="text-green-600 text-lg" />
-                </div>
-                <h1 className="text-2xl font-normal text-gray-800">Earnings Overview</h1>
-              </div>
-              <p className="text-sm text-gray-500">Real-time freight commissions and performance metrics</p>
+              <h1 className="text-lg font-normal text-gray-800 mb-0.5">Logistics Overview</h1>
+              <p className="text-[11px] text-gray-400 font-normal">Real-time overview of your logistics operations and performance</p>
             </div>
 
             <div className="flex gap-3">
               <button
                 onClick={handleExportData}
-                className="px-4 py-2.5 border border-gray-200 bg-white text-gray-600 text-sm font-normal rounded-lg hover:border-green-300 hover:text-green-600 transition-all flex items-center gap-2"
+                className="px-3 py-1.5 bg-white border border-gray-100 text-gray-600 text-[11px] font-normal rounded-lg hover:bg-gray-50 transition-all flex items-center gap-2 shadow-sm"
               >
-                <FaDownload size={14} />
+                <FaDownload size={11} />
                 Export Data
               </button>
             </div>
@@ -333,22 +328,38 @@ const Earnings = ({ onNavigate }) => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             return (
-              <div key={index} className={`${stat.isSpecial ? 'bg-green-600 text-white' : 'bg-white border border-gray-100'} rounded-xl p-5 shadow-sm hover:shadow-md transition-all group`}>
-                <div className="flex justify-between items-start mb-3">
-                  <span className={`text-xs uppercase tracking-wide ${stat.isSpecial ? 'text-green-50' : 'text-gray-400'}`}>{stat.label}</span>
-                  <div className={`p-2 rounded-lg ${stat.isSpecial ? 'bg-white/20 text-white' : getColorClasses(stat.color)} group-hover:scale-110 transition-transform`}>
+              <div
+                key={index}
+                className={`${stat.isSpecial
+                    ? 'bg-gradient-to-br from-[#008456] to-[#10b981] text-white shadow-[0_8px_20px_rgba(16,185,129,0.2)]'
+                    : 'bg-white border border-gray-100 shadow-sm'
+                  } rounded-xl p-3.5 transition-all hover:-translate-y-1 hover:shadow-md group`}
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <span className={`text-[10px] font-normal uppercase tracking-wider ${stat.isSpecial ? 'text-white/70' : 'text-gray-400'}`}>
+                    {stat.label}
+                  </span>
+                  <div className={`p-1.5 rounded-lg ${stat.isSpecial ? 'bg-white/20 text-white' : getColorClasses(stat.color)}`}>
                     <Icon size={14} />
                   </div>
                 </div>
-                <div className="flex items-baseline gap-1 mb-2">
-                  <span className={`text-2xl font-normal ${stat.isSpecial ? 'text-white' : 'text-gray-800'}`}>{stat.value}</span>
-                  {stat.unit && <span className={`text-xs ${stat.isSpecial ? 'text-green-50' : 'text-gray-400'}`}>{stat.unit}</span>}
+                <div className="flex items-baseline gap-1 mb-1">
+                  <span className={`text-xl font-normal ${stat.isSpecial ? 'text-white' : 'text-gray-800'}`}>
+                    {stat.value}
+                  </span>
+                  {stat.unit && (
+                    <span className={`text-[10px] ${stat.isSpecial ? 'text-white/60' : 'text-gray-400'}`}>
+                      {stat.unit}
+                    </span>
+                  )}
                 </div>
-                <p className={`text-xs ${stat.isSpecial ? 'text-green-50/80' : 'text-gray-500'}`}>{stat.sub}</p>
+                <p className={`text-[10px] font-normal ${stat.isSpecial ? 'text-white/50' : 'text-gray-400'}`}>
+                  {stat.sub}
+                </p>
               </div>
             );
           })}

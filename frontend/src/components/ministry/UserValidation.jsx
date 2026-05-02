@@ -3,11 +3,12 @@ import { useSearchParams } from 'react-router-dom';
 import { FaCheckCircle, FaTimesCircle, FaEye, FaSearch, FaTimes, FaFilter, FaSpinner, FaUserCircle } from 'react-icons/fa';
 import api from '../../services/api';
 
-const UserValidation = () => {
+const UserValidation = ({ searchQuery: globalSearchQuery }) => {
   const [searchParams] = useSearchParams();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [localSearchQuery, setLocalSearchQuery] = useState('');
+  const searchQuery = globalSearchQuery || localSearchQuery;
   const [typeFilter, setTypeFilter] = useState('All');
   const [regionFilter, setRegionFilter] = useState('All');
   const [showFilters, setShowFilters] = useState(false);
@@ -99,7 +100,7 @@ const UserValidation = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#faf8f0] px-4 py-6">
+    <div className="min-h-screen bg-[#faf8f0] px-4 pt-0 pb-6">
       <div className="max-w-7xl mx-auto space-y-6">
         
         {/* Header */}
@@ -109,8 +110,8 @@ const UserValidation = () => {
               <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
               <span className="text-xs font-normal text-gray-500 uppercase tracking-wide">User Management</span>
             </div>
-            <h1 className="text-2xl font-normal text-black">User Validation</h1>
-            <p className="text-gray-500 text-sm mt-0.5">Review and approve new registrations</p>
+            <h1 className="text-xl font-normal text-black">User Validation</h1>
+            <p className="text-gray-500 text-[13px] mt-0.5">Review and approve new registrations</p>
           </div>
           
           <div className="flex gap-3">
@@ -125,22 +126,22 @@ const UserValidation = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white rounded-lg p-4 border border-gray-200">
-            <p className="text-xs text-gray-500 mb-1">Total Applications</p>
-            <p className="text-2xl font-normal text-black">{stats.total}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="bg-white rounded-lg p-3 border border-gray-200 shadow-sm">
+            <p className="text-[10px] text-gray-500 mb-0.5 uppercase tracking-wider">Total Applications</p>
+            <p className="text-xl font-normal text-black">{stats.total}</p>
           </div>
-          <div className="bg-white rounded-lg p-4 border border-gray-200">
-            <p className="text-xs text-gray-500 mb-1">Pending Review</p>
-            <p className="text-2xl font-normal text-yellow-600">{stats.pending}</p>
+          <div className="bg-white rounded-lg p-3 border border-gray-200 shadow-sm">
+            <p className="text-[10px] text-gray-500 mb-0.5 uppercase tracking-wider">Pending Review</p>
+            <p className="text-xl font-normal text-yellow-600">{stats.pending}</p>
           </div>
-          <div className="bg-white rounded-lg p-4 border border-gray-200">
-            <p className="text-xs text-gray-500 mb-1">Approved</p>
-            <p className="text-2xl font-normal text-green-700">{stats.approved}</p>
+          <div className="bg-white rounded-lg p-3 border border-gray-200 shadow-sm">
+            <p className="text-[10px] text-gray-500 mb-0.5 uppercase tracking-wider">Approved</p>
+            <p className="text-xl font-normal text-green-700">{stats.approved}</p>
           </div>
-          <div className="bg-white rounded-lg p-4 border border-gray-200">
-            <p className="text-xs text-gray-500 mb-1">Rejected</p>
-            <p className="text-2xl font-normal text-red-600">{stats.rejected}</p>
+          <div className="bg-white rounded-lg p-3 border border-gray-200 shadow-sm">
+            <p className="text-[10px] text-gray-500 mb-0.5 uppercase tracking-wider">Rejected</p>
+            <p className="text-xl font-normal text-red-600">{stats.rejected}</p>
           </div>
         </div>
 
@@ -153,13 +154,13 @@ const UserValidation = () => {
               type="text"
               placeholder="Search by name or ID..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => setLocalSearchQuery(e.target.value)}
               className="w-full pl-9 pr-28 py-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 text-gray-800 text-sm transition-all"
             />
             <div className="absolute right-1 flex items-center gap-1">
               {searchQuery && (
                 <button
-                  onClick={() => setSearchQuery('')}
+                  onClick={() => setLocalSearchQuery('')}
                   className="p-2 text-gray-400 hover:text-gray-600"
                 >
                   <FaTimes size={12} />
@@ -202,7 +203,7 @@ const UserValidation = () => {
                 onClick={() => {
                   setTypeFilter('All');
                   setRegionFilter('All');
-                  setSearchQuery('');
+                  setLocalSearchQuery('');
                 }}
                 className="self-end px-3 py-1.5 text-sm text-gray-500 hover:text-gray-700"
               >
@@ -245,10 +246,10 @@ const UserValidation = () => {
               <tbody className="divide-y divide-gray-100">
                 {filteredUsers.map((user) => (
                   <tr key={user.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-5 py-4 text-sm font-normal text-gray-800">{user.id}</td>
-                    <td className="px-5 py-4">
+                    <td className="px-5 py-3 text-sm font-normal text-gray-800">{user.id}</td>
+                    <td className="px-5 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-100 bg-white flex items-center justify-center shrink-0">
+                        <div className="w-9 h-9 rounded-full overflow-hidden border border-gray-100 bg-white flex items-center justify-center shrink-0">
                           {user.avatar ? (
                             <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                           ) : (
@@ -276,25 +277,25 @@ const UserValidation = () => {
                       <p className="text-sm font-normal text-gray-800">{user.region}</p>
                       <p className="text-xs text-gray-500">{user.crops || user.vehicles}</p>
                     </td>
-                    <td className="px-5 py-4 text-sm text-gray-500">{user.date}</td>
-                    <td className="px-5 py-4 text-center">
+                    <td className="px-5 py-3 text-sm text-gray-500">{user.date}</td>
+                    <td className="px-5 py-3 text-center">
                       {user.status === 'Pending' && (
-                        <span className="inline-flex px-2 py-1 rounded-full text-xs font-normal bg-yellow-100 text-yellow-700">
+                        <span className="inline-flex px-2 py-0.5 rounded-full text-[11px] font-normal bg-yellow-100 text-yellow-700">
                           Pending
                         </span>
                       )}
                       {user.status === 'Approved' && (
-                        <span className="inline-flex px-2 py-1 rounded-full text-xs font-normal bg-green-100 text-green-700">
+                        <span className="inline-flex px-2 py-0.5 rounded-full text-[11px] font-normal bg-green-100 text-green-700">
                           Approved
                         </span>
                       )}
                       {user.status === 'Rejected' && (
-                        <span className="inline-flex px-2 py-1 rounded-full text-xs font-normal bg-red-100 text-red-700">
+                        <span className="inline-flex px-2 py-0.5 rounded-full text-[11px] font-normal bg-red-100 text-red-700">
                           Rejected
                         </span>
                       )}
                     </td>
-                    <td className="px-5 py-4">
+                    <td className="px-5 py-3">
                       <div className="flex justify-center items-center gap-2">
                         <button 
                           onClick={() => handleViewDocuments(user)}
@@ -356,8 +357,8 @@ const UserValidation = () => {
 
       {/* Document View Modal */}
       {showModal && selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-lg w-full max-w-lg">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-[2px]">
+          <div className="bg-white rounded-xl w-full max-w-[340px] shadow-2xl animate-in zoom-in-95 duration-200">
             <div className="border-b border-gray-200 px-5 py-4 flex justify-between items-center">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full overflow-hidden border border-gray-100 bg-gray-50 flex items-center justify-center shrink-0">
@@ -379,25 +380,25 @@ const UserValidation = () => {
                 <FaTimes size={18} />
               </button>
             </div>
-            <div className="p-5 space-y-4">
+            <div className="p-4 space-y-3">
               <div>
-                 <label className="block text-xs font-normal text-gray-500 mb-1">User ID</label>
+                 <label className="block text-[9px] font-normal text-gray-400 uppercase tracking-widest mb-0.5">User ID</label>
                 <p className="text-sm text-gray-800">{selectedUser.id}</p>
               </div>
               <div>
-                <label className="block text-xs font-normal text-gray-500 mb-1">Type</label>
+                <label className="block text-[9px] font-normal text-gray-400 uppercase tracking-widest mb-0.5">Type</label>
                 <p className="text-sm text-gray-800">{selectedUser.type}</p>
               </div>
               <div>
-                <label className="block text-xs font-normal text-gray-500 mb-1">Region</label>
+                <label className="block text-[9px] font-normal text-gray-400 uppercase tracking-widest mb-0.5">Region</label>
                 <p className="text-sm text-gray-800">{selectedUser.region}</p>
               </div>
               <div>
-                <label className="block text-xs font-normal text-gray-500 mb-1">Submitted Documents</label>
+                <label className="block text-[9px] font-normal text-gray-400 uppercase tracking-widest mb-0.5">Submitted Documents</label>
                 <p className="text-sm text-gray-800">{selectedUser.documents}</p>
               </div>
               <div>
-                <label className="block text-xs font-normal text-gray-500 mb-1">Registration Date</label>
+                <label className="block text-[9px] font-normal text-gray-400 uppercase tracking-widest mb-0.5">Registration Date</label>
                 <p className="text-sm text-gray-800">{selectedUser.date}</p>
               </div>
               {selectedUser.status === 'Pending' && (

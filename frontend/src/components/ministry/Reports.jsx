@@ -86,7 +86,7 @@ const Reports = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#faf8f0] px-4 py-6">
+    <div className="min-h-screen bg-[#faf8f0] px-4 pt-0 pb-6">
       <div className="max-w-6xl mx-auto space-y-6">
 
         {/* Header */}
@@ -96,8 +96,8 @@ const Reports = () => {
               <FaChartBar className="text-green-700" size={16} />
               <span className="text-xs font-normal text-gray-500 uppercase tracking-wide">Reports & Analytics</span>
             </div>
-            <h1 className="text-2xl font-normal text-black">Platform Reports</h1>
-            <p className="text-gray-500 text-sm mt-0.5">Download aggregated data and analytics on agricultural trade</p>
+            <h1 className="text-xl font-normal text-black">Platform Reports</h1>
+            <p className="text-gray-500 text-[13px] mt-0.5">Download aggregated data and analytics on agricultural trade</p>
           </div>
 
           <button
@@ -110,22 +110,22 @@ const Reports = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white rounded-lg p-4 border border-gray-200">
-            <p className="text-xs text-gray-500 mb-1">Total Reports</p>
-            <p className="text-2xl font-normal text-black">{stats.total}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="bg-white rounded-lg p-3 border border-gray-200 shadow-sm">
+            <p className="text-[10px] text-gray-500 mb-0.5 uppercase tracking-wider">Total Reports</p>
+            <p className="text-xl font-normal text-black">{stats.total}</p>
           </div>
-          <div className="bg-white rounded-lg p-4 border border-gray-200">
-            <p className="text-xs text-gray-500 mb-1">PDF Reports</p>
-            <p className="text-2xl font-normal text-red-600">{stats.pdfCount}</p>
+          <div className="bg-white rounded-lg p-3 border border-gray-200 shadow-sm">
+            <p className="text-[10px] text-gray-500 mb-0.5 uppercase tracking-wider">PDF Reports</p>
+            <p className="text-xl font-normal text-red-600">{stats.pdfCount}</p>
           </div>
-          <div className="bg-white rounded-lg p-4 border border-gray-200">
-            <p className="text-xs text-gray-500 mb-1">Excel Reports</p>
-            <p className="text-2xl font-normal text-green-700">{stats.excelCount}</p>
+          <div className="bg-white rounded-lg p-3 border border-gray-200 shadow-sm">
+            <p className="text-[10px] text-gray-500 mb-0.5 uppercase tracking-wider">Excel Reports</p>
+            <p className="text-xl font-normal text-green-700">{stats.excelCount}</p>
           </div>
-          <div className="bg-white rounded-lg p-4 border border-gray-200">
-            <p className="text-xs text-gray-500 mb-1">Total Downloads</p>
-            <p className="text-2xl font-normal text-blue-700">{stats.totalDownloads.toLocaleString()}</p>
+          <div className="bg-white rounded-lg p-3 border border-gray-200 shadow-sm">
+            <p className="text-[10px] text-gray-500 mb-0.5 uppercase tracking-wider">Total Downloads</p>
+            <p className="text-xl font-normal text-blue-700">{stats.totalDownloads.toLocaleString()}</p>
           </div>
         </div>
 
@@ -207,7 +207,7 @@ const Reports = () => {
           {filteredReports.length > 0 ? (
             <ul className="divide-y divide-gray-100">
               {filteredReports.map((report) => (
-                <li key={report.id} className="p-5 hover:bg-gray-50 transition-colors group">
+                <li key={report.id} className="p-4 hover:bg-gray-50 transition-colors group">
                   <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div className="flex items-center gap-4">
                       {/* Icon */}

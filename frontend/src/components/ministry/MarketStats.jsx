@@ -13,7 +13,7 @@ import api from '../../services/api';
 
 // Real Data dynamically loaded now
 
-const MarketStats = () => {
+const MarketStats = ({ searchQuery = '' }) => {
   const navigate = useNavigate();
   const [timeRange, setTimeRange] = useState('7days');
   const [selectedDetail, setSelectedDetail] = useState(null);
@@ -48,8 +48,10 @@ const MarketStats = () => {
   const [statusFilter, setStatusFilter] = useState('all');
 
   const filteredOrders = orders.filter(o => {
-    if (statusFilter === 'all') return true;
-    return (o.order_status || '').toLowerCase() === statusFilter.toLowerCase();
+    const matchesStatus = statusFilter === 'all' || (o.order_status || '').toLowerCase() === statusFilter.toLowerCase();
+    const matchesSearch = (o.buyer_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (o.order_number || '').toString().toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesStatus && matchesSearch;
   });
 
   const recentActivities = filteredOrders.slice(0, 5).map(o => ({
@@ -141,24 +143,24 @@ const MarketStats = () => {
 
   const totalUsers = data?.counts?.users || 1;
   const userRoles = [
-    { 
-      name: 'Farmers', 
+    {
+      name: 'Farmers',
       key: 'farmers',
-      icon: FaLeaf, 
+      icon: FaLeaf,
       color: 'green',
       stats: data?.counts?.farmers || { total: 0, active: 0, pending: 0, rejected: 0 }
     },
-    { 
-      name: 'Transporters', 
+    {
+      name: 'Transporters',
       key: 'transporters',
-      icon: FaTruck, 
+      icon: FaTruck,
       color: 'blue',
       stats: data?.counts?.transporters || { total: 0, active: 0, pending: 0, rejected: 0 }
     },
-    { 
-      name: 'Buyers', 
+    {
+      name: 'Buyers',
       key: 'buyers',
-      icon: FaShoppingBag, 
+      icon: FaShoppingBag,
       color: 'purple',
       stats: data?.counts?.buyers || { total: 0, active: 0, pending: 0, rejected: 0 }
     },
@@ -174,7 +176,7 @@ const MarketStats = () => {
   const priceAlert = (priceOverview || []).find(p => Math.abs(p.price_change_percentage) > 5) || (priceOverview || [])[0];
 
   return (
-    <div className="min-h-screen bg-[#faf8f0] px-4 py-6">
+    <div className="min-h-screen bg-[#faf8f0] px-4 pt-0 pb-6">
       <div className="max-w-7xl mx-auto space-y-6">
 
         {/* Header */}
@@ -184,8 +186,8 @@ const MarketStats = () => {
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
               <span className="text-xs font-normal text-gray-500 uppercase tracking-wide">Live Monitoring</span>
             </div>
-            <h1 className="text-2xl font-normal text-black">National Market Overview</h1>
-            <p className="text-gray-500 text-sm mt-0.5">Real-time statistics of the agricultural trade platform</p>
+            <h1 className="text-xl font-normal text-black">National Market Overview</h1>
+            <p className="text-gray-500 text-[13px] mt-0.5">Real-time statistics of the agricultural trade platform</p>
           </div>
 
           <div className="flex gap-3">
@@ -214,13 +216,13 @@ const MarketStats = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map((stat, idx) => (
-            <div key={idx} className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-all group cursor-pointer">
+            <div key={idx} className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-all group cursor-pointer">
               <div className="flex items-center gap-4 mb-4">
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${stat.color === 'green' ? 'bg-green-50 text-green-600' :
-                    stat.color === 'blue' ? 'bg-blue-50 text-blue-600' :
-                      stat.color === 'purple' ? 'bg-purple-50 text-purple-600' : 'bg-orange-50 text-orange-600'
+                  stat.color === 'blue' ? 'bg-blue-50 text-blue-600' :
+                    stat.color === 'purple' ? 'bg-purple-50 text-purple-600' : 'bg-orange-50 text-orange-600'
                   }`}>
                   <stat.icon size={22} />
                 </div>
@@ -291,11 +293,11 @@ const MarketStats = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
           {/* Transaction Volume Chart */}
-          <div className="bg-white rounded-lg border border-gray-200 p-5">
-            <div className="flex justify-between items-center mb-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="flex justify-between items-center mb-3">
               <div>
-                <h3 className="text-base font-normal text-black">Platform Trade Volume</h3>
-                <p className="text-xs text-gray-500 mt-0.5">Total successful orders</p>
+                <h3 className="text-sm font-normal text-black uppercase tracking-wider">Platform Trade Volume</h3>
+                <p className="text-[11px] text-gray-500 mt-0.5">Total successful orders</p>
               </div>
             </div>
             <div className="h-80 w-full">
@@ -312,11 +314,11 @@ const MarketStats = () => {
           </div>
 
           {/* Category Distribution */}
-          <div className="bg-white rounded-lg border border-gray-200 p-5">
-            <div className="flex justify-between items-center mb-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="flex justify-between items-center mb-3">
               <div>
-                <h3 className="text-base font-normal text-black">Category Distribution</h3>
-                <p className="text-xs text-gray-500 mt-0.5">Sales by product category</p>
+                <h3 className="text-sm font-normal text-black uppercase tracking-wider">Category Distribution</h3>
+                <p className="text-[11px] text-gray-500 mt-0.5">Sales by product category</p>
               </div>
               <button
                 onClick={() => navigate('/ministry/categories')}
@@ -360,15 +362,15 @@ const MarketStats = () => {
           </div>
         </div>
 
-        {/* Additional Stats Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Additional Stats Row (Orders, Prices) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
           {/* Recent Orders */}
-          <div className="bg-white rounded-lg border border-gray-200 p-5 lg:col-span-1">
-            <div className="flex justify-between items-center mb-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="flex justify-between items-center mb-3">
               <div>
-                <h3 className="text-base font-normal text-black">Recent Orders</h3>
-                <p className="text-xs text-gray-500 mt-0.5">Latest platform orders</p>
+                <h3 className="text-sm font-normal text-black uppercase tracking-wider">Recent Orders</h3>
+                <p className="text-[11px] text-gray-500 mt-0.5">Latest platform orders</p>
               </div>
               <div className="flex items-center gap-3">
                 <select
@@ -428,11 +430,11 @@ const MarketStats = () => {
           </div>
 
           {/* Market Price Overview Widget */}
-          <div className="bg-white rounded-lg border border-gray-200 p-5">
-            <div className="flex justify-between items-center mb-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="flex justify-between items-center mb-3">
               <div>
-                <h3 className="text-base font-normal text-black">Market Price Overview</h3>
-                <p className="text-xs text-gray-500 mt-0.5">Top trending products (7d change)</p>
+                <h3 className="text-sm font-normal text-black uppercase tracking-wider">Market Price Overview</h3>
+                <p className="text-[11px] text-gray-500 mt-0.5">Top trending products (7d change)</p>
               </div>
               <button
                 onClick={() => navigate('/ministry/prices')}
@@ -450,45 +452,172 @@ const MarketStats = () => {
               ) : priceOverview.length === 0 ? (
                 <div className="py-10 text-center text-gray-400 text-xs italic">No price data available for trending analysis.</div>
               ) : (
-                priceOverview.slice(0, 5).map((item) => (
-                  <div key={item.product_id} className="flex items-center justify-between group p-1.5 hover:bg-gray-50 rounded-xl transition-all border border-transparent hover:border-gray-100">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-100 bg-gray-50 flex items-center justify-center">
-                        {item.image ? (
-                          <img
-                            src={`${api.defaults.baseURL.replace('/api/', '')}${item.image}`}
-                            alt={item.product_name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="bg-green-50 w-full h-full flex items-center justify-center text-green-600 font-bold text-xs">
-                            {item.product_name[0]}
-                          </div>
-                        )}
+                priceOverview
+                  .filter(p => (p.product_name || '').toLowerCase().includes(searchQuery.toLowerCase()))
+                  .slice(0, 5)
+                  .map((item) => (
+                    <div key={item.product_id} className="flex items-center justify-between group p-1.5 hover:bg-gray-50 rounded-xl transition-all border border-transparent hover:border-gray-100">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-100 bg-gray-50 flex items-center justify-center">
+                          {item.image ? (
+                            <img
+                              src={`${api.defaults.baseURL.replace('/api/', '')}${item.image}`}
+                              alt={item.product_name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="bg-green-50 w-full h-full flex items-center justify-center text-green-600 font-bold text-xs">
+                              {item.product_name[0]}
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-sm font-normal text-black">{item.product_name}</p>
+                          <p className="text-[10px] text-gray-400 uppercase tracking-wide">Current Average</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm font-normal text-black">{item.product_name}</p>
-                        <p className="text-[10px] text-gray-400 uppercase tracking-wide">Current Average</p>
+                      <div className="text-right">
+                        <p className="text-sm font-medium text-black">{item.average_price} <span className="text-[10px] text-gray-400 font-normal">DZD</span></p>
+                        <div className={`flex items-center justify-end gap-1 text-[11px] font-semibold ${item.price_change_percentage > 0 ? 'text-green-600' :
+                          item.price_change_percentage < 0 ? 'text-red-600' : 'text-gray-400'
+                          }`}>
+                          {item.price_change_percentage > 0 ? <FaArrowUp size={8} /> :
+                            item.price_change_percentage < 0 ? <FaArrowDown size={8} /> : null}
+                          {item.price_change_percentage !== 0 ? `${Math.abs(item.price_change_percentage)}%` : 'Stable'}
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-black">{item.average_price} <span className="text-[10px] text-gray-400 font-normal">DZD</span></p>
-                      <div className={`flex items-center justify-end gap-1 text-[11px] font-semibold ${item.price_change_percentage > 0 ? 'text-green-600' :
-                        item.price_change_percentage < 0 ? 'text-red-600' : 'text-gray-400'
-                        }`}>
-                        {item.price_change_percentage > 0 ? <FaArrowUp size={8} /> :
-                          item.price_change_percentage < 0 ? <FaArrowDown size={8} /> : null}
-                        {item.price_change_percentage !== 0 ? `${Math.abs(item.price_change_percentage)}%` : 'Stable'}
-                      </div>
-                    </div>
-                  </div>
-                ))
+                  ))
               )}
             </div>
           </div>
+        </div>
 
-          {/* Top Regions Widget */}
-          <div className="bg-white rounded-lg border border-gray-200 p-5">
+        {/* Bottom Row - Users & Regions */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Users Overview */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6 lg:col-span-3">
+            <div className="flex justify-between items-center mb-8">
+              <div>
+                <h3 className="text-lg font-normal text-black">Users Overview</h3>
+                <p className="text-xs text-gray-500 mt-0.5">Comprehensive platform user management</p>
+              </div>
+              <button
+                onClick={() => navigate('/ministry/users')}
+                className="text-xs text-green-700 hover:text-green-800 font-normal hover:underline"
+              >
+                Manage All Users →
+              </button>
+            </div>
+
+            <div className="flex flex-col xl:flex-row gap-12">
+              {/* Left side: Donut Chart & Today Badge */}
+              <div className="flex flex-col items-center justify-center gap-6 xl:w-1/4">
+                <div className="h-48 w-48 relative">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={userDistribution}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={55}
+                        outerRadius={75}
+                        paddingAngle={5}
+                        dataKey="value"
+                        stroke="none"
+                      >
+                        {userDistribution.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <span className="text-3xl font-bold text-gray-900">{totalUsers}</span>
+                    <span className="text-xs text-gray-400 font-normal">Total Users</span>
+                  </div>
+                </div>
+
+                {data?.counts?.new_today > 0 && (
+                  <div className="flex items-center gap-2 bg-green-50 px-4 py-1.5 rounded-full border border-green-100">
+                    <FaArrowUp size={10} className="text-green-600" />
+                    <span className="text-xs font-normal text-green-700">{data.counts.new_today} new users today</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Right side: 3-Column Grid with Vertical Internal Layout */}
+              <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6">
+                {userRoles.map((role) => (
+                  <div key={role.key} className={`rounded-2xl border p-4 flex flex-col items-center transition-all hover:shadow-lg ${role.color === 'green' ? 'bg-green-50/20 border-green-100' :
+                    role.color === 'blue' ? 'bg-blue-50/20 border-blue-100' :
+                      'bg-purple-50/20 border-purple-100'
+                    }`}>
+                    {/* Card Header - Vertical & Compact */}
+                    <div className="flex flex-col items-center text-center mb-4 w-full">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${role.color === 'green' ? 'bg-green-100 text-green-600' :
+                        role.color === 'blue' ? 'bg-blue-100 text-blue-600' :
+                          'bg-purple-100 text-purple-600'
+                        }`}>
+                        <role.icon size={18} />
+                      </div>
+                      <h4 className="text-xs font-normal text-gray-900 mb-1">{role.name}</h4>
+                      <span className={`inline-block text-[6px] px-2.5 py-0.5 rounded-full font-normal whitespace-nowrap ${role.color === 'green' ? 'bg-green-100 text-green-700' :
+                        role.color === 'blue' ? 'bg-blue-100 text-blue-700' :
+                          'bg-purple-100 text-purple-700'
+                        }`}>
+                        {role.stats.total} total
+                      </span>
+                    </div>
+
+                    {/* Status Breakdown - Standardized & Compact */}
+                    <div className="space-y-3 w-full flex-1">
+                      {[
+                        { label: 'Active', val: role.stats.active, color: 'bg-green-500' },
+                        { label: 'Pending', val: role.stats.pending, color: 'bg-orange-400' },
+                        { label: 'Rejected', val: role.stats.rejected, color: 'bg-red-500' }
+                      ].map((status) => {
+                        const percentage = role.stats.total > 0 ? Math.round((status.val / role.stats.total) * 100) : 0;
+                        return (
+                          <div key={status.label} className="space-y-1">
+                            <div className="flex justify-between items-center text-[11px]">
+                              <div className="flex items-center gap-1.5">
+                                <div className={`w-1.5 h-1.5 rounded-full ${status.color}`}></div>
+                                <span className="text-gray-600">{status.label}</span>
+                              </div>
+                              <span className="text-gray-900 font-medium whitespace-nowrap">
+                                {status.val} <span className="text-gray-400 font-normal">({percentage}%)</span>
+                              </span>
+                            </div>
+                            <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                              <div
+                                className={`h-full ${status.color} transition-all duration-500`}
+                                style={{ width: `${percentage}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Card Footer */}
+                    <button
+                      onClick={() => navigate(`/ministry/users?type=${role.key}`)}
+                      className={`mt-4 pt-3 border-t border-gray-100 w-full text-center text-[11px] font-medium transition-colors ${role.color === 'green' ? 'text-green-700 hover:text-green-800' :
+                        role.color === 'blue' ? 'text-blue-700 hover:text-blue-800' :
+                          'text-purple-700 hover:text-purple-800'
+                        }`}
+                    >
+                      View All {role.name} →
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Top Regions Widget (Small) */}
+          <div className="bg-white rounded-lg border border-gray-200 p-5 lg:col-span-1 h-fit">
             <div className="flex justify-between items-center mb-4">
               <div>
                 <h3 className="text-base font-normal text-black">Top Regions</h3>
@@ -507,7 +636,7 @@ const MarketStats = () => {
                   <FaSpinner className="animate-spin text-green-700 mx-auto" size={24} />
                 </div>
               ) : (data?.top_regions || []).length > 0 ? (
-                data.top_regions.map((region, idx) => {
+                data.top_regions.slice(0, 4).map((region, idx) => {
                   const percentage = Math.round((region.count / (data?.stats?.total_orders || 1)) * 100);
                   return (
                     <div key={idx} className="space-y-2">
@@ -530,7 +659,6 @@ const MarketStats = () => {
                     { city: 'Constantine', percentage: 36, count: 99 },
                     { city: 'Algiers', percentage: 24, count: 72 },
                     { city: 'Oran', percentage: 18, count: 45 },
-                    { city: 'Batna', percentage: 12, count: 32 },
                   ].map((region, idx) => (
                     <div key={idx} className="space-y-2">
                       <div className="flex justify-between items-center">
@@ -552,131 +680,7 @@ const MarketStats = () => {
           </div>
         </div>
 
-        {/* Bottom Row - Users Overview */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <div className="flex justify-between items-center mb-8">
-            <div>
-              <h3 className="text-lg font-normal text-black">Users Overview</h3>
-              <p className="text-xs text-gray-500 mt-0.5">Comprehensive platform user management</p>
-            </div>
-            <button
-              onClick={() => navigate('/ministry/users')}
-              className="text-xs text-green-700 hover:text-green-800 font-normal hover:underline"
-            >
-              Manage All Users →
-            </button>
-          </div>
-          
-          <div className="flex flex-col xl:flex-row gap-12">
-            {/* Left side: Donut Chart & Today Badge */}
-            <div className="flex flex-col items-center justify-center gap-6 xl:w-1/4">
-              <div className="h-48 w-48 relative">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={userDistribution}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={55}
-                      outerRadius={75}
-                      paddingAngle={5}
-                      dataKey="value"
-                      stroke="none"
-                    >
-                      {userDistribution.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-3xl font-bold text-gray-900">{totalUsers}</span>
-                  <span className="text-xs text-gray-400 font-normal">Total Users</span>
-                </div>
-              </div>
-              
-              {data?.counts?.new_today > 0 && (
-                <div className="flex items-center gap-2 bg-green-50 px-4 py-1.5 rounded-full border border-green-100">
-                  <FaArrowUp size={10} className="text-green-600" />
-                  <span className="text-xs font-semibold text-green-700">{data.counts.new_today} new users today</span>
-                </div>
-              )}
-            </div>
 
-            {/* Right side: Detailed Cards Grid */}
-            <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6">
-              {userRoles.map((role) => (
-                <div key={role.key} className={`rounded-2xl border p-5 flex flex-col transition-all hover:shadow-lg ${
-                  role.color === 'green' ? 'bg-green-50/20 border-green-100' :
-                  role.color === 'blue' ? 'bg-blue-50/20 border-blue-100' :
-                  'bg-purple-50/20 border-purple-100'
-                }`}>
-                  {/* Card Header */}
-                  <div className="flex items-start justify-between mb-6">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                        role.color === 'green' ? 'bg-green-100 text-green-600' :
-                        role.color === 'blue' ? 'bg-blue-100 text-blue-600' :
-                        'bg-purple-100 text-purple-600'
-                      }`}>
-                        <role.icon size={18} />
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-normal text-gray-900">{role.name}</h4>
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
-                          role.color === 'green' ? 'bg-green-100 text-green-700' :
-                          role.color === 'blue' ? 'bg-blue-100 text-blue-700' :
-                          'bg-purple-100 text-purple-700'
-                        }`}>
-                          {role.stats.total} total
-                        </span>
-                      </div>
-                    </div>
-                    <FaChevronRight size={12} className="text-gray-300 mt-1" />
-                  </div>
-
-                  {/* Status Breakdown */}
-                  <div className="space-y-4 flex-1">
-                    {[
-                      { label: 'Active', val: role.stats.active, color: 'bg-green-500' },
-                      { label: 'Pending', val: role.stats.pending, color: 'bg-orange-400' },
-                      { label: 'Rejected', val: role.stats.rejected, color: 'bg-red-500' }
-                    ].map((status) => {
-                      const percentage = role.stats.total > 0 ? Math.round((status.val / role.stats.total) * 100) : 0;
-                      return (
-                        <div key={status.label} className="space-y-1.5">
-                          <div className="flex justify-between items-center text-xs">
-                            <div className="flex items-center gap-1.5">
-                              <div className={`w-1.5 h-1.5 rounded-full ${status.color}`}></div>
-                              <span className="text-gray-600">{status.label}</span>
-                            </div>
-                            <span className="text-gray-900 font-medium">
-                              {status.val} <span className="text-gray-400 font-normal">({percentage}%)</span>
-                            </span>
-                          </div>
-                          <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                            <div 
-                              className={`h-full ${status.color} transition-all duration-500`}
-                              style={{ width: `${percentage}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Card Footer */}
-                  <button 
-                    onClick={() => navigate(`/ministry/users?type=${role.key}`)}
-                    className="mt-6 pt-4 border-t border-gray-100 text-center text-xs font-normal text-gray-500 hover:text-gray-900 transition-colors"
-                  >
-                    View {role.name} →
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
 
         {/* Detail Modal */}
         {selectedDetail && (

@@ -129,9 +129,9 @@ const FarmerOrders = () => {
 
     return (
       <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fadeIn">
-        <div className="bg-white rounded-[1rem] shadow-2xl max-w-[500px] w-full overflow-hidden animate-scaleUp border border-gray-100 relative">
+        <div className="bg-white rounded-[1.25rem] shadow-2xl max-w-[380px] w-full overflow-hidden animate-scaleUp border border-gray-100 relative">
           {/* Header */}
-          <div className="p-6 flex items-center justify-between border-b border-gray-100">
+          <div className="p-5 flex items-center justify-between border-b border-gray-100">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-gray-50 bg-gray-50 flex items-center justify-center shrink-0">
                 {data.avatar ? (
@@ -154,20 +154,20 @@ const FarmerOrders = () => {
           </div>
 
           {/* Details */}
-          <div className="p-8 space-y-8">
+          <div className="p-6 space-y-6">
             <div className="space-y-1">
               <p className="text-[10px] text-gray-400 uppercase font-normal tracking-widest">Phone Number</p>
-              <p className="text-lg font-normal text-gray-900">{data.phone || 'Not available'}</p>
+              <p className="text-base font-normal text-gray-900">{data.phone || 'Not available'}</p>
             </div>
 
             <div className="space-y-1">
               <p className="text-[10px] text-gray-400 uppercase font-normal tracking-widest">Email Address</p>
-              <p className="text-lg font-normal text-gray-900">{data.email || 'Not available'}</p>
+              <p className="text-base font-normal text-gray-900">{data.email || 'Not available'}</p>
             </div>
 
             <div className="space-y-1">
               <p className="text-[10px] text-gray-400 uppercase font-normal tracking-widest">Home Address</p>
-              <p className="text-lg font-normal text-gray-900 leading-relaxed">{data.address || 'Not available'}</p>
+              <p className="text-base font-normal text-gray-900 leading-relaxed">{data.address || 'Not available'}</p>
             </div>
           </div>
         </div>
@@ -236,20 +236,20 @@ const FarmerOrders = () => {
 
         {/* Stats Summary */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <p className="text-xs text-gray-500 mb-1">Total Orders</p>
+          <div className="bg-white rounded-2xl border border-gray-200 p-8 min-h-[120px] flex flex-col justify-center hover:shadow-md transition-all">
+            <p className="text-[11px] text-gray-400 uppercase tracking-widest mb-3 font-normal">Total Orders</p>
             <p className="text-2xl font-normal text-gray-900">{orders.length}</p>
           </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <p className="text-xs text-gray-500 mb-1">Pending Approval</p>
+          <div className="bg-white rounded-2xl border border-gray-200 p-8 min-h-[120px] flex flex-col justify-center hover:shadow-md transition-all">
+            <p className="text-[11px] text-gray-400 uppercase tracking-widest mb-3 font-normal">Pending Approval</p>
             <p className="text-2xl font-normal text-amber-600">{orders.filter(o => o.order_status === 'pending').length}</p>
           </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <p className="text-xs text-gray-500 mb-1">Confirmed</p>
+          <div className="bg-white rounded-2xl border border-gray-200 p-8 min-h-[120px] flex flex-col justify-center hover:shadow-md transition-all">
+            <p className="text-[11px] text-gray-400 uppercase tracking-widest mb-3 font-normal">Confirmed</p>
             <p className="text-2xl font-normal text-green-600">{orders.filter(o => o.order_status === 'confirmed').length}</p>
           </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <p className="text-xs text-gray-500 mb-1">Cancelled</p>
+          <div className="bg-white rounded-2xl border border-gray-200 p-8 min-h-[120px] flex flex-col justify-center hover:shadow-md transition-all">
+            <p className="text-[11px] text-gray-400 uppercase tracking-widest mb-3 font-normal">Cancelled</p>
             <p className="text-2xl font-normal text-red-600">{orders.filter(o => o.order_status === 'cancelled').length}</p>
           </div>
         </div>
@@ -264,11 +264,11 @@ const FarmerOrders = () => {
             filteredOrders.slice((currentPage - 1) * ordersPerPage, currentPage * ordersPerPage).map((order) => (
               <div
                 key={order.order_number}
-                className="bg-white rounded-xl border border-gray-200 p-6 flex flex-col lg:flex-row gap-6 items-start lg:items-center hover:shadow-md transition-all duration-300 group"
+                className="bg-white rounded-xl border border-gray-200 p-8 flex flex-col lg:flex-row gap-6 items-start lg:items-center hover:shadow-md transition-all duration-300 group"
               >
                 {/* Left Side: Product Icon */}
-                <div className="w-16 h-16 bg-emerald-50 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                  <FaBoxOpen className="text-green-700" size={28} />
+                <div className="w-20 h-20 bg-emerald-50 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <FaBoxOpen className="text-green-700" size={32} />
                 </div>
 
                 {/* Middle: Details */}

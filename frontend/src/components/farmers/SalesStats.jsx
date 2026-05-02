@@ -45,6 +45,7 @@ const FarmerSales = () => {
   });
   const [orders, setOrders] = useState([]);
   const [orderStatusFilter, setOrderStatusFilter] = useState('all');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -73,66 +74,94 @@ const FarmerSales = () => {
     buyer: o.buyer_name || 'Anonymous'
   }));
 
-  const monthlyMap = {};
+  const generateMonthlyTemplate = (range) => {
+    const template = {};
+    const d = new Date();
+    const count = range === '6months' ? 6 : 12;
+    for (let i = count - 1; i >= 0; i--) {
+      const pastDate = new Date(d.getFullYear(), d.getMonth() - i, 1);
+      const month = pastDate.toLocaleString('default', { month: 'short' });
+      template[month] = { month, revenue: 0, expenses: 0, profit: 0 };
+    }
+    return template;
+  };
+
+  const monthlyMap = generateMonthlyTemplate(timeRange);
+  
   orders.forEach(o => {
-    if (o.order_status === 'confirmed') {
+    if (o.order_status === 'confirmed' || o.order_status === 'delivered') {
       const date = new Date(o.order_date);
       const month = date.toLocaleString('default', { month: 'short' });
-      if (!monthlyMap[month]) {
-        monthlyMap[month] = { month, revenue: 0, expenses: 0, profit: 0 };
+      
+      // Only add to map if the month is within our current template range
+      if (monthlyMap[month] !== undefined) {
+        const amt = parseFloat(o.total_amount || 0);
+        monthlyMap[month].revenue += amt;
+        monthlyMap[month].profit += amt * 0.7;
+        monthlyMap[month].expenses += amt * 0.3;
       }
-      const amt = parseFloat(o.total_amount || 0);
-      monthlyMap[month].revenue += amt;
-      monthlyMap[month].profit += amt * 0.7;
-      monthlyMap[month].expenses += amt * 0.3;
     }
   });
 
-  const monthsOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const monthlyData = Object.values(monthlyMap).sort((a, b) => monthsOrder.indexOf(a.month) - monthsOrder.indexOf(b.month));
-  const monthlyRevenue = monthlyData.length > 0 ? monthlyData : [
-    { month: new Date().toLocaleString('default', { month: 'short' }), revenue: 0, expenses: 0, profit: 0 }
-  ];
+  const monthlyRevenue = Object.values(monthlyMap);
 
   const productSalesMap = {};
   orders.forEach(o => {
-    if (o.order_status === 'confirmed') {
+    if (o.order_status === 'confirmed' || o.order_status === 'delivered') {
       o.items?.forEach(i => {
         const pName = i.product_name_snapshot || 'Unknown Product';
-        if (!productSalesMap[pName]) productSalesMap[pName] = 0;
-        productSalesMap[pName] += parseFloat(i.sub_total_item || 0);
+        if (!productSalesMap[pName]) {
+          productSalesMap[pName] = { sales: 0, qty: 0, image: i.product_image || null, unit: i.unit_measure || 'kg' };
+        }
+        productSalesMap[pName].sales += parseFloat(i.sub_total_item || 0);
+        productSalesMap[pName].qty += parseFloat(i.quantity_item || 0);
       });
     }
   });
 
-  const totalSalesRevenue = Object.values(productSalesMap).reduce((sum, val) => sum + val, 0);
+  const totalSalesRevenue = Object.values(productSalesMap).reduce((sum, val) => sum + val.sales, 0);
   const topProducts = Object.keys(productSalesMap)
-    .filter(name => name !== 'Unknown Product')
+    .filter(name => name !== 'Unknown Product' && name.toLowerCase() !== 'orange')
     .map(p => ({
       name: p,
-      sales: productSalesMap[p],
+      sales: productSalesMap[p].sales,
+      qty: productSalesMap[p].qty,
+      unit: productSalesMap[p].unit,
+      image: productSalesMap[p].image,
       growth: 0,
-      percentage: totalSalesRevenue ? (productSalesMap[p] / totalSalesRevenue) * 100 : 0
+      percentage: totalSalesRevenue ? (productSalesMap[p].sales / totalSalesRevenue) * 100 : 0
     })).sort((a, b) => b.sales - a.sales).slice(0, 5);
 
-  const catMap = { Vegetables: 0, Fruits: 0, Other: 0 };
+  const catMap = { Vegetables: 0, Fruits: 0, "Dairy & Poultry": 0, Other: 0 };
   orders.forEach(o => {
-    if (o.order_status === 'confirmed') {
+    if (o.order_status === 'confirmed' || o.order_status === 'delivered') {
       o.items?.forEach(i => {
         const n = (i.product_name_snapshot || '').toLowerCase();
         const amt = parseFloat(i.sub_total_item || 0);
-        if (n.match(/tomato|potato|carrot|onion|pepper|lettuce|cucumber/)) catMap.Vegetables += amt;
-        else if (n.match(/apple|orange|fruit|banana|lemon/)) catMap.Fruits += amt;
-        else catMap.Other += amt;
+        
+        if (n.match(/tomato|potato|carrot|onion|pepper|lettuce|cucumber|garlic|cabbage|squash|corn|bean|pea/)) {
+          catMap.Vegetables += amt;
+        } else if (n.match(/apple|orange|fruit|banana|lemon|date|deglet|watermelon|melon|grape|peach|cherry/)) {
+          catMap.Fruits += amt;
+        } else if (n.match(/egg|chicken|poultry|milk|cheese|meat|beef|honey/)) {
+          catMap["Dairy & Poultry"] += amt;
+        } else {
+          catMap.Other += amt;
+        }
       });
     }
   });
 
   const categoryData = [
-    { name: "Vegetables", value: catMap.Vegetables || 1, color: "#ef4444" }, // Red
-    { name: "Fruits", value: catMap.Fruits || 1, color: "#22c55e" },      // Green
-    { name: "Other", value: catMap.Other || 1, color: "#3b82f6" },       // Blue
-  ];
+    { name: "Vegetables", value: catMap.Vegetables || 0, color: "#ef4444" },
+    { name: "Fruits", value: catMap.Fruits || 0, color: "#22c55e" },
+    { name: "Dairy & Poultry", value: catMap["Dairy & Poultry"] || 0, color: "#f59e0b" },
+    { name: "Other", value: catMap.Other || 0, color: "#3b82f6" },
+  ].filter(c => c.value > 0); // Only show categories with sales
+
+  if (categoryData.length === 0) {
+    categoryData.push({ name: "No Sales", value: 1, color: "#e5e7eb" });
+  }
 
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
@@ -260,13 +289,20 @@ const FarmerSales = () => {
             <p className="text-2xl font-normal text-gray-900 mt-1">{totalOrders}</p>
           </div>
 
-          <div className="bg-gray-800 rounded-xl p-5">
-            <div className="p-2 bg-white/10 rounded-lg w-fit mb-3">
-              <FaTruck className="text-white" size={18} />
+          <div className="rounded-xl p-5 relative overflow-hidden bg-gradient-to-br from-green-600 via-green-700 to-emerald-900 shadow-md">
+            {/* Decorative abstract elements for wavy effect */}
+            <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl"></div>
+            <div className="absolute -top-6 -left-6 w-40 h-40 bg-green-400 opacity-20 rounded-full blur-3xl"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/5 to-transparent opacity-50"></div>
+            
+            <div className="relative z-10">
+              <div className="p-2 bg-white/20 backdrop-blur-sm rounded-lg w-fit mb-3">
+                <FaTruck className="text-white" size={18} />
+              </div>
+              <p className="text-xs text-green-100 uppercase tracking-wide">Completed Deliveries</p>
+              <p className="text-2xl font-normal text-white mt-1">{deliveredOrders}</p>
+              <p className="text-xs text-green-200 mt-1">{totalOrders > 0 ? Math.round((deliveredOrders / totalOrders) * 100) : 0}% success rate</p>
             </div>
-            <p className="text-xs text-gray-400 uppercase tracking-wide">Completed Deliveries</p>
-            <p className="text-2xl font-normal text-white mt-1">{deliveredOrders}</p>
-            <p className="text-xs text-gray-400 mt-1">{totalOrders > 0 ? Math.round((deliveredOrders / totalOrders) * 100) : 0}% success rate</p>
           </div>
         </div>
 
@@ -291,31 +327,32 @@ const FarmerSales = () => {
             </div>
             <div className="h-80 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={monthlyRevenue}>
+                <AreaChart data={monthlyRevenue} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#4b6d3a" stopOpacity={0.8} />
-                      <stop offset="95%" stopColor="#4b6d3a" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#8B7355" stopOpacity={0.8} />
-                      <stop offset="95%" stopColor="#8B7355" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#38bdf8" stopOpacity={0.8} />
+                      <stop offset="95%" stopColor="#38bdf8" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: "#6b7280" }} />
-                  <YAxis tick={{ fontSize: 12, fill: "#6b7280" }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: "#9ca3af" }} axisLine={{ stroke: "#e5e7eb" }} tickLine={false} />
+                  <YAxis tick={{ fontSize: 12, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
                   <Tooltip
                     contentStyle={{
                       backgroundColor: "#fff",
-                      border: "1px solid #e5e7eb",
-                      borderRadius: "8px",
-                      fontSize: "12px"
+                      border: "1px solid #f3f4f6",
+                      borderRadius: "12px",
+                      fontSize: "12px",
+                      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)"
                     }}
                   />
-                  <Legend />
-                  <Area type="monotone" dataKey="revenue" stroke="#4b6d3a" fillOpacity={1} fill="url(#colorRevenue)" name="Revenue (DZD)" />
-                  <Area type="monotone" dataKey="profit" stroke="#8B7355" fillOpacity={1} fill="url(#colorProfit)" name="Profit (DZD)" />
+                  <Legend iconType="circle" wrapperStyle={{ paddingTop: "10px" }} />
+                  <Area type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" name="Revenue (DZD)" />
+                  <Area type="monotone" dataKey="profit" stroke="#38bdf8" strokeWidth={3} fillOpacity={1} fill="url(#colorProfit)" name="Profit (DZD)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -361,10 +398,10 @@ const FarmerSales = () => {
         </div>
 
         {/* Top Products & Recent Orders */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
 
           {/* Top Products */}
-          <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <div className="bg-white rounded-xl border border-gray-200 p-4 lg:col-span-2 h-fit">
             <div className="flex justify-between items-center mb-4">
               <div>
                 <h3 className="text-base font-normal text-gray-900">Top Selling Products</h3>
@@ -372,60 +409,92 @@ const FarmerSales = () => {
               </div>
               <FaChartLine className="text-gray-400" size={16} />
             </div>
-            <div className="space-y-4">
+            <div className="space-y-3 mt-2">
               {topProducts.map((product, idx) => (
-                <div key={idx}>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="font-normal text-gray-700">{product.name}</span>
-                    <div className="flex gap-4">
-                      <span className="text-gray-900 font-normal">
-                        {product.sales.toLocaleString()} DZD
-                      </span>
-                      <span className="text-green-600 text-xs font-normal">
-                        +{product.growth}%
-                      </span>
-                    </div>
+                <div key={idx} className="flex items-center gap-3 group">
+                  <div className="w-10 h-10 bg-gray-50 rounded-lg overflow-hidden shrink-0 border border-gray-100 flex items-center justify-center group-hover:border-green-200 transition-colors">
+                    {product.image ? (
+                      <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <FaSeedling className="text-gray-300" size={16} />
+                    )}
                   </div>
-                  <div className="w-full bg-gray-100 rounded-full h-2">
-                    <div
-                      className="bg-green-700 h-2 rounded-full"
-                      style={{ width: `${product.percentage}%` }}
-                    />
+                  <div className="flex-grow">
+                    <div className="flex justify-between text-sm mb-1">
+                      <div>
+                        <span className="font-normal text-gray-900 block truncate max-w-[120px]">{product.name}</span>
+                        <span className="text-xs text-gray-500">{product.qty} {product.unit} sold</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-gray-900 font-normal block text-xs">
+                          {product.sales.toLocaleString()} DZD
+                        </span>
+                        <span className="text-green-600 text-[10px] font-normal uppercase">
+                          {product.percentage.toFixed(1)}%
+                        </span>
+                      </div>
+                    </div>
+                    <div className="w-full bg-gray-100 rounded-full h-1 mt-1.5">
+                      <div
+                        className="bg-green-600 h-1 rounded-full"
+                        style={{ width: `${product.percentage}%` }}
+                      />
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
             <button
               onClick={handleViewAllProducts}
-              className="w-full mt-5 text-center text-sm text-green-700 hover:text-green-800 py-2 border-t border-gray-100 mt-4 pt-4 font-normal"
+              className="w-full mt-3 text-center text-xs text-green-700 hover:text-green-800 py-2 border-t border-gray-100 mt-4 pt-3 font-normal"
             >
               View all products →
             </button>
           </div>
 
           {/* Recent Orders */}
-          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden lg:col-span-3">
             <div className="px-5 py-4 border-b border-gray-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
                 <h3 className="text-base font-normal text-gray-900">Recent Orders</h3>
                 <p className="text-xs text-gray-500 mt-0.5">Latest orders from buyers</p>
               </div>
-              <div className="flex gap-2 bg-gray-50 p-1 rounded-lg border border-gray-100">
-                {['all', 'confirmed', 'shipped', 'delivered'].map((status) => (
-                  <button
-                    key={status}
-                    onClick={() => setOrderStatusFilter(status)}
-                    className={`px-3 py-1 text-[10px] font-normal rounded-md transition-all uppercase tracking-wider ${orderStatusFilter === status
-                      ? 'bg-white text-green-700 shadow-sm border border-gray-200'
-                      : 'text-gray-500 hover:text-gray-800'
-                      }`}
-                  >
-                    {status}
-                  </button>
-                ))}
+              <div className="relative">
+                <button 
+                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+                  className="flex items-center justify-between gap-3 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-normal text-gray-700 hover:bg-gray-50 transition min-w-[120px]"
+                >
+                  <span className="capitalize">{orderStatusFilter === 'all' ? 'All Status' : orderStatusFilter}</span>
+                  <FaChevronDown size={10} className={`text-gray-400 transition-transform duration-200 ${isFilterOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isFilterOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg z-50 overflow-hidden">
+                    {['all', 'confirmed', 'shipped', 'delivered'].map((status) => {
+                      const isSelected = orderStatusFilter === status;
+                      return (
+                        <button
+                          key={status}
+                          onClick={() => {
+                            setOrderStatusFilter(status);
+                            setIsFilterOpen(false);
+                          }}
+                          className={`w-full text-left px-4 py-3 text-sm transition-colors flex justify-between items-center ${
+                            isSelected 
+                              ? 'bg-blue-600 text-white font-medium' 
+                              : 'text-gray-600 hover:bg-gray-50 font-normal'
+                          }`}
+                        >
+                          <span className="capitalize">{status === 'all' ? 'All Status' : status}</span>
+                          {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white"></div>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
-            <div className="overflow-x-auto max-h-96 overflow-y-auto">
+            <div className="overflow-x-auto max-h-96 overflow-y-auto no-scrollbar">
               <table className="w-full text-sm">
                 <thead className="sticky top-0 bg-gray-50">
                   <tr className="border-b border-gray-200">
