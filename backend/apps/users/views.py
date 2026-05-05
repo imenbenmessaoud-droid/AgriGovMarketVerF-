@@ -406,3 +406,10 @@ class NotificationViewSet(viewsets.ModelViewSet):
         """Mark all notification for user as read"""
         Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
         return Response({'status': 'all notifications marked as read'})
+        return Response({'status': 'notification marked as read'})
+
+    @action(detail=False, methods=['patch'])
+    def mark_all_read(self, request):
+        """Mark all notification for user as read"""
+        Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+        return Response({'status': 'all notifications marked as read'})

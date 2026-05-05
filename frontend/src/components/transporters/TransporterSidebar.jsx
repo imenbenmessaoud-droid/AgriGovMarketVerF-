@@ -11,6 +11,7 @@ import {
   MdBarChart,
   MdHeadsetMic
 } from 'react-icons/md';
+import { FaComments } from 'react-icons/fa';
 import logoImg from '../../assets/logo_main.png';
 
 const TransporterSidebar = ({ activeTab, onTabChange }) => {
@@ -69,6 +70,16 @@ const TransporterSidebar = ({ activeTab, onTabChange }) => {
                 <span className="text-[13.5px]">{item.name}</span>
               </button>
             ))}
+
+            <button
+              onClick={() => navigate('/messaging')}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-300 group text-white/60 hover:text-white hover:bg-white/5 font-normal`}
+            >
+              <span className="text-white/40 group-hover:text-white">
+                <FaComments size={18} />
+              </span>
+              <span className="text-[13.5px]">Messages</span>
+            </button>
           </nav>
         </div>
 

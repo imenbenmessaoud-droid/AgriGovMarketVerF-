@@ -2,17 +2,34 @@ import React, { useState, useEffect } from 'react';
 import {
   FaSearch, FaFilter, FaBoxOpen, FaUser, FaTractor,
   FaCalendarAlt, FaMoneyBillWave, FaTimes, FaMapMarkerAlt,
-  FaSpinner, FaUserCircle, FaCheckCircle, FaPhoneAlt, FaTruck
+  FaSpinner, FaUserCircle, FaCheckCircle, FaPhoneAlt, FaTruck, FaComments
 } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
+import { messagingService } from '../../services/messagingService';
 
 const AdminOrders = () => {
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [profileModal, setProfileModal] = useState({ isOpen: false, data: null, title: '' });
+  const [chatLoading, setChatLoading] = useState(false);
+
+  const handleStartChat = async (participantId) => {
+    if (!participantId) return;
+    setChatLoading(true);
+    try {
+      await messagingService.startConversation(participantId);
+      navigate('/messaging');
+    } catch (error) {
+      console.error("Error starting chat:", error);
+    } finally {
+      setChatLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchOrders();
@@ -96,6 +113,16 @@ const AdminOrders = () => {
             <div>
               <p className="text-[9px] text-gray-400 uppercase tracking-widest font-medium mb-1">Home Address</p>
               <p className="text-sm font-normal text-black">{data.address || 'Not available'}</p>
+            </div>
+
+            <div className="pt-2">
+              <button 
+                onClick={() => handleStartChat(data.id)}
+                className="w-full flex items-center justify-center gap-2 bg-green-700 text-white py-2 rounded-lg text-sm font-normal hover:bg-green-800 transition shadow-sm"
+              >
+                <FaComments size={14} />
+                Open Chat Session
+              </button>
             </div>
           </div>
         </div>
@@ -205,6 +232,7 @@ const AdminOrders = () => {
                             isOpen: true,
                             title: 'Verified Buyer',
                             data: {
+                              id: order.buyer_user_id,
                               name: order.buyer_name,
                               phone: order.buyer_phone,
                               email: order.buyer_email,
@@ -230,6 +258,7 @@ const AdminOrders = () => {
                             isOpen: true,
                             title: 'Verified Farmer',
                             data: {
+                              id: order.farmer_user_id,
                               name: order.farmer_name,
                               phone: order.farmer_phone,
                               email: order.farmer_email,
@@ -250,6 +279,7 @@ const AdminOrders = () => {
                               isOpen: true,
                               title: 'Verified Transporter',
                               data: {
+                                id: order.tracking_info.transporter_user_id,
                                 name: order.tracking_info.transporter_name,
                                 phone: order.tracking_info.transporter_phone,
                                 email: order.tracking_info.transporter_email,
@@ -335,6 +365,7 @@ const AdminOrders = () => {
                         isOpen: true,
                         title: 'Verified Buyer',
                         data: {
+                          id: selectedOrder.buyer_user_id,
                           name: selectedOrder.buyer_name,
                           phone: selectedOrder.buyer_phone,
                           email: selectedOrder.buyer_email,
@@ -371,6 +402,7 @@ const AdminOrders = () => {
                         isOpen: true,
                         title: 'Verified Farmer',
                         data: {
+                          id: selectedOrder.farmer_user_id,
                           name: selectedOrder.farmer_name,
                           phone: selectedOrder.farmer_phone,
                           email: selectedOrder.farmer_email,
@@ -399,6 +431,7 @@ const AdminOrders = () => {
                           isOpen: true,
                           title: 'Verified Transporter',
                           data: {
+                            id: selectedOrder.tracking_info.transporter_user_id,
                             name: selectedOrder.tracking_info.transporter_name,
                             phone: selectedOrder.tracking_info.transporter_phone,
                             email: selectedOrder.tracking_info.transporter_email,

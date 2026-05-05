@@ -113,12 +113,14 @@ const Header = () => {
     { name: 'Dashboard', path: '/buyer' },
     { name: 'Products', path: '/buyer/products' },
     { name: 'My Orders', path: '/buyer/orders' },
+    { name: 'Messages', path: '/messaging' },
   ];
 
   const transporterTabs = [
     { name: 'Overview', path: '/transporter' },
     { name: 'My Delivery', path: '/transporter/hub' },
     { name: 'Fleet', path: '/transporter/fleet' },
+    { name: 'Messages', path: '/messaging' },
   ];
 
   const ministryTabs = [
@@ -127,6 +129,7 @@ const Header = () => {
     { name: 'Categories', path: '/ministry/categories' },
     { name: 'Prices', path: '/ministry/prices' },
     { name: 'Reports', path: '/ministry/reports' },
+    { name: 'Messages', path: '/messaging' },
   ];
 
   const farmerTabs = [
@@ -135,6 +138,7 @@ const Header = () => {
     { name: 'Orders', path: '/farmer/orders' },
     { name: 'Statistics', path: '/farmer/sales' },
     { name: 'Farms', path: '/farmer/farms' },
+    { name: 'Messages', path: '/messaging' },
   ];
 
   const { cart, cartCount, toggleCart, isCartOpen, removeFromCart, updateQuantity, cartSubtotal } = useCart();

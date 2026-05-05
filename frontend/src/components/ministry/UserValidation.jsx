@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { FaCheckCircle, FaTimesCircle, FaEye, FaSearch, FaTimes, FaFilter, FaSpinner, FaUserCircle } from 'react-icons/fa';
+import { FaCheckCircle, FaTimesCircle, FaEye, FaSearch, FaTimes, FaFilter, FaSpinner, FaUserCircle, FaComments } from 'react-icons/fa';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
+import { messagingService } from '../../services/messagingService';
 
 const UserValidation = ({ searchQuery: globalSearchQuery }) => {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,6 +16,20 @@ const UserValidation = ({ searchQuery: globalSearchQuery }) => {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [chatLoading, setChatLoading] = useState(false);
+
+  const handleStartChat = async (participantId) => {
+    if (!participantId) return;
+    setChatLoading(true);
+    try {
+      await messagingService.startConversation(participantId);
+      navigate('/messaging');
+    } catch (error) {
+      console.error("Error starting chat:", error);
+    } finally {
+      setChatLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchUsers();
@@ -325,6 +341,14 @@ const UserValidation = ({ searchQuery: globalSearchQuery }) => {
                         ) : (
                           <span className="text-[10px] text-gray-400 italic bg-gray-50 px-2 py-0.5 rounded border border-gray-100">Processed</span>
                         )}
+
+                        <button 
+                          onClick={() => handleStartChat(user.id)}
+                          className="p-2 text-green-600 hover:text-green-700 rounded-full hover:bg-green-50 transition-all shadow-sm border border-green-100"
+                          title="Chat with User"
+                        >
+                          <FaComments size={18} />
+                        </button>
                       </div>
                     </td>
                   </tr>

@@ -6,6 +6,7 @@ import Home from '../pages/Home';
 import About from '../pages/About';
 import Contact from '../pages/Contact';
 import NotFound from '../pages/NotFound';
+import MessagingPage from '../pages/MessagingPage';
 
 // Farmer Components
 import FarmerLayout from '../components/farmers/FarmerLayout';
@@ -42,6 +43,7 @@ const AppRoutes = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
+      <Route path="/messaging" element={<MessagingPage />} />
 
       {/* Protected Dashboards (Simplified mapping) */}
       {/* Farmer Portal with Layout */}

@@ -1,9 +1,10 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import AppRoutes from './routes/AppRoutes';
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
-import { useLocation } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
+import ChatWidget from './components/common/ChatWidget';
 
 function App() {
    const location = useLocation();
@@ -17,7 +18,9 @@ function App() {
         <AppRoutes />
       </main>
       {!isAuthPage && !location.pathname.startsWith('/transporter') && !location.pathname.startsWith('/farmer') && !location.pathname.startsWith('/ministry') && <Footer />}
+      <ChatWidget />
     </div>
+
   );
 }
 

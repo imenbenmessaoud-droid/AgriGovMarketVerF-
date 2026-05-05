@@ -38,11 +38,13 @@ class AppraisalSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
+    buyer_user_id = serializers.IntegerField(source='id_buyer.user.id_user', read_only=True)
     buyer_name = serializers.CharField(source='id_buyer.user.name', read_only=True)
     buyer_phone = serializers.CharField(source='id_buyer.user.phone', read_only=True)
     buyer_email = serializers.CharField(source='id_buyer.user.email', read_only=True)
     buyer_avatar = serializers.CharField(source='id_buyer.user.avatar', read_only=True)
     buyer_address = serializers.CharField(source='id_buyer.user.address', read_only=True)
+    farmer_user_id = serializers.IntegerField(source='id_farmer.user.id_user', read_only=True)
     farmer_name = serializers.CharField(source='id_farmer.user.name', read_only=True)
     farmer_phone = serializers.CharField(source='id_farmer.user.phone', read_only=True)
     farmer_email = serializers.CharField(source='id_farmer.user.email', read_only=True)
@@ -55,9 +57,9 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = [
             'order_number', 'order_date', 'order_status', 'total_amount',
-            'payment_status', 'id_buyer', 'buyer_name', 'buyer_phone', 
+            'payment_status', 'id_buyer', 'buyer_user_id', 'buyer_name', 'buyer_phone', 
             'buyer_email', 'buyer_avatar', 'buyer_address', 'id_farmer',
-            'farmer_name', 'farmer_phone', 'farmer_email', 'farmer_avatar',
+            'farmer_user_id', 'farmer_name', 'farmer_phone', 'farmer_email', 'farmer_avatar',
             'farmer_address', 'notes', 'delivery_address', 'created_at', 
             'items', 'tracking_info', 'appraisal'
         ]
@@ -68,6 +70,7 @@ class OrderSerializer(serializers.ModelSerializer):
         if mission:
             return {
                 'status': mission.delivery_status,
+                'transporter_user_id': mission.id_transporter.user.id_user if mission.id_transporter else None,
                 'transporter_name': mission.id_transporter.user.name if mission.id_transporter else None,
                 'transporter_phone': mission.id_transporter.user.phone if mission.id_transporter else None,
                 'transporter_email': mission.id_transporter.user.email if mission.id_transporter else None,

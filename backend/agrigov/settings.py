@@ -30,7 +30,10 @@ INSTALLED_APPS = [
     'apps.orders',
     'apps.deliveries',
     'apps.reports',
+    'apps.chat',
+    'apps.messaging',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -116,3 +119,8 @@ DEFAULT_FROM_EMAIL = 'no-reply@agrisouk.dz'
 
 # Increase max payload size for Base64 image uploads (10MB)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
+
+# Groq AI Settings
+GROQ_API_KEY = "REMOVED_SECRET"
+GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
+GROQ_MODEL = "llama-3.3-70b-versatile"

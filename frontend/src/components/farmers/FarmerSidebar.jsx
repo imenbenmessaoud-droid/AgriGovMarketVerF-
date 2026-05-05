@@ -10,7 +10,8 @@ import {
   FaBox, 
   FaClipboardList, 
   FaTractor, 
-  FaUserCircle 
+  FaUserCircle,
+  FaComments
 } from 'react-icons/fa';
 import logoImg from '../../assets/logo_main.png';
 import sidebarBg from '../../assets/sidebar_bg.png';
@@ -25,6 +26,7 @@ const FarmerSidebar = ({ isVisible }) => {
     { id: 'orders', name: 'Orders', icon: <FaClipboardList size={18} />, path: '/farmer/orders' },
     { id: 'statistics', name: 'Statistics', icon: <MdBarChart size={20} />, path: '/farmer/sales' },
     { id: 'farms', name: 'Farms', icon: <FaTractor size={18} />, path: '/farmer/farms' },
+    { id: 'messaging', name: 'Messages', icon: <FaComments size={18} />, path: '/messaging' },
   ];
 
   const bottomItems = [
