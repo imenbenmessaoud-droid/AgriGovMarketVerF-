@@ -97,6 +97,16 @@ class OrderViewSet(viewsets.ModelViewSet):
             ) for t in transporters
         ]
         Notification.objects.bulk_create(notifications)
+        
+        # Create notification for buyer
+        farm = order.id_farmer.farms.first()
+        farm_name = farm.FarmName if farm else order.id_farmer.user.name
+        Notification.objects.create(
+            user=order.id_buyer.user,
+            title="Order Accepted",
+            message=f"Farmer {farm_name} has accepted your order #{order.order_number}.",
+            notification_type='order'
+        )
 
         return Response(OrderSerializer(order).data)
 
@@ -109,6 +119,18 @@ class OrderViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Only farmers can refuse orders'}, status=status.HTTP_403_FORBIDDEN)
         order.order_status = OrderStatusEnum.CANCELLED
         order.save()
+        
+        # Create notification for buyer
+        from apps.users.models import Notification
+        farm = order.id_farmer.farms.first()
+        farm_name = farm.FarmName if farm else order.id_farmer.user.name
+        Notification.objects.create(
+            user=order.id_buyer.user,
+            title="Order Refused",
+            message=f"Farmer {farm_name} has refused your order #{order.order_number}.",
+            notification_type='order'
+        )
+        
         return Response(OrderSerializer(order).data)
 
     @action(detail=True, methods=['post'])

@@ -15,9 +15,9 @@ class PlatformReportGenerator:
             from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
             from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 
-            from apps.orders.models import Order
-            from apps.users.models import User
-            from apps.products.models import Product
+            from apps.orders.models import Order  # type: ignore
+            from apps.users.models import User  # type: ignore
+            from apps.products.models import Product  # type: ignore
 
             filename = f"Master_Report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
             media_path = str(settings.MEDIA_ROOT)
@@ -108,9 +108,9 @@ class PlatformReportGenerator:
     @staticmethod
     def generate_csv_report():
         """Generates a comprehensive platform CSV report"""
-        from apps.orders.models import Order
-        from apps.users.models import User
-        from apps.products.models import Product
+        from apps.orders.models import Order  # type: ignore
+        from apps.users.models import User  # type: ignore
+        from apps.products.models import Product  # type: ignore
 
         filename = f"Master_Report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
         media_path = str(settings.MEDIA_ROOT)

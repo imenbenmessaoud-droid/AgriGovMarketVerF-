@@ -135,7 +135,18 @@ class ChatView(APIView):
         if specific_response:
             return specific_response, True
 
-        # 3. ENFORCE REDLINE (RBAC) & FETCH DATA
+        # 3. CONVERSATIONAL FAQ BYPASS
+        # If the user is asking a conversational question, force intent to 'general' to let the LLM answer
+        message_lower = message.lower()
+        faq_starters = ['can i', 'do you', 'how long', 'how much', 'what happens', 'is delivery', 'who delivers', 'what is the', 'are there', 'where can i', 'are your', 'how can i', 'is your', 'does the', 'what if', 'how do i', 'can you', 'why does', 'where do', 'where are', 'where is the', 'who is']
+        is_faq = any(message_lower.startswith(w) or f" {w} " in message_lower for w in faq_starters)
+        is_explicit_price = 'price' in message_lower and self._extract_product(message) is not None
+        has_order_id = re.search(r'(?:order|id|#)\s*#?(?:ord-)?(\d+)', message, re.IGNORECASE) is not None
+        
+        if is_faq and not is_explicit_price and not has_order_id:
+            intent = 'general'
+
+        # 4. ENFORCE REDLINE (RBAC) & FETCH DATA
         return self._route_request(user, role, intent, message, target_user)
 
     def _handle_specific_lookups(self, user, role, message, target_users=[]):
@@ -690,7 +701,7 @@ class ChatView(APIView):
                 # Return a detailed list of recent missions
                 recent_missions = missions.order_by('-delivery_date')[:5]
                 list_str = "\n".join([f"- #{m.mission_number}: {m.get_delivery_status_display()} to {m.delivery_location} ({m.delivery_date})" for m in recent_missions])
-                return f"📋 Your Delivery List (Recent 5)\n{list_str}\n\n*Total Missions Found: {missions.count()}*", True
+                return f"📋 Your Delivery List (Recent 5)\n{list_str}\n\nTotal Missions Found: {missions.count()}", True
 
             if is_total:
                 return f"📊 Logistics Performance Summary\nTotal Completed: {delivered_count}\nActive Mission Hub: {active_count}\nCurrently in Transit: {in_progress}\n(Matches Dashboard Stats)", True
@@ -709,11 +720,17 @@ class ChatView(APIView):
         from apps.deliveries.models import DeliveryMission
         from django.db.models import Min, Max, Avg, Q
         
+        # If the intent is already marked as general by _smart_bridge (FAQ bypass), 
+        # do not allow hardcoded keyword matching to intercept it.
+        if intent == 'general':
+            return None, False
+            
         buyer_profile = Buyer.objects.get(user=user)
         msg_lower = message.lower()
         is_count = any(w in msg_lower for w in ['total', 'count', 'عدد', 'كم'])
         is_list = any(w in msg_lower for w in ['list', 'show', 'قائمة', 'عرض'])
-        is_top = any(w in msg_lower for w in ['top', 'best', 'أرخص', 'أفضل'])
+        is_top = any(w in msg_lower for w in ['top', 'best', 'cheapest', 'lowest', 'a9al', 'moin cher', 'moins cher', 'أرخص', 'أفضل', 'أقل'])
+        is_highest = any(w in msg_lower for w in ['highest', 'most expensive', 'expensive', 'ghali', 'أغلى', 'غالي'])
 
         # 1. Structured Insights (Cards/Lists for Frontend)
         # ------------------------------------
@@ -725,13 +742,17 @@ class ChatView(APIView):
 
         # 2. Pricing & Comparison (High Priority for Buyer)
         # ------------------------------------
-        if any(w in msg_lower for w in ['price', 'cheap', 'compare', 'سعر', 'أرخص', 'بكم']):
+        if any(w in msg_lower for w in ['price', 'cheap', 'compare', 'a9al', 'سعر', 'أرخص', 'بكم', 'highest', 'expensive', 'ghali', 'أغلى', 'غالي']):
             target_p = self._extract_product(message)
             if target_p:
                 if is_top:
                     best = ProductItem.objects.filter(id_product=target_p, is_available=True).order_by('product_price').first()
                     if best:
-                        return f"💎 Best Deal for {target_p.product_name}\nPrice: {best.product_price:,.2f} DZD\nFarmer: {best.id_farmer.user.name}\nLocation: {best.id_farmer.user.wilaya}\n\n*This is the lowest price currently available on the platform.*", True
+                        return f"💎 Best Deal for {target_p.product_name}\nPrice: {best.product_price:,.2f} DZD\nFarmer: {best.id_farmer.user.name}\nLocation: {best.id_farmer.user.wilaya}\n\nThis is the lowest price currently available on the platform.", True
+                elif is_highest:
+                    highest = ProductItem.objects.filter(id_product=target_p, is_available=True).order_by('-product_price').first()
+                    if highest:
+                        return f"📈 Highest Price for {target_p.product_name}\nPrice: {highest.product_price:,.2f} DZD\nFarmer: {highest.id_farmer.user.name}\nLocation: {highest.id_farmer.user.wilaya}\n\nThis is the highest price currently available on the platform.", True
                 return self._handle_pricing_analytics(message, target_user)
 
         # 2. Order & Delivery Tracking
@@ -844,7 +865,7 @@ class ChatView(APIView):
                     res = f"🛒 Available {target_p.product_name} Listings:\n"
                     for item in items[:5]:
                         res += f"- {item.product_price:,.2f} DZD by {item.id_farmer.user.name} ({item.quantity} available)\n"
-                    return res + f"\n💡 *Tip: Ask for 'cheapest {target_p.product_name}' for the best deal.*", True
+                    return res + f"\n💡 Tip: Ask for 'cheapest {target_p.product_name}' for the best deal.", True
                 return f"No active listings for {target_p.product_name}.", True
 
             if cat_target:
@@ -1159,7 +1180,7 @@ class ChatView(APIView):
             res = f"📊 Price Comparison: {target_p.product_name}\n\n"
             res += get_ministry_data(target_p) + "\n\n"
             res += get_market_data(target_p) + "\n\n"
-            res += "💡 *Note: Farmers must align their live prices with the official ministry thresholds.*"
+            res += "💡 Note: Farmers must align their live prices with the official ministry thresholds."
             return res, True
 
         # 2. ONLY MINISTRY (Official)
@@ -1167,7 +1188,7 @@ class ChatView(APIView):
             return get_ministry_data(target_p) + f"\n\n📅 Date Set: {timezone.now().strftime('%Y-%m-%d')}", True
 
         # 3. ONLY MARKET (Live)
-        return get_market_data(target_p) + f"\n\n💡 *Tip: Ask for 'ministry price' to see official regulations.*", True
+        return get_market_data(target_p) + f"\n\n💡 Tip: Ask for 'ministry price' to see official regulations.", True
 
     def _handle_market_analytics(self, message):
         from apps.orders.models import Order, OrderItem
@@ -1302,11 +1323,19 @@ class ChatView(APIView):
 
         [LIVE CONTEXT]
         {context}
-
+        
+        [AGRISOUK KNOWLEDGE BASE & POLICIES]
+        1. Delivery & Logistics: Transporters are independent drivers. Delivery fees are separate and calculated by distance. Delivery times vary; cross-country takes 24-48 hours. If delivery fails, the buyer must open a dispute.
+        2. Pricing & Payments: Prices are fixed per listing. Farmers set the prices. Bulk discounts exist if farmers create wholesale listings. Payments are secure and online (No Cash on Delivery).
+        3. Products & Quality: All products are 100% locally grown in Algeria. Freshness is guaranteed because it's direct farm-to-door. Farmers must be certified organic to use the label. Buyers can see actual product photos uploaded by farmers on the platform.
+        4. Orders & Cancellation: Buyers can cancel pending orders. Once assigned to a transporter, orders cannot be cancelled. Order quantities cannot be changed after placement; the buyer must cancel and reorder. Orders from different farmers cannot be merged.
+        
         RESPONSE RULES:
-        1. LANGUAGE: Match the user's language (Arabic, French, English, or Darja).
-        2. DATA SUPREMACY: If the context contains a list of products or orders, use those specific details in your answer.
-        3. SECURITY: Never disclose PII (passwords, private emails) or internal system paths.
+        1. CONCISENESS & DISTINCTNESS: Answer ONLY what is asked. Keep it extremely brief (2-3 sentences max). Do NOT ramble or volunteer extra information not asked for.
+        2. NO HALLUCINATION: You are a text-only assistant. DO NOT offer to "show images" or describe fictional items. Simply state that product images are available on the product cards in the catalog.
+        3. LANGUAGE: Match the user's language (Arabic, French, English, or Darja).
+        4. DATA SUPREMACY: If [LIVE CONTEXT] contains data, use it. Otherwise, rely exclusively on the Policies above.
+        5. NO REPETITION: Treat each question distinctly. Do not conflate answers.
         """
 
         headers = {

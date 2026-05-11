@@ -7,7 +7,7 @@ SECRET_KEY = 'django-insecure-your-secret-key-here'
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -31,7 +31,6 @@ INSTALLED_APPS = [
     'apps.deliveries',
     'apps.reports',
     'apps.chat',
-    'apps.messaging',
 ]
 
 

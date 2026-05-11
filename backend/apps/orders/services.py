@@ -62,6 +62,15 @@ class OrderService:
             order.total_amount = total_amount
             order.save()
             
+            # Create notification for farmer
+            from apps.users.models import Notification
+            Notification.objects.create(
+                user=farmer.user,
+                title="New Order Received",
+                message=f"You have received a new order #{order.order_number} from {buyer.user.name}.",
+                notification_type='order'
+            )
+            
             return order
             
         except (Buyer.DoesNotExist, Farmer.DoesNotExist) as e:

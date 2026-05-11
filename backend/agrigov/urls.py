@@ -13,7 +13,6 @@ urlpatterns = [
     path('api/farms/', include('apps.farms.urls')),
     path('api/reports/', include('apps.reports.urls')),
     path('api/chat/', include('apps.chat.urls')),
-    path('api/messaging/', include('apps.messaging.urls')),
     path('chat/', ChatView.as_view(), name='root_chat'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

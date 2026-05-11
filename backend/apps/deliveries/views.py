@@ -121,11 +121,71 @@ class DeliveryMissionViewSet(viewsets.ModelViewSet):
                 order.order_status = OrderStatusEnum.SHIPPED
                 order.save()
 
+                # Create notifications
+                from apps.users.models import Notification
+                # Notification for buyer
+                Notification.objects.create(
+                    user=order.id_buyer.user,
+                    title="Order Shipped",
+                    message=f"A transporter has picked up your order #{order.order_number} and is on the way.",
+                    notification_type='order'
+                )
+                # Notification for farmer
+                Notification.objects.create(
+                    user=order.id_farmer.user,
+                    title="Mission Assigned",
+                    message=f"Transporter {transporter.user.name} has accepted the delivery for order #{order.order_number}.",
+                    notification_type='delivery'
+                )
+
                 return Response(DeliveryMissionSerializer(mission).data)
         except DeliveryMission.DoesNotExist:
             return Response({'error': 'Mission not found'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=True, methods=['patch'])
+    def refuse(self, request, pk=None):
+        """Transporter refuses a delivery mission"""
+        mission = self.get_object()
+        user = request.user
+        if not hasattr(user, 'transporter_profile'):
+            return Response(
+                {'error': 'Only transporters can refuse missions'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Reset mission back to OPEN so other transporters can pick it up
+        mission.id_transporter = None
+        mission.delivery_status = DeliveryStatusEnum.OPEN
+        mission.vehicle_license_snapshot = None
+        mission.save()
+
+        # Ensure order stays CONFIRMED (never set to cancelled on mission refusal)
+        order = mission.id_order
+        from apps.core.constants import OrderStatusEnum
+        if order.order_status not in [OrderStatusEnum.CONFIRMED]:
+            order.order_status = OrderStatusEnum.CONFIRMED
+            order.save()
+
+        # Create notifications
+        from apps.users.models import Notification
+        # Notification for buyer
+        Notification.objects.create(
+            user=order.id_buyer.user,
+            title="Mission Update",
+            message=f"A logistics partner has declined the current mission for order #{order.order_number}. We are re-assigning it.",
+            notification_type='order'
+        )
+        # Notification for farmer
+        Notification.objects.create(
+            user=order.id_farmer.user,
+            title="Mission Declined",
+            message=f"Transporter {user.name} has declined the mission for order #{order.order_number}.",
+            notification_type='delivery'
+        )
+        
+        return Response({'status': 'mission reset to open and stakeholders notified'})
 
     @action(detail=True, methods=['patch'])
     def update_status(self, request, pk=None):
@@ -154,6 +214,30 @@ class DeliveryMissionViewSet(viewsets.ModelViewSet):
         
         mission.save()
         return Response(DeliveryMissionSerializer(mission).data)
+
+    @action(detail=True, methods=['patch'])
+    def update_location(self, request, pk=None):
+        """Update transporter current location and sync with mission"""
+        mission = self.get_object()
+        user = request.user
+        
+        if not hasattr(user, 'transporter_profile') or mission.id_transporter != user.transporter_profile:
+            return Response(
+                {'error': 'Not authorized to update this mission location'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+            
+        lat = request.data.get('latitude')
+        lng = request.data.get('longitude')
+        
+        if lat is not None and lng is not None:
+            mission.current_location_lat = float(lat)
+            mission.current_location_lng = float(lng)
+            mission.last_location_update = timezone.now()
+            mission.save()
+            return Response({'status': 'location updated'})
+            
+        return Response({'error': 'latitude and longitude required'}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['get'])
     def my_missions(self, request):
