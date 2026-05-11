@@ -26,7 +26,7 @@ const MinistrySidebar = ({ isVisible }) => {
     { id: 'categories', name: 'Categories', icon: <MdCategory size={18} />, path: '/ministry/categories' },
     { id: 'prices', name: 'Prices', icon: <MdAttachMoney size={20} />, path: '/ministry/prices' },
     { id: 'reports', name: 'Reports', icon: <MdAssessment size={18} />, path: '/ministry/reports' },
-    { id: 'messaging', name: 'Messages', icon: <FaComments size={18} />, path: '/messaging' },
+
   ];
 
   const bottomItems = [

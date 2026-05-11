@@ -243,67 +243,104 @@ const OrderCard = ({ order, userRole, onRate }) => {
               <p className="text-[10px] uppercase font-normal text-gray-400 tracking-widest mb-6">Tracking Timeline</p>
 
               <div className="space-y-8 relative before:absolute before:left-[19px] before:top-2 before:bottom-2 before:w-[2px] before:bg-gray-50">
-                {[
-                  {
-                    label: 'Order Pending',
-                    status: 'pending',
-                    statusLabel: order.order_date ? new Date(order.order_date).toLocaleDateString() : 'Today',
-                    icon: FaClock,
-                    desc: 'Your order is pending confirmation.',
-                    color: 'text-orange-600',
-                    bgColor: 'bg-orange-500'
-                  },
-                  {
-                    label: 'Order Confirmed',
-                    status: 'confirmed',
-                    statusLabel: 'Confirmed Status',
-                    icon: FaCheckCircle,
-                    desc: 'Your order has been received and verified.',
-                    color: 'text-green-600',
-                    bgColor: 'bg-green-500'
-                  },
-                  {
-                    label: 'On Shipping',
-                    status: 'shipped',
-                    statusLabel: 'Updated Status',
-                    icon: FaTruck,
-                    desc: 'Your package has been picked up by our transport partner.',
-                    color: 'text-blue-600',
-                    bgColor: 'bg-blue-600'
-                  },
-                  {
-                    label: 'Delivered successfully',
-                    status: 'delivered',
-                    statusLabel: 'Recent Update',
-                    icon: FaMapMarkerAlt,
-                    desc: 'Package has arrived at its final destination.',
-                    color: 'text-red-600',
-                    bgColor: 'bg-red-500'
-                  }
-                ].map((step, i) => {
-                  const statuses = ['pending', 'confirmed', 'shipped', 'delivered'];
-                  const status = order.order_status?.toLowerCase() === 'on shipping' ? 'shipped' : order.order_status?.toLowerCase();
-                  const currentIndex = statuses.indexOf(status);
-                  const stepIndex = statuses.indexOf(step.status);
-                  const isReached = stepIndex <= currentIndex;
+                {(() => {
+                  const orderStatus = order.order_status?.toLowerCase() === 'on shipping' ? 'shipped' : order.order_status?.toLowerCase();
+                  const isCancelled = orderStatus === 'cancelled';
 
-                  if (!isReached && status !== 'delivered') return null;
+                  const normalSteps = [
+                    {
+                      label: 'Order Pending',
+                      status: 'pending',
+                      statusLabel: order.order_date ? new Date(order.order_date).toLocaleDateString() : 'Today',
+                      icon: FaClock,
+                      desc: 'Your order is pending confirmation.',
+                      color: 'text-orange-600',
+                      bgColor: 'bg-orange-500'
+                    },
+                    {
+                      label: 'Order Confirmed',
+                      status: 'confirmed',
+                      statusLabel: 'Confirmed Status',
+                      icon: FaCheckCircle,
+                      desc: 'Your order has been received and verified.',
+                      color: 'text-green-600',
+                      bgColor: 'bg-green-500'
+                    },
+                    {
+                      label: 'On Shipping',
+                      status: 'shipped',
+                      statusLabel: 'Updated Status',
+                      icon: FaTruck,
+                      desc: 'Your package has been picked up by our transport partner.',
+                      color: 'text-blue-600',
+                      bgColor: 'bg-blue-600'
+                    },
+                    {
+                      label: 'Delivered successfully',
+                      status: 'delivered',
+                      statusLabel: 'Recent Update',
+                      icon: FaMapMarkerAlt,
+                      desc: 'Package has arrived at its final destination.',
+                      color: 'text-green-700',
+                      bgColor: 'bg-green-600'
+                    }
+                  ];
 
-                  return (
-                    <div key={i} className="flex gap-6 items-start relative z-10">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-sm ${step.bgColor} text-white`}>
-                        {step.status === 'confirmed' ? <FaCheckCircle size={16} /> : <step.icon size={16} />}
-                      </div>
-                      <div className="flex-1 pt-1">
-                        <p className="text-[9px] text-gray-400 font-normal uppercase tracking-wider mb-0.5">{step.statusLabel}</p>
-                        <div className="flex justify-between items-start mb-0.5">
-                          <h4 className={`text-sm font-normal ${step.color}`}>{step.label}</h4>
+                  // For cancelled orders: show pending step + cancelled step
+                  if (isCancelled) {
+                    return (
+                      <>
+                        {/* Pending step always shown */}
+                        <div className="flex gap-6 items-start relative z-10">
+                          <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-sm bg-orange-500 text-white">
+                            <FaClock size={16} />
+                          </div>
+                          <div className="flex-1 pt-1">
+                            <p className="text-[9px] text-gray-400 font-normal uppercase tracking-wider mb-0.5">
+                              {order.order_date ? new Date(order.order_date).toLocaleDateString() : 'Today'}
+                            </p>
+                            <h4 className="text-sm font-normal text-orange-600 mb-0.5">Order Placed</h4>
+                            <p className="text-xs text-gray-500 font-normal leading-relaxed">Your order was placed and sent to the farmer.</p>
+                          </div>
                         </div>
-                        <p className="text-xs text-gray-500 font-normal leading-relaxed">{step.desc}</p>
+                        {/* Cancelled step */}
+                        <div className="flex gap-6 items-start relative z-10">
+                          <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-sm bg-red-500 text-white">
+                            <FaTimesCircle size={16} />
+                          </div>
+                          <div className="flex-1 pt-1">
+                            <p className="text-[9px] text-gray-400 font-normal uppercase tracking-wider mb-0.5">Final Status</p>
+                            <h4 className="text-sm font-normal text-red-600 mb-0.5">Order Cancelled</h4>
+                            <p className="text-xs text-gray-500 font-normal leading-relaxed">This order was refused or cancelled. You may place a new order.</p>
+                          </div>
+                        </div>
+                      </>
+                    );
+                  }
+
+                  // Normal flow
+                  const statuses = ['pending', 'confirmed', 'shipped', 'delivered'];
+                  const currentIndex = statuses.indexOf(orderStatus);
+                  return normalSteps.map((step, i) => {
+                    const stepIndex = statuses.indexOf(step.status);
+                    const isReached = stepIndex <= currentIndex;
+                    if (!isReached) return null;
+                    return (
+                      <div key={i} className="flex gap-6 items-start relative z-10">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-sm ${step.bgColor} text-white`}>
+                          {step.status === 'confirmed' ? <FaCheckCircle size={16} /> : <step.icon size={16} />}
+                        </div>
+                        <div className="flex-1 pt-1">
+                          <p className="text-[9px] text-gray-400 font-normal uppercase tracking-wider mb-0.5">{step.statusLabel}</p>
+                          <div className="flex justify-between items-start mb-0.5">
+                            <h4 className={`text-sm font-normal ${step.color}`}>{step.label}</h4>
+                          </div>
+                          <p className="text-xs text-gray-500 font-normal leading-relaxed">{step.desc}</p>
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  });
+                })()}
               </div>
             </div>
 

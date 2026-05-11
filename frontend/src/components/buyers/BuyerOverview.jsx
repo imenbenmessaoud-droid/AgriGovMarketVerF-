@@ -7,8 +7,8 @@ import {
 const DetailModal = ({ isOpen, onClose, title, subtitle, data, avatar }) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-white shadow-2xl max-w-[480px] w-full overflow-hidden animate-scaleUp rounded-xl border border-gray-100">
+    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/30 backdrop-blur-[2px] animate-fadeIn">
+      <div className="bg-white shadow-2xl max-w-[330px] w-full overflow-hidden animate-scaleUp rounded-[1.5rem] border border-gray-100">
         <div className="px-5 py-4 border-b border-gray-50 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <img src={avatar || 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100'} className="w-10 h-10 rounded-full object-cover shadow-sm" alt="" />
@@ -18,14 +18,14 @@ const DetailModal = ({ isOpen, onClose, title, subtitle, data, avatar }) => {
             </div>
           </div>
           <button onClick={onClose} className="text-gray-300 hover:text-gray-500 transition-colors p-1">
-            <FaTimes size={14} />
+            <FaTimes size={16} />
           </button>
         </div>
-        <div className="p-5 space-y-5">
+        <div className="p-6 space-y-6">
           {data.map((item, idx) => (
-            <div key={idx}>
-              <p className="text-[9px] text-gray-400 font-normal uppercase tracking-widest mb-1">{item.label}</p>
-              <p className="text-xs text-gray-900 font-normal">{item.value || 'Not provided'}</p>
+            <div key={idx} className="space-y-1">
+              <p className="text-[8px] text-gray-400 font-normal uppercase tracking-[0.2em] mb-1">{item.label}</p>
+              <p className="text-sm text-gray-900 font-normal">{item.value || 'Not provided'}</p>
             </div>
           ))}
         </div>
@@ -72,16 +72,20 @@ const OrderQuickViewModal = ({ order, onClose }) => {
 
   return (
     <>
-      <div className="fixed inset-0 z-[100] flex items-start justify-center p-4 bg-black/30 backdrop-blur-sm animate-fadeIn pt-16">
-        <div className="bg-white shadow-2xl max-w-[620px] w-full overflow-hidden animate-scaleUp border border-gray-100 flex flex-col max-h-[90vh] rounded-none">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm animate-fadeIn cursor-pointer" onClick={onClose}>
+        <div className="bg-white shadow-2xl max-w-[620px] w-full overflow-hidden animate-scaleUp border border-gray-100 flex flex-col max-h-[85vh] rounded-xl cursor-default" onClick={(e) => e.stopPropagation()}>
           {/* Modal Header */}
           <div className="px-6 py-5 border-b border-gray-50 flex justify-between items-start">
             <div>
               <h3 className="text-xl font-normal text-gray-900 tracking-tight">Order Details</h3>
               <p className="text-[11px] text-gray-400 mt-0.5 uppercase tracking-widest">{order.id}</p>
             </div>
-            <button onClick={onClose} className="text-gray-300 hover:text-gray-500 transition-colors p-1">
-              <FaTimes size={18} />
+            <button 
+              onClick={onClose} 
+              className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full cursor-pointer"
+              aria-label="Close modal"
+            >
+              <FaTimes size={20} />
             </button>
           </div>
 
@@ -90,8 +94,8 @@ const OrderQuickViewModal = ({ order, onClose }) => {
             <div className="space-y-4">
 
               {/* Detailed Info Columns */}
-              <div className="grid grid-cols-2 gap-x-8 gap-y-4 px-2 py-0 pt-2">
-                <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-x-6 gap-y-2 px-2 py-0 pt-1">
+                <div className="space-y-2">
                   <div className="cursor-pointer group" onClick={handleShowFarmer}>
                     <p className="text-[9px] text-gray-400 font-normal mb-0.5 uppercase tracking-[0.15em]">Farmer</p>
                     <p className="text-sm text-gray-800 font-normal group-hover:text-green-600 transition-colors">{order.farmer}</p>
@@ -103,7 +107,7 @@ const OrderQuickViewModal = ({ order, onClose }) => {
                   </div>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-2">
                   <div>
                     <p className="text-[9px] text-gray-400 font-normal mb-0.5 uppercase tracking-[0.15em]">Pickup Address</p>
                     <p className="text-[11px] text-gray-700 font-normal leading-relaxed">{raw.farmer_address || 'city saleh bey num:102'}</p>
@@ -119,9 +123,9 @@ const OrderQuickViewModal = ({ order, onClose }) => {
               {/* Items Summary Field */}
               <div className="pt-4 border-t border-gray-100">
                 <p className="text-[9px] text-gray-400 font-normal mb-3 uppercase tracking-[0.15em]">Items Summary</p>
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {raw.items?.map((item, idx) => (
-                    <div key={idx} className="flex gap-4 items-center pb-3 border-b border-gray-50 last:border-0">
+                    <div key={idx} className="flex gap-3 items-center pb-2 border-b border-gray-50 last:border-0">
                       <div className="w-10 h-10 rounded-lg bg-gray-50 overflow-hidden flex-shrink-0 border border-gray-100">
                         {item.product_image ? (
                           <img src={item.product_image} alt="" className="w-full h-full object-cover" />
@@ -140,9 +144,9 @@ const OrderQuickViewModal = ({ order, onClose }) => {
               </div>
 
               {/* Tracking Timeline (Vertical) */}
-              <div className="pt-4 border-t border-gray-100">
-                <p className="text-[9px] text-gray-400 font-normal mb-4 uppercase tracking-[0.15em]">Tracking Timeline</p>
-                <div className="space-y-6 relative before:absolute before:left-[15px] before:top-2 before:bottom-2 before:w-[2px] before:bg-gray-50">
+              <div className="pt-2 border-t border-gray-100">
+                <p className="text-[9px] text-gray-400 font-normal mb-2 uppercase tracking-[0.15em]">Tracking Timeline</p>
+                <div className="space-y-3 relative before:absolute before:left-[15px] before:top-2 before:bottom-2 before:w-[2px] before:bg-gray-50">
                   {[
                     {
                       label: 'Order Pending',
@@ -201,19 +205,22 @@ const OrderQuickViewModal = ({ order, onClose }) => {
                   })}
                 </div>
               </div>
-
-              {/* Summary / Total Section */}
-              <div className="pt-4 border-t border-gray-100 mt-4 px-2 flex justify-between items-end">
-                <div>
-                  <p className="text-[9px] text-gray-400 font-normal mb-1 uppercase tracking-[0.15em]">Summary</p>
-                  <p className="text-xl text-green-600 font-normal tracking-tight">{order.total}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-[9px] text-green-600 font-normal uppercase tracking-widest">Secure Transaction</p>
-                </div>
-              </div>
             </div>
           </div>
+
+          {/* Fixed Footer Summary */}
+          <div className="px-6 py-4 border-t border-gray-100 bg-white flex justify-between items-center shrink-0 mb-2">
+            <div>
+              <p className="text-[10px] text-gray-400 font-normal mb-1 uppercase tracking-widest">Total Amount</p>
+              <p className="text-2xl text-green-600 font-normal tracking-tight leading-none">{order.total}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-[10px] text-green-600 font-medium uppercase tracking-widest bg-green-50 px-3 py-1.5 rounded-full border border-green-100">
+                Secure Transaction
+              </p>
+            </div>
+          </div>
+
         </div>
       </div>
       <DetailModal

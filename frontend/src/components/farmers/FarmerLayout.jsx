@@ -2,15 +2,16 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import FarmerSidebar from './FarmerSidebar';
 import FarmerTopBar from './FarmerTopBar';
+import BottomNav from '../common/BottomNav';
 
 const FarmerLayout = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
 
   return (
-    <div className="flex h-screen bg-[#F8FAF9] font-sans overflow-hidden gap-1">
+    <div className="flex flex-col md:flex-row h-screen bg-[#F8FAF9] font-sans overflow-hidden gap-1">
       {/* Sidebar - Fixed Left with Transition */}
-      <div className={`transition-all duration-300 ease-in-out ${isSidebarVisible ? 'w-60' : 'w-0'}`}>
+      <div className={`hidden md:block transition-all duration-300 ease-in-out ${isSidebarVisible ? 'w-60' : 'w-0'}`}>
         <FarmerSidebar isVisible={isSidebarVisible} />
       </div>
 
@@ -30,6 +31,8 @@ const FarmerLayout = () => {
           </div>
         </main>
       </div>
+
+      <BottomNav />
 
       <style dangerouslySetInnerHTML={{
         __html: `

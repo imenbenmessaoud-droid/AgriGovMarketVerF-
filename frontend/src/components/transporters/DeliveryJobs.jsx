@@ -1,5 +1,5 @@
 // components/DeliveryJobs.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   FaBoxOpen, FaRoute, FaHistory, FaCheckCircle, FaTruck,
   FaClock, FaMoneyBillWave, FaWeightHanging, FaCalendarAlt,
@@ -9,9 +9,17 @@ import {
 } from 'react-icons/fa';
 import { useLocation } from 'react-router-dom';
 import api from '../../services/api';
+import MissionMap from './MissionMap';
 
 
-const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavigate }) => {
+const DeliveryJobs = ({ 
+  searchQuery: externalSearchQuery, 
+  onSearchChange, 
+  onNavigate,
+  currentLocation: externalLocation,
+  activeMissions: externalMissions,
+  onRefreshMissions
+}) => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const initialTab = queryParams.get('tab') || 'requests';
@@ -24,7 +32,29 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
   const setSearchQuery = onSearchChange || (externalSearchQuery !== undefined ? () => { } : setInternalSearchQuery);
   const [showDeclineConfirm, setShowDeclineConfirm] = useState(null);
   const [selectedJob, setSelectedJob] = useState(null);
+  const [profileModal, setProfileModal] = useState({ isOpen: false, data: null, title: '' });
   const [toast, setToast] = useState(null);
+
+  const [currentLocation, setCurrentLocation] = useState(externalLocation || null);
+  const [trackingMissionId, setTrackingMissionId] = useState(null);
+
+  useEffect(() => {
+    if (externalLocation) setCurrentLocation(externalLocation);
+  }, [externalLocation]);
+
+  useEffect(() => {
+    if (externalMissions && activeTab === 'active') {
+      setJobs(externalMissions);
+    }
+  }, [externalMissions, activeTab]);
+
+  useEffect(() => {
+    const active = jobs.find(j => 
+      ['in_transit', 'picked_up', 'out_for_delivery'].includes(j.delivery_status)
+    );
+    if (active) setTrackingMissionId(active.mission_number);
+    else setTrackingMissionId(null);
+  }, [jobs]);
 
   const [ignoredJobs, setIgnoredJobs] = useState(() => {
     const saved = localStorage.getItem('ignored_jobs');
@@ -77,6 +107,8 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
     fetchFleet();
   }, [activeTab]);
 
+  // Externalized Tracking logic removed
+
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
@@ -125,12 +157,19 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
     }
   };
 
-  const handleDecline = (id) => {
-    const newIgnored = [...ignoredJobs, id];
-    setIgnoredJobs(newIgnored);
-    localStorage.setItem('ignored_jobs', JSON.stringify(newIgnored));
-    setShowDeclineConfirm(null);
-    showToast(`Mission #${id} declined`, 'info');
+  const handleDecline = async (id) => {
+    try {
+      await api.patch(`deliveries/missions/${id}/refuse/`);
+      const newIgnored = [...ignoredJobs, id];
+      setIgnoredJobs(newIgnored);
+      localStorage.setItem('ignored_jobs', JSON.stringify(newIgnored));
+      setShowDeclineConfirm(null);
+      showToast(`Mission #${id} declined`, 'info');
+      fetchJobs();
+    } catch (err) {
+      console.error('Decline mission error:', err);
+      showToast('Error declining mission', 'error');
+    }
   };
 
   const handleDeliver = async (id) => {
@@ -138,8 +177,20 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
       await api.patch(`deliveries/missions/${id}/update_status/`, { status: 'delivered' });
       showToast(`Mission #${id} delivered!`, 'success');
       fetchJobs();
+      if (onRefreshMissions) onRefreshMissions();
     } catch (err) {
       showToast('Error updating status', 'error');
+    }
+  };
+
+  const handleStartDelivery = async (id) => {
+    try {
+      await api.patch(`deliveries/missions/${id}/update_status/`, { status: 'in_transit' });
+      showToast(`Mission #${id} started! Drive safe.`, 'success');
+      fetchJobs();
+      if (onRefreshMissions) onRefreshMissions();
+    } catch (err) {
+      showToast('Error starting delivery', 'error');
     }
   };
 
@@ -279,6 +330,53 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
     );
   };
 
+  const ProfileModal = ({ isOpen, onClose, data, title }) => {
+    if (!isOpen || !data) return null;
+
+    return (
+      <div className="fixed inset-0 z-[1100] flex items-center justify-center p-4 bg-black/30 backdrop-blur-[2px] animate-fadeIn">
+        <div className="bg-white rounded-[1.5rem] shadow-2xl max-w-[330px] w-full overflow-hidden animate-scaleUp border border-gray-100 relative">
+          <div className="p-5 flex items-center justify-between border-b border-gray-50">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full overflow-hidden border border-gray-50 bg-gray-50 flex items-center justify-center shrink-0 shadow-sm">
+                {data.avatar ? (
+                  <img src={data.avatar} alt={data.name} className="w-full h-full object-cover" />
+                ) : (
+                  <FaUserCircle className="text-gray-200 w-full h-full" />
+                )}
+              </div>
+              <div>
+                <h3 className="text-base font-normal text-gray-900 tracking-tight">{title}</h3>
+                <p className="text-xs text-gray-400 font-normal">{data.name}</p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-1.5 text-gray-300 hover:text-gray-500 rounded-full hover:bg-gray-50 transition-all"
+            >
+              <FaTimes size={18} />
+            </button>
+          </div>
+
+          <div className="p-6 space-y-6">
+            <div className="space-y-1">
+              <p className="text-[8px] text-gray-400 uppercase font-medium tracking-[0.2em]">Phone Number</p>
+              <p className="text-lg font-normal text-gray-900 tracking-tight">{data.phone || 'Not available'}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-[8px] text-gray-400 uppercase font-medium tracking-[0.2em]">Email Address</p>
+              <p className="text-sm font-normal text-gray-900 truncate">{data.email || 'Not available'}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-[8px] text-gray-400 uppercase font-medium tracking-[0.2em]">Home Address</p>
+              <p className="text-sm font-normal text-gray-900 leading-relaxed">{data.address || 'Not available'}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const DetailModal = ({ job, onClose }) => (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-start justify-center z-[100] pt-24 pb-6 px-4" onClick={onClose}>
       <div
@@ -352,7 +450,20 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Farmer Section */}
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100/50">
+              <div 
+                onClick={() => setProfileModal({
+                  isOpen: true,
+                  title: 'Verified Farmer',
+                  data: {
+                    name: job.farmer_name,
+                    phone: job.farmer_phone,
+                    email: job.farmer_email,
+                    avatar: job.farmer_image,
+                    address: job.farmer_address
+                  }
+                })}
+                className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100/50 cursor-pointer hover:bg-green-50 transition-all group"
+              >
                 <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center overflow-hidden border-2 border-white shadow-sm shrink-0">
                   {job.farmer_image ? (
                     <img src={job.farmer_image} className="w-full h-full object-cover" />
@@ -362,20 +473,30 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
                 </div>
                 <div className="flex-1">
                   <p className="text-[9px] text-gray-400 uppercase font-medium tracking-wider">Farmer (Pickup)</p>
-                  <p className="font-medium text-gray-900 text-sm">{job.farmer_name}</p>
+                  <p className="font-medium text-gray-900 text-sm group-hover:text-green-700">{job.farmer_name}</p>
                   <div className="flex flex-col mt-1">
-                    <a href={`tel:${job.farmer_phone}`} className="text-[10px] text-gray-500 hover:text-green-600 flex items-center gap-1.5 transition-colors">
+                    <span className="text-[10px] text-gray-500 flex items-center gap-1.5">
                       <FaPhone size={8} /> {job.farmer_phone || 'N/A'}
-                    </a>
-                    <a href={`mailto:${job.farmer_email}`} className="text-[10px] text-gray-500 hover:text-green-600 flex items-center gap-1.5 transition-colors mt-0.5">
-                      <FaEnvelope size={8} /> {job.farmer_email || 'N/A'}
-                    </a>
+                    </span>
                   </div>
                 </div>
               </div>
 
               {/* Buyer Section */}
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100/50">
+              <div 
+                onClick={() => setProfileModal({
+                  isOpen: true,
+                  title: 'Verified Buyer',
+                  data: {
+                    name: job.buyer_name,
+                    phone: job.buyer_phone,
+                    email: job.buyer_email,
+                    avatar: job.buyer_image,
+                    address: job.order_address || job.delivery_location
+                  }
+                })}
+                className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100/50 cursor-pointer hover:bg-blue-50 transition-all group"
+              >
                 <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center overflow-hidden border-2 border-white shadow-sm shrink-0">
                   {job.buyer_image ? (
                     <img src={job.buyer_image} className="w-full h-full object-cover" />
@@ -385,14 +506,11 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
                 </div>
                 <div className="flex-1">
                   <p className="text-[9px] text-gray-400 uppercase font-medium tracking-wider">Buyer (Delivery)</p>
-                  <p className="font-medium text-gray-900 text-sm">{job.buyer_name}</p>
+                  <p className="font-medium text-gray-900 text-sm group-hover:text-blue-700">{job.buyer_name}</p>
                   <div className="flex flex-col mt-1">
-                    <a href={`tel:${job.buyer_phone}`} className="text-[10px] text-gray-500 hover:text-blue-600 flex items-center gap-1.5 transition-colors">
+                    <span className="text-[10px] text-gray-500 flex items-center gap-1.5">
                       <FaPhone size={8} /> {job.buyer_phone || 'N/A'}
-                    </a>
-                    <a href={`mailto:${job.buyer_email}`} className="text-[10px] text-gray-500 hover:text-blue-600 flex items-center gap-1.5 transition-colors mt-0.5">
-                      <FaEnvelope size={8} /> {job.buyer_email || 'N/A'}
-                    </a>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -571,9 +689,23 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
           </div>
         )}
         {activeTab === 'active' && (
-          <button onClick={() => handleDeliver(job.mission_number)} className="w-full py-2.5 bg-blue-600 text-white text-sm font-normal rounded-lg hover:bg-blue-700 transition-colors shadow-sm mb-3">
-            Confirm Delivery
-          </button>
+          <div className="space-y-2 mb-3">
+            {job.delivery_status === 'assigned' ? (
+              <button 
+                onClick={() => handleStartDelivery(job.mission_number)} 
+                className="w-full py-2.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-all shadow-md flex items-center justify-center gap-2"
+              >
+                <FaRoute size={14} /> Start Delivery
+              </button>
+            ) : (
+              <button 
+                onClick={() => handleDeliver(job.mission_number)} 
+                className="w-full py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-all shadow-md flex items-center justify-center gap-2"
+              >
+                <FaCheckCircle size={14} /> Complete Delivery
+              </button>
+            )}
+          </div>
         )}
         <button onClick={() => setSelectedJob(job)} className="w-full py-2.5 border border-gray-200 text-gray-600 text-sm font-normal rounded-lg hover:border-green-300 hover:text-green-600 flex items-center justify-center gap-2 transition-all mt-3">
           <FaEye size={14} /> View Manifest
@@ -661,6 +793,15 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
           })}
         </div>
 
+        {activeTab === 'active' && filteredJobs.length > 0 && (
+          <div className="mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
+            <MissionMap 
+              mission={filteredJobs.find(j => j.mission_number === trackingMissionId) || filteredJobs[0]} 
+              currentLoc={currentLocation} 
+            />
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {loading ? (
             <div className="col-span-full py-20 text-center">
@@ -681,6 +822,12 @@ const DeliveryJobs = ({ searchQuery: externalSearchQuery, onSearchChange, onNavi
       </div>
 
       {selectedJob && <DetailModal job={selectedJob} onClose={() => setSelectedJob(null)} />}
+      <ProfileModal
+        isOpen={profileModal.isOpen}
+        onClose={() => setProfileModal({ ...profileModal, isOpen: false })}
+        data={profileModal.data}
+        title={profileModal.title}
+      />
 
       <style jsx>{`
         @keyframes modalEntry {

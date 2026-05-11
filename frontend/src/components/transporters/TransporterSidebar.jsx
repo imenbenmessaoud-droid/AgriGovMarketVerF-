@@ -28,7 +28,7 @@ const TransporterSidebar = ({ activeTab, onTabChange }) => {
   };
 
   return (
-    <aside className="w-56 bg-[#0f172a] text-white flex flex-col h-screen sticky top-0 shadow-2xl border-r border-white/5 font-sans transition-all duration-300 overflow-hidden relative">
+    <aside className="hidden md:flex w-56 bg-[#0f172a] text-white flex-col h-screen sticky top-0 shadow-2xl border-r border-white/5 font-sans transition-all duration-300 overflow-hidden relative">
       {/* Background Image with Overlay */}
       <div
         className="absolute inset-0 z-0 opacity-60 bg-cover bg-center"
@@ -71,15 +71,7 @@ const TransporterSidebar = ({ activeTab, onTabChange }) => {
               </button>
             ))}
 
-            <button
-              onClick={() => navigate('/messaging')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-300 group text-white/60 hover:text-white hover:bg-white/5 font-normal`}
-            >
-              <span className="text-white/40 group-hover:text-white">
-                <FaComments size={18} />
-              </span>
-              <span className="text-[13.5px]">Messages</span>
-            </button>
+
           </nav>
         </div>
 

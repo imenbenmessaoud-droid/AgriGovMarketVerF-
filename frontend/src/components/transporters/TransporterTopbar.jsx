@@ -18,7 +18,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 
-const TransporterTopbar = ({ searchQuery, onSearchChange, activeTab, onToggleSidebar }) => {
+const TransporterTopbar = ({ searchQuery, onSearchChange, activeTab, onToggleSidebar, isOnline, onToggleOnline }) => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isAccountSidebarOpen, setIsAccountSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -121,6 +121,19 @@ const TransporterTopbar = ({ searchQuery, onSearchChange, activeTab, onToggleSid
       </div>
 
       <div className="flex items-center gap-3">
+        {/* Go Online Toggle */}
+        <div className="hidden sm:flex items-center gap-2 mr-2">
+          <span className={`text-[10px] font-bold uppercase tracking-widest ${isOnline ? 'text-green-600' : 'text-gray-400'}`}>
+            {isOnline ? 'Online' : 'Offline'}
+          </span>
+          <button
+            onClick={onToggleOnline}
+            className={`w-10 h-5 rounded-full relative transition-all duration-300 ${isOnline ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.4)]' : 'bg-gray-300'}`}
+          >
+            <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-all duration-300 ${isOnline ? 'translate-x-5' : 'translate-x-0'}`} />
+          </button>
+        </div>
+
         {/* Notifications Dropdown */}
         <div className="relative" ref={notificationsRef}>
           <button

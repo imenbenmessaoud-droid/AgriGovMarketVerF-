@@ -1,7 +1,8 @@
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const api = axios.create({
-    baseURL: 'http://localhost:8000/api/',
+    baseURL: `http://${window.location.hostname}:8000/api/`,
     headers: {
         'Content-Type': 'application/json',
     },
@@ -27,6 +28,11 @@ api.interceptors.response.use(
         return response;
     },
     (error) => {
+        if (!error.response) {
+            toast.error('Network error. You might be offline or rural signal is weak.', {
+                id: 'network-error',
+            });
+        }
         if (error.response && error.response.status === 401) {
             // Uncomment if you wish to auto-logout on unauthorized
             // localStorage.removeItem('token');

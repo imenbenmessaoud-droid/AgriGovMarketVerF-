@@ -3,13 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
 import { FaMoneyBillWave, FaTruck, FaGasPump, FaRoute, FaCheckCircle, FaWallet, FaChartLine, FaDownload, FaFilter, FaCalendarAlt, FaUser, FaBoxOpen, FaChevronDown } from 'react-icons/fa';
 import api from '../../services/api';
+import MissionMap from './MissionMap';
 
-const Earnings = ({ onNavigate }) => {
+const Earnings = ({ onNavigate, currentLocation, activeMissions: externalMissions }) => {
   const navigate = useNavigate();
-  const [activeMissions, setActiveMissions] = useState([]);
+  const [activeMissions, setActiveMissions] = useState(externalMissions || []);
   const [regionData, setRegionData] = useState([]);
   const [balance, setBalance] = useState(0);
   const [availableMissionsCount, setAvailableMissionsCount] = useState(0);
+
+  useEffect(() => {
+    if (externalMissions) setActiveMissions(externalMissions);
+  }, [externalMissions]);
 
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState({ title: '', subtitle: '' });
@@ -326,6 +331,7 @@ const Earnings = ({ onNavigate }) => {
             </div>
           </div>
         </div>
+        
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
@@ -365,6 +371,15 @@ const Earnings = ({ onNavigate }) => {
           })}
         </div>
 
+        {/* Active Mission Tracking Map */}
+        {activeMissions.some(m => ['assigned', 'in_transit', 'picked_up', 'out_for_delivery'].includes(m.delivery_status)) && (
+          <div className="mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
+            <MissionMap 
+              mission={activeMissions.find(m => ['assigned', 'in_transit', 'picked_up', 'out_for_delivery'].includes(m.delivery_status))} 
+              currentLoc={currentLocation} 
+            />
+          </div>
+        )}
 
         {/* Chart Section with Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-12">

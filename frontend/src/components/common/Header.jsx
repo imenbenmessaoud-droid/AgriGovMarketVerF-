@@ -61,6 +61,8 @@ const Header = () => {
         navigate('/ministry/users');
       } else if (isFarmerPath) {
         navigate('/farmer/dashboard');
+      } else if (isBuyerPath) {
+        navigate('/buyer/orders');
       }
     } catch (error) {
       console.error('Error handling notification click:', error);
@@ -78,12 +80,12 @@ const Header = () => {
 
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
-  const isBuyerPath = location.pathname.startsWith('/buyer');
+  const isBuyerPath = location.pathname.startsWith('/buyer') && (location.pathname !== '/buyer/products' || isLoggedIn);
   const isTransporterPath = location.pathname.startsWith('/transporter');
   const isMinistryPath = location.pathname.startsWith('/ministry');
   const isFarmerPath = location.pathname.startsWith('/farmer');
 
-  const isPublicPage = location.pathname === '/' || location.pathname === '/about' || location.pathname === '/contact' || location.pathname === '/login' || location.pathname === '/register';
+  const isPublicPage = !isLoggedIn && (location.pathname === '/' || location.pathname === '/about' || location.pathname === '/contact' || location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/buyer/products');
   const isHome = location.pathname === '/';
 
   // Dynamic colors based on path
@@ -113,14 +115,12 @@ const Header = () => {
     { name: 'Dashboard', path: '/buyer' },
     { name: 'Products', path: '/buyer/products' },
     { name: 'My Orders', path: '/buyer/orders' },
-    { name: 'Messages', path: '/messaging' },
   ];
 
   const transporterTabs = [
     { name: 'Overview', path: '/transporter' },
     { name: 'My Delivery', path: '/transporter/hub' },
     { name: 'Fleet', path: '/transporter/fleet' },
-    { name: 'Messages', path: '/messaging' },
   ];
 
   const ministryTabs = [
@@ -129,7 +129,6 @@ const Header = () => {
     { name: 'Categories', path: '/ministry/categories' },
     { name: 'Prices', path: '/ministry/prices' },
     { name: 'Reports', path: '/ministry/reports' },
-    { name: 'Messages', path: '/messaging' },
   ];
 
   const farmerTabs = [
@@ -138,7 +137,6 @@ const Header = () => {
     { name: 'Orders', path: '/farmer/orders' },
     { name: 'Statistics', path: '/farmer/sales' },
     { name: 'Farms', path: '/farmer/farms' },
-    { name: 'Messages', path: '/messaging' },
   ];
 
   const { cart, cartCount, toggleCart, isCartOpen, removeFromCart, updateQuantity, cartSubtotal } = useCart();
@@ -146,7 +144,7 @@ const Header = () => {
   const navItems = isFarmerPath ? farmerTabs : isBuyerPath ? buyerTabs : isTransporterPath ? transporterTabs : isMinistryPath ? ministryTabs : [
     { name: 'Home', path: '/' },
     { name: 'About', path: '/about' },
-    { name: 'Products', path: '/buyer' },
+    { name: 'Products', path: '/buyer/products' },
     { name: 'Contact', path: '/contact' },
   ];
 
@@ -169,6 +167,7 @@ const Header = () => {
   const handleLogout = () => {
     logout();
     setIsSidebarOpen(false);
+    setIsMobileMenuOpen(false);
     navigate('/');
   };
 
@@ -247,7 +246,7 @@ const Header = () => {
               </button>
             )}
 
-            {(isTransporterPath || isMinistryPath || isFarmerPath) && (
+            {(isTransporterPath || isMinistryPath || isFarmerPath || isBuyerPath) && (
               <div className="relative">
                 <button
                   onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
@@ -285,11 +284,13 @@ const Header = () => {
                             <div className="flex gap-3">
                               <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${notif.notification_type === 'delivery' ? 'bg-blue-100 text-blue-600' :
                                 notif.notification_type === 'registration' ? 'bg-green-100 text-green-600' :
-                                  notif.notification_type === 'status' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'
+                                  notif.notification_type === 'order' ? 'bg-emerald-100 text-emerald-600' :
+                                    notif.notification_type === 'status' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'
                                 }`}>
                                 {notif.notification_type === 'delivery' ? <FaBox size={14} /> :
                                   notif.notification_type === 'registration' ? <FaUserCircle size={14} /> :
-                                    notif.notification_type === 'status' ? <FaBox size={14} /> : <FaBell size={14} />}
+                                    notif.notification_type === 'order' ? <FaBox size={14} /> :
+                                      notif.notification_type === 'status' ? <FaBox size={14} /> : <FaBell size={14} />}
                               </div>
                               <div className="flex-1">
                                 <p className="text-xs font-normal text-gray-800">{notif.title}</p>
@@ -313,7 +314,7 @@ const Header = () => {
                     </div>
                     <div className="p-3 bg-gray-50 text-center border-t border-gray-100">
                       <button
-                        onClick={() => navigate(isTransporterPath ? '/transporter/hub' : isMinistryPath ? '/ministry/users' : isFarmerPath ? '/farmer/dashboard' : '/notifications')}
+                        onClick={() => navigate(isTransporterPath ? '/transporter/hub' : isMinistryPath ? '/ministry/users' : isFarmerPath ? '/farmer/dashboard' : isBuyerPath ? '/buyer/orders' : '/notifications')}
                         className="text-[11px] text-gray-600 font-normal hover:text-gray-800 transition-colors"
                       >
                         View All Notifications

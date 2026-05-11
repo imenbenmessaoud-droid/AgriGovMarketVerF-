@@ -26,7 +26,7 @@ const FarmerSidebar = ({ isVisible }) => {
     { id: 'orders', name: 'Orders', icon: <FaClipboardList size={18} />, path: '/farmer/orders' },
     { id: 'statistics', name: 'Statistics', icon: <MdBarChart size={20} />, path: '/farmer/sales' },
     { id: 'farms', name: 'Farms', icon: <FaTractor size={18} />, path: '/farmer/farms' },
-    { id: 'messaging', name: 'Messages', icon: <FaComments size={18} />, path: '/messaging' },
+
   ];
 
   const bottomItems = [
@@ -42,7 +42,7 @@ const FarmerSidebar = ({ isVisible }) => {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <aside className={`w-60 bg-[#062C1D] text-white flex flex-col h-screen sticky top-0 font-sans overflow-hidden relative transition-all duration-300 ease-in-out ${isVisible ? 'translate-x-0' : '-translate-x-full'}`}>
+    <aside className={`hidden md:flex w-60 bg-[#062C1D] text-white flex-col h-screen sticky top-0 font-sans overflow-hidden relative transition-all duration-300 ease-in-out ${isVisible ? 'translate-x-0' : '-translate-x-full'}`}>
       {/* Background Image with Overlay */}
       <div 
         className="absolute inset-0 z-0 opacity-80 bg-cover bg-center"

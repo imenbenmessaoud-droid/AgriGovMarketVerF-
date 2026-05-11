@@ -26,6 +26,7 @@ const FarmerOrders = () => {
   const [loading, setLoading] = useState(true);
   const [loadingId, setLoadingId] = useState(null);
   const [profileModal, setProfileModal] = useState({ isOpen: false, data: null, title: '' });
+  const [detailsModal, setDetailsModal] = useState({ isOpen: false, data: null });
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -128,12 +129,11 @@ const FarmerOrders = () => {
     if (!isOpen || !data) return null;
 
     return (
-      <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fadeIn">
-        <div className="bg-white rounded-[1.25rem] shadow-2xl max-w-[380px] w-full overflow-hidden animate-scaleUp border border-gray-100 relative">
-          {/* Header */}
-          <div className="p-5 flex items-center justify-between border-b border-gray-100">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-gray-50 bg-gray-50 flex items-center justify-center shrink-0">
+      <div className="fixed inset-0 z-[1100] flex items-center justify-center p-4 bg-black/30 backdrop-blur-[2px] animate-fadeIn">
+        <div className="bg-white rounded-[1.5rem] shadow-2xl max-w-[330px] w-full overflow-hidden animate-scaleUp border border-gray-100 relative">
+          <div className="p-5 flex items-center justify-between border-b border-gray-50">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full overflow-hidden border border-gray-50 bg-gray-50 flex items-center justify-center shrink-0 shadow-sm">
                 {data.avatar ? (
                   <img src={data.avatar} alt={data.name} className="w-full h-full object-cover" />
                 ) : (
@@ -141,33 +141,233 @@ const FarmerOrders = () => {
                 )}
               </div>
               <div>
-                <h3 className="text-xl font-normal text-gray-900">{title}</h3>
-                <p className="text-sm text-gray-400 font-normal">{data.name}</p>
+                <h3 className="text-base font-normal text-gray-900 tracking-tight">{title}</h3>
+                <p className="text-xs text-gray-400 font-normal">{data.name}</p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-50 transition-all"
+              className="p-1.5 text-gray-300 hover:text-gray-500 rounded-full hover:bg-gray-50 transition-all"
             >
               <FaTimes size={18} />
             </button>
           </div>
 
-          {/* Details */}
           <div className="p-6 space-y-6">
             <div className="space-y-1">
-              <p className="text-[10px] text-gray-400 uppercase font-normal tracking-widest">Phone Number</p>
-              <p className="text-base font-normal text-gray-900">{data.phone || 'Not available'}</p>
+              <p className="text-[8px] text-gray-400 uppercase font-medium tracking-[0.2em]">Phone Number</p>
+              <p className="text-lg font-normal text-gray-900 tracking-tight">{data.phone || 'Not available'}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-[8px] text-gray-400 uppercase font-medium tracking-[0.2em]">Email Address</p>
+              <p className="text-sm font-normal text-gray-900 truncate">{data.email || 'Not available'}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-[8px] text-gray-400 uppercase font-medium tracking-[0.2em]">Home Address</p>
+              <p className="text-sm font-normal text-gray-900 leading-relaxed">{data.address || 'Not available'}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const OrderDetailsModal = ({ isOpen, onClose, order }) => {
+    if (!isOpen || !order) return null;
+
+    const currentStatus = order.tracking_info?.status || (order.order_status === 'confirmed' ? 'confirmed' : 'pending');
+
+    const timelineSteps = [
+      { 
+        label: 'Order Pending', 
+        status: 'pending', 
+        description: 'Your order is pending confirmation.', 
+        icon: FaClock, 
+        color: 'text-orange-500', 
+        bgColor: 'bg-orange-50' 
+      },
+      { 
+        label: 'Order Confirmed', 
+        status: 'confirmed', 
+        description: 'Your order has been received and verified.', 
+        icon: FaCheckCircle, 
+        color: 'text-emerald-500', 
+        bgColor: 'bg-emerald-50' 
+      },
+      { 
+        label: 'On Shipping', 
+        status: 'in_transit', 
+        description: 'Your package has been picked up by our transport partner.', 
+        icon: FaTruck, 
+        color: 'text-blue-500', 
+        bgColor: 'bg-blue-50' 
+      },
+      { 
+        label: 'Delivered', 
+        status: 'delivered', 
+        description: 'Your order has been successfully delivered.', 
+        icon: FaBoxOpen, 
+        color: 'text-green-600', 
+        bgColor: 'bg-green-50' 
+      }
+    ];
+
+    // Determine the highest active index
+    const activeIndex = timelineSteps.findIndex(step => step.status === currentStatus);
+    const displayedSteps = timelineSteps.slice(0, Math.max(activeIndex + 1, order.order_status === 'pending' ? 1 : 2));
+
+    return (
+      <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fadeIn">
+        <div className="bg-white rounded-[1.5rem] shadow-2xl max-w-xl w-full max-h-[90vh] overflow-hidden animate-scaleUp border border-gray-100 flex flex-col">
+          {/* Header */}
+          <div className="p-6 border-b border-gray-50 flex items-center justify-between bg-white sticky top-0 z-10">
+            <div>
+              <h3 className="text-xl font-normal text-gray-900">Order Details</h3>
+              <p className="text-xs text-gray-400 font-normal mt-1">#ORD-{order.order_number}</p>
+            </div>
+            <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 transition-all">
+              <FaTimes size={20} />
+            </button>
+          </div>
+
+          <div className="flex-grow overflow-y-auto p-6 hide-scrollbar space-y-8">
+            {/* Info Section: Buyer & Transporter */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Buyer */}
+              <div className="space-y-3">
+                <h4 className="text-[10px] uppercase tracking-widest text-gray-400 font-normal">Buyer Details</h4>
+                <div 
+                  onClick={() => setProfileModal({
+                    isOpen: true,
+                    title: 'Verified Buyer',
+                    data: {
+                      name: order.buyer_name,
+                      phone: order.buyer_phone,
+                      email: order.buyer_email,
+                      avatar: order.buyer_avatar,
+                      address: order.buyer_address
+                    }
+                  })}
+                  className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-1 -m-1 rounded-lg transition-all"
+                >
+                  <div className="w-10 h-10 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden shrink-0">
+                    {order.buyer_avatar ? <img src={order.buyer_avatar} className="w-full h-full object-cover" /> : <FaUserCircle className="text-gray-200" size={24} />}
+                  </div>
+                  <div>
+                    <p className="text-sm font-normal text-gray-800 group-hover:text-green-700">{order.buyer_name}</p>
+                    <p className="text-[10px] text-gray-400 font-normal line-clamp-1">{order.delivery_address || 'Farm Pickup'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Transporter */}
+              <div className="space-y-3">
+                <h4 className="text-[10px] uppercase tracking-widest text-gray-400 font-normal">Logistics Partner</h4>
+                {order.tracking_info ? (
+                  <div 
+                    onClick={() => setProfileModal({
+                      isOpen: true,
+                      title: 'Verified Transporter',
+                      data: {
+                        name: order.tracking_info.transporter_name,
+                        phone: order.tracking_info.transporter_phone,
+                        email: order.tracking_info.transporter_email,
+                        avatar: order.tracking_info.transporter_avatar,
+                        address: order.tracking_info.transporter_address
+                      }
+                    })}
+                    className="flex items-center gap-3 cursor-pointer hover:bg-emerald-50 p-1 -m-1 rounded-lg transition-all"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center overflow-hidden shrink-0">
+                      {order.tracking_info.transporter_avatar ? <img src={order.tracking_info.transporter_avatar} className="w-full h-full object-cover" /> : <FaTruck className="text-emerald-500" size={18} />}
+                    </div>
+                    <div>
+                      <p className="text-sm font-normal text-gray-800">{order.tracking_info.transporter_name}</p>
+                      <p className="text-[10px] text-emerald-600 font-normal">Assigned • {order.tracking_info.transporter_phone}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3 opacity-60">
+                    <div className="w-10 h-10 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">
+                      <FaTruck className="text-gray-300" size={18} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-normal text-gray-400 italic">Awaiting Logistics</p>
+                      <p className="text-[10px] text-gray-300 font-normal">Transporter not assigned yet</p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
-            <div className="space-y-1">
-              <p className="text-[10px] text-gray-400 uppercase font-normal tracking-widest">Email Address</p>
-              <p className="text-base font-normal text-gray-900">{data.email || 'Not available'}</p>
+            <hr className="border-gray-50" />
+
+            {/* Items Summary */}
+            <div className="space-y-4">
+              <h4 className="text-[10px] uppercase tracking-widest text-gray-400 font-normal">Items Summary</h4>
+              <div className="space-y-4">
+                {order.items?.map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between group">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden shrink-0 group-hover:border-emerald-200 transition-colors">
+                        {item.product_image ? (
+                          <img src={item.product_image} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-gray-50 flex items-center justify-center">
+                            <FaBoxOpen className="text-gray-200" size={24} />
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-sm font-normal text-gray-900 group-hover:text-emerald-700 transition-colors">{item.product_name_snapshot}</p>
+                        <p className="text-[10px] text-gray-400 font-normal">X{item.quantity_item} {item.quantity_unit || 'KG'} • {item.price_item?.toLocaleString()} DA</p>
+                      </div>
+                    </div>
+                    <p className="text-sm font-normal text-gray-900">{item.sub_total_item?.toLocaleString()} DA</p>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="space-y-1">
-              <p className="text-[10px] text-gray-400 uppercase font-normal tracking-widest">Home Address</p>
-              <p className="text-base font-normal text-gray-900 leading-relaxed">{data.address || 'Not available'}</p>
+            <hr className="border-gray-50" />
+
+            {/* Tracking Timeline */}
+            <div className="space-y-6">
+              <h4 className="text-[10px] uppercase tracking-widest text-gray-400 font-normal">Tracking Timeline</h4>
+              <div className="space-y-8 relative">
+                {/* Vertical Line */}
+                <div className="absolute left-[18px] top-2 bottom-2 w-[2px] bg-gray-50"></div>
+                
+                {displayedSteps.map((step, index) => {
+                  const Icon = step.icon;
+                  const isActive = step.status === currentStatus;
+                  return (
+                    <div key={index} className="flex justify-between items-start relative z-10">
+                      <div className="flex gap-4">
+                        <div className={`w-9 h-9 rounded-full flex items-center justify-center border-2 border-white shadow-sm ${isActive || index < activeIndex ? step.bgColor + ' ' + step.color : 'bg-gray-50 text-gray-300'}`}>
+                          <Icon size={16} />
+                        </div>
+                        <div>
+                          <p className={`text-sm font-normal ${isActive || index < activeIndex ? step.color : 'text-gray-400'}`}>{step.label}</p>
+                          <p className="text-[10px] text-gray-400 font-normal mt-0.5">{step.description}</p>
+                        </div>
+                      </div>
+                      <p className="text-[10px] text-gray-300 font-normal pt-1">{new Date(order.order_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="p-6 border-t border-gray-50 bg-white flex items-center justify-between sticky bottom-0">
+            <div>
+              <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-1">Total Amount</p>
+              <p className="text-2xl font-normal text-emerald-600">{order.total_amount?.toLocaleString()} <span className="text-sm font-normal">DA</span></p>
+            </div>
+            <div className="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-full text-[10px] font-normal uppercase tracking-widest border border-emerald-100">
+              Secure Transaction
             </div>
           </div>
         </div>
@@ -351,28 +551,38 @@ const FarmerOrders = () => {
                     <p className="text-2xl font-normal text-gray-900">{order.total_amount?.toLocaleString()} <span className="text-xs font-normal text-gray-400">DZD</span></p>
                   </div>
 
-                  {order.order_status === 'pending' && (
-                    <div className="flex gap-2 w-full lg:w-auto">
-                      <button
-                        onClick={() => handleAccept(order.order_number)}
-                        disabled={loadingId === order.order_number}
-                        className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-normal hover:bg-green-700 transition-colors shadow-sm flex items-center justify-center min-w-[100px]"
-                      >
-                        {loadingId === order.order_number ? <FaSpinner className="animate-spin" /> : 'Accept'}
-                      </button>
-                      <button
-                        onClick={() => handleRefuse(order.order_number)}
-                        disabled={loadingId === order.order_number}
-                        className="flex-1 bg-white border border-red-200 text-red-600 px-4 py-2 rounded-lg text-sm font-normal hover:bg-red-50 transition-colors flex items-center justify-center min-w-[100px]"
-                      >
-                        {loadingId === order.order_number ? <FaSpinner className="animate-spin" /> : 'Refuse'}
-                      </button>
-                    </div>
-                  )}
+                  <div className="flex flex-wrap gap-2 w-full lg:w-auto justify-end">
+                    <button
+                      onClick={() => setDetailsModal({ isOpen: true, data: order })}
+                      className="bg-gray-50 border border-gray-100 text-gray-600 px-3 py-1.5 rounded-lg text-[11px] font-normal hover:bg-gray-100 hover:text-gray-900 transition-all flex items-center justify-center gap-2 min-w-[100px]"
+                    >
+                      <FaClipboardList size={12} />
+                      View Details
+                    </button>
+
+                    {order.order_status === 'pending' && (
+                      <>
+                        <button
+                          onClick={() => handleAccept(order.order_number)}
+                          disabled={loadingId === order.order_number}
+                          className="bg-green-600 text-white px-3 py-1.5 rounded-lg text-[11px] font-normal hover:bg-green-700 transition-colors shadow-sm flex items-center justify-center min-w-[80px]"
+                        >
+                          {loadingId === order.order_number ? <FaSpinner className="animate-spin" /> : 'Accept'}
+                        </button>
+                        <button
+                          onClick={() => handleRefuse(order.order_number)}
+                          disabled={loadingId === order.order_number}
+                          className="bg-white border border-red-200 text-red-600 px-3 py-1.5 rounded-lg text-[11px] font-normal hover:bg-red-50 transition-colors flex items-center justify-center min-w-[80px]"
+                        >
+                          {loadingId === order.order_number ? <FaSpinner className="animate-spin" /> : 'Refuse'}
+                        </button>
+                      </>
+                    )}
+                  </div>
                   {order.order_status === 'confirmed' && (
-                    <div className="flex items-center gap-2 text-green-600 bg-green-50 px-3 py-1.5 rounded-lg text-xs font-normal border border-green-100">
+                    <div className="flex items-center gap-2 text-green-600 bg-green-50 px-3 py-1.5 rounded-lg text-xs font-normal border border-green-100 mt-1">
                       <FaTruck size={12} />
-                      Awaiting Logistics
+                      {order.tracking_info?.status || 'Awaiting Logistics'}
                     </div>
                   )}
                 </div>
@@ -431,11 +641,19 @@ const FarmerOrders = () => {
         title={profileModal.title}
       />
 
+      <OrderDetailsModal
+        isOpen={detailsModal.isOpen}
+        onClose={() => setDetailsModal({ ...detailsModal, isOpen: false })}
+        order={detailsModal.data}
+      />
+
       <style>{`
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .animate-fadeIn { animation: fadeIn 0.2s ease-out; }
         .animate-scaleUp { animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
     </div>
   );

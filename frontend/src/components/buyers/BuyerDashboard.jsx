@@ -8,6 +8,7 @@ import {
   FaClock, FaCheckCircle, FaWallet
 } from 'react-icons/fa';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 import OrderHistory from './OrderHistory';
 import BuyerOverview from './BuyerOverview';
@@ -44,17 +45,18 @@ const BuyerDashboard = () => {
   const [sortBy, setSortBy] = useState('Default');
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
+  const { isLoggedIn } = useAuth();
+
   // Fetch products and categories from backend
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       setError(null);
       try {
-        const [itemsRes, catsRes, statsRes, ordersRes] = await Promise.all([
+        // Fetch public data first
+        const [itemsRes, catsRes] = await Promise.all([
           api.get('products/product-items/available/'),
-          api.get('products/categories/'),
-          api.get('orders/orders/statistics/'),
-          api.get('orders/orders/my_orders/')
+          api.get('products/categories/')
         ]);
         setProducts(itemsRes.data.results || itemsRes.data);
         const rawCats = catsRes.data.results || catsRes.data;
@@ -62,25 +64,41 @@ const BuyerDashboard = () => {
           { id_category: 'all', category_name: 'All Products' },
           ...rawCats
         ]);
-        setDashboardStats(statsRes.data);
-        setMyOrders(ordersRes.data);
+
+        // Fetch private data only if logged in
+        if (isLoggedIn) {
+          try {
+            const [statsRes, ordersRes] = await Promise.all([
+              api.get('orders/orders/statistics/'),
+              api.get('orders/orders/my_orders/')
+            ]);
+            setDashboardStats(statsRes.data);
+            setMyOrders(ordersRes.data);
+          } catch (privateErr) {
+            console.error('Failed to load private dashboard data:', privateErr);
+          }
+        }
       } catch (err) {
-        console.error('Failed to load dashboard data:', err);
-        setError('Failed to load dashboard data. Make sure the backend is running.');
+        console.error('Failed to load products data:', err);
+        setError('Failed to load products. Make sure the backend is running.');
       } finally {
         setLoading(false);
       }
     };
     fetchData();
-  }, []);
+  }, [isLoggedIn]);
 
   useEffect(() => {
     const path = location.pathname;
+    if ((path === '/buyer' || path === '/buyer/') && !isLoggedIn) {
+      navigate('/');
+      return;
+    }
     if (path === '/buyer' || path === '/buyer/') setActiveTab('overview');
     else if (path.includes('/products')) setActiveTab('products');
     else if (path.includes('/orders')) setActiveTab('orders');
     else setActiveTab('overview');
-  }, [location.pathname]);
+  }, [location.pathname, isLoggedIn]);
 
   const applyPriceFilter = () => {
     setPriceRange({
@@ -157,18 +175,19 @@ const BuyerDashboard = () => {
           </span>
           <div className="flex items-center gap-0.5">{renderStars(getRatingFromQuality(product.product_quality))}</div>
         </div>
-        <h3 className="text-sm text-gray-900 mb-1 line-clamp-1 leading-tight">
+        <h3 className="text-sm text-gray-900 mb-1 line-clamp-1 leading-tight font-medium">
           {product.product_name}
         </h3>
-        <p className="text-[10px] text-gray-500 flex items-center gap-1 mb-2">
-          <FaMapMarkerAlt className="text-green-500 opacity-70" size={8} />
-          {product.farmer_name || 'Farmer'}
-        </p>
-        <div className="mt-auto pt-2 border-t border-gray-50">
-          <div className="text-sm text-gray-900 mb-2">
-            {product.product_price}
-            <span className="text-[10px] font-normal text-gray-400 ml-0.5">DZD</span>
+        <div className="flex justify-between items-center mb-2">
+          <p className="text-[10px] text-gray-500 flex items-center gap-1">
+            <FaMapMarkerAlt className="text-green-500 opacity-70" size={8} />
+            {product.farmer_name || 'Farmer'}
+          </p>
+          <div className="text-sm font-normal text-green-600 bg-green-50 px-2 py-0.5 rounded">
+            {product.product_price} <span className="text-[10px] font-normal text-gray-400">DZD</span>
           </div>
+        </div>
+        <div className="mt-auto pt-2 border-t border-gray-50">
           <div className="flex gap-2">
             <button
               onClick={(e) => { e.stopPropagation(); setSelectedProduct(product); }}

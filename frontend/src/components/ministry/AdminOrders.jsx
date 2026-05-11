@@ -6,7 +6,6 @@ import {
 } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-import { messagingService } from '../../services/messagingService';
 
 const AdminOrders = () => {
   const navigate = useNavigate();
@@ -17,19 +16,6 @@ const AdminOrders = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [profileModal, setProfileModal] = useState({ isOpen: false, data: null, title: '' });
   const [chatLoading, setChatLoading] = useState(false);
-
-  const handleStartChat = async (participantId) => {
-    if (!participantId) return;
-    setChatLoading(true);
-    try {
-      await messagingService.startConversation(participantId);
-      navigate('/messaging');
-    } catch (error) {
-      console.error("Error starting chat:", error);
-    } finally {
-      setChatLoading(false);
-    }
-  };
 
   useEffect(() => {
     fetchOrders();
@@ -113,16 +99,6 @@ const AdminOrders = () => {
             <div>
               <p className="text-[9px] text-gray-400 uppercase tracking-widest font-medium mb-1">Home Address</p>
               <p className="text-sm font-normal text-black">{data.address || 'Not available'}</p>
-            </div>
-
-            <div className="pt-2">
-              <button 
-                onClick={() => handleStartChat(data.id)}
-                className="w-full flex items-center justify-center gap-2 bg-green-700 text-white py-2 rounded-lg text-sm font-normal hover:bg-green-800 transition shadow-sm"
-              >
-                <FaComments size={14} />
-                Open Chat Session
-              </button>
             </div>
           </div>
         </div>

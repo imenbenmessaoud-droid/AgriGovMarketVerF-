@@ -68,7 +68,11 @@ const FarmerTopBar = ({ searchQuery, onSearchChange, toggleSidebar }) => {
         fetchNotifications();
       }
       setIsNotificationsOpen(false);
-      navigate('/farmer/dashboard');
+      if (notif.notification_type === 'order') {
+        navigate('/farmer/orders');
+      } else {
+        navigate('/farmer/dashboard');
+      }
     } catch (error) {
       console.error('Error handling notification click:', error);
     }
@@ -173,13 +177,16 @@ const FarmerTopBar = ({ searchQuery, onSearchChange, toggleSidebar }) => {
                       className={`p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer ${!notif.is_read ? 'bg-green-50/30' : ''}`}
                     >
                       <div className="flex gap-3">
-                        <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${notif.notification_type === 'delivery' ? 'bg-blue-100 text-blue-600' :
+                        <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${
+                          notif.notification_type === 'delivery' ? 'bg-blue-100 text-blue-600' :
                           notif.notification_type === 'registration' ? 'bg-green-100 text-green-600' :
-                            notif.notification_type === 'status' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'
-                          }`}>
+                          notif.notification_type === 'order' ? 'bg-emerald-100 text-emerald-600' :
+                          notif.notification_type === 'status' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'
+                        }`}>
                           {notif.notification_type === 'delivery' ? <FaBox size={14} /> :
                             notif.notification_type === 'registration' ? <FaUserCircle size={14} /> :
-                              notif.notification_type === 'status' ? <FaBox size={14} /> : <FaBell size={14} />}
+                              notif.notification_type === 'order' ? <FaBox size={14} /> :
+                                notif.notification_type === 'status' ? <FaBox size={14} /> : <FaBell size={14} />}
                         </div>
                         <div className="flex-1">
                           <p className="text-xs font-normal text-gray-800">{notif.title}</p>
