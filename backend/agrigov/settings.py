@@ -1,4 +1,5 @@
 # apps/agrigov/settings.py - Server Heartbeat for Correct Venv Refresh
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -120,6 +121,6 @@ DEFAULT_FROM_EMAIL = 'no-reply@agrisouk.dz'
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
 
 # Groq AI Settings
-GROQ_API_KEY = "REMOVED_SECRET"
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 GROQ_MODEL = "llama-3.3-70b-versatile"
