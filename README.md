@@ -1,7 +1,7 @@
- # AgriGovMarket 🌱
+ # AgriSouk DZ🌱
 
 ## Overview
-AgriGovMarket is an agricultural marketplace application designed to connect farmers, buyers, and agricultural service providers through a modern digital platform. The application facilitates product management, communication, and smart agricultural services.
+AgriSouk DZ is an agricultural marketplace application designed to connect farmers, buyers, and agricultural service providers through a modern digital platform. The application facilitates product management, communication, and smart agricultural services.
 
 ---
 
