@@ -1,8 +1,10 @@
 # apps/agrigov/settings.py - Server Heartbeat for Correct Venv Refresh
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(os.path.join(BASE_DIR.parent, '.env'))
 
 SECRET_KEY = 'django-insecure-your-secret-key-here'
 
