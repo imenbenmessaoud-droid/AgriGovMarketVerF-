@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { IoChatbubbleEllipsesSharp, IoSend, IoClose, IoRemove } from 'react-icons/io5';
 import api from '../../services/api';
 import './ChatWidget.css';
 
 const ChatWidget = () => {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     { id: 1, text: "Hi 👋 I am your AgriSouk DZ assistant, how can I help you?", sender: 'bot' }
@@ -147,15 +149,15 @@ const ChatWidget = () => {
                         const label = btn.label.toLowerCase();
                         
                         if (action === 'browse_products' || action === 'market_prices' || label.includes('browse') || label.includes('price') || label.includes('shop')) {
-                          window.location.href = '/buyer';
+                          navigate('/buyer/products');
                         } else if (action === 'register' || action === 'register_farmer' || label.includes('account') || label.includes('register')) {
-                          window.location.href = '/register';
+                          navigate('/register');
                         } else if (action === 'login' || label.includes('login')) {
-                          window.location.href = '/login';
+                          navigate('/login');
                         } else if (action === 'contact_page' || label.includes('contact')) {
-                          window.location.href = '/contact';
+                          navigate('/contact');
                         } else if (action === 'how_it_works' || action === 'learn_more' || action === 'about_us' || label.includes('learn') || label.includes('how it works')) {
-                          window.location.href = '/about';
+                          navigate('/about');
                         } else {
                           // Default behavior: put text in input and submit
                           setInputValue(btn.label);

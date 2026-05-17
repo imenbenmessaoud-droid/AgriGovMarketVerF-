@@ -223,7 +223,7 @@ const About = () => {
         </p>
         <div className="flex justify-center gap-4">
           <Link to="/register" className="px-8 py-3 bg-gray-900 text-white rounded-full text-xs font-normal tracking-widest hover:bg-green-700 transition-all shadow-lg">JOIN NOW</Link>
-          <Link to="/buyer" className="px-8 py-3 border border-gray-200 text-gray-700 rounded-full text-xs font-normal tracking-widest hover:bg-gray-50 transition-all">BROWSE MARKET</Link>
+          <Link to="/buyer/products" className="px-8 py-3 border border-gray-200 text-gray-700 rounded-full text-xs font-normal tracking-widest hover:bg-gray-50 transition-all">BROWSE MARKET</Link>
         </div>
       </section>
 

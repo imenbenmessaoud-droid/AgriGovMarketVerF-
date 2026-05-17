@@ -60,7 +60,7 @@ const Cart = () => {
                   </div>
                   <p className="text-gray-400 font-normal mb-6">Your fresh harvest bag is empty</p>
                   <button
-                    onClick={() => navigate('/buyer')}
+                    onClick={() => navigate('/buyer/products')}
                     className="px-8 py-3 bg-gray-900 text-white rounded-xl text-sm font-normal hover:bg-green-600 transition-all shadow-lg active:scale-95"
                   >
                     Start Shopping
